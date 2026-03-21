@@ -3,7 +3,7 @@ import { z } from "zod";
 export const RiskLevel = z.enum(["LOW", "MEDIUM", "HIGH", "UNKNOWN"]);
 export type RiskLevel = z.infer<typeof RiskLevel>;
 
-// Each screening layer (BLAST, domain annotation, structure, etc.) will
+// Each screening layer (domain annotation, structure, etc.) will
 // append an entry here. Phase 0 has no layers — the model reasons from
 // training knowledge only.
 export const ScreeningLayer = z.object({
