@@ -11,9 +11,10 @@
 # env files
 .env*.local
 
-# cached predictions
+# cached predictions and databases
 /data/pdb/
 /data/foldseek/
+/data/diamond/
 
 # misc
 .DS_Store
