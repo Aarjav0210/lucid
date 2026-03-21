@@ -2,6 +2,7 @@ import { streamText } from "ai";
 import { model } from "@/lib/model";
 import { systemPrompt } from "@/lib/prompt";
 import { validateSequence, detectSequenceType } from "@/lib/validate";
+import { esmFoldPredict } from "@/lib/tools/esmfold-tool";
 import { runInterProScan, type InterProResult } from "@/lib/interpro";
 
 // InterPro searches can take several minutes
@@ -50,9 +51,15 @@ export async function POST(req: Request) {
     model,
     system: systemPrompt,
     messages: enrichedMessages,
+<<<<<<< HEAD
+    tools: { blastSearch, esmFoldPredict },
+    maxSteps: 5,
+    toolChoice: "required",
+=======
     onError: (error) => {
       console.error("streamText error:", error);
     },
+>>>>>>> main
   });
 
   return result.toDataStreamResponse();
