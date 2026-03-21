@@ -16,6 +16,9 @@
 /data/foldseek/
 /data/diamond/
 
+# domain cache
+/.domain-cache/
+
 # misc
 .DS_Store
 *.tsbuildinfo

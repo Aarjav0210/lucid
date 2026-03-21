@@ -1,3 +1,5 @@
+import { extractDomains, summarizeDomains, type ExtractedDomain, type InterProHit } from "./extract-domains";
+
 // ── Types ──────────────────────────────────────────────────────────────
 
 export interface InterProDomain {
@@ -17,12 +19,16 @@ export interface InterProResult {
   searchDuration: number;  // seconds
   domains: InterProDomain[];
   slices: DomainSlice[];
+  /** Non-overlapping domain segments for downstream tools (ESMFold, BLAST) */
+  extractedDomains: ExtractedDomain[];
 }
 
 export interface DomainSlice {
   domain: InterProDomain;
   sequence: string;        // subsequence extracted from original
 }
+
+export type { ExtractedDomain } from "./extract-domains";
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -94,9 +100,9 @@ async function getInterProResults(jobId: string): Promise<any> {
 // ── Result parsing ─────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseInterProResults(json: any, sequence: string): { domains: InterProDomain[]; slices: DomainSlice[] } {
+function parseInterProResults(json: any, sequence: string): { domains: InterProDomain[]; slices: DomainSlice[]; extractedDomains: ExtractedDomain[] } {
   const results = json?.results ?? [];
-  if (results.length === 0) return { domains: [], slices: [] };
+  if (results.length === 0) return { domains: [], slices: [], extractedDomains: [] };
 
   const matches = results[0]?.matches ?? [];
   const rawDomains: InterProDomain[] = [];
@@ -134,7 +140,18 @@ function parseInterProResults(json: any, sequence: string): { domains: InterProD
     sequence: sequence.slice(domain.start - 1, domain.end),
   }));
 
-  return { domains: deduped, slices };
+  // Build non-overlapping domain segments for downstream tools
+  const interproHits: InterProHit[] = deduped.map((d) => ({
+    signature: d.accession,
+    start: d.start,
+    end: d.end,
+    description: d.name,
+    type: d.type,
+  }));
+  const extracted = extractDomains(sequence, interproHits);
+  console.log(summarizeDomains(extracted));
+
+  return { domains: deduped, slices, extractedDomains: extracted };
 }
 
 function deduplicateDomains(domains: InterProDomain[]): InterProDomain[] {
@@ -212,6 +229,7 @@ export async function runInterProScan(sequence: string): Promise<InterProResult>
         searchDuration: duration,
         domains: [],
         slices: [],
+        extractedDomains: [],
       };
     }
 
@@ -222,12 +240,13 @@ export async function runInterProScan(sequence: string): Promise<InterProResult>
         searchDuration: duration,
         domains: [],
         slices: [],
+        extractedDomains: [],
       };
     }
 
     // 3. Retrieve and parse results
     const json = await getInterProResults(jobId);
-    const { domains, slices } = parseInterProResults(json, sequence);
+    const { domains, slices, extractedDomains } = parseInterProResults(json, sequence);
 
     console.log(`InterPro: found ${domains.length} domain(s) in ${duration}s`);
 
@@ -237,6 +256,7 @@ export async function runInterProScan(sequence: string): Promise<InterProResult>
         searchDuration: duration,
         domains: [],
         slices: [],
+        extractedDomains: [],
       };
     }
 
@@ -245,6 +265,7 @@ export async function runInterProScan(sequence: string): Promise<InterProResult>
       searchDuration: duration,
       domains,
       slices,
+      extractedDomains,
     };
   } catch (err) {
     const duration = Math.round((Date.now() - startTime) / 1000);
@@ -255,6 +276,7 @@ export async function runInterProScan(sequence: string): Promise<InterProResult>
       searchDuration: duration,
       domains: [],
       slices: [],
+      extractedDomains: [],
     };
   }
 }

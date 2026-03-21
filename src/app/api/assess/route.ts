@@ -4,6 +4,7 @@ import { systemPrompt } from "@/lib/prompt";
 import { validateSequence, detectSequenceType } from "@/lib/validate";
 import { esmFoldPredict } from "@/lib/tools/esmfold-tool";
 import { runInterProScan, type InterProResult } from "@/lib/interpro";
+import { cacheDomainSlices, getCachedDomainSlices } from "@/lib/domain-cache";
 
 // InterPro searches can take several minutes
 export const maxDuration = 600;
@@ -29,9 +30,48 @@ export async function POST(req: Request) {
   const seqType = detectSequenceType(validation.sequence);
 
   // For protein sequences, run InterPro domain scan before LLM
+  // Check cache first, then run scan if needed
   let interproContext = "";
   if (seqType === "protein") {
-    const interproResult: InterProResult = await runInterProScan(validation.sequence);
+    const cached = await getCachedDomainSlices(validation.sequence);
+    let interproResult: InterProResult;
+
+    if (cached) {
+      console.log(`Domain cache HIT — ${cached.slices.length} slice(s) from ${cached.timestamp}`);
+      interproResult = {
+        status: cached.status,
+        searchDuration: cached.searchDuration,
+        domains: cached.slices.map((s) => ({
+          accession: s.accession,
+          name: s.name,
+          type: s.type,
+          database: s.database,
+          start: s.start,
+          end: s.end,
+          evalue: s.evalue,
+          score: null,
+        })),
+        slices: cached.slices.map((s) => ({
+          domain: {
+            accession: s.accession,
+            name: s.name,
+            type: s.type,
+            database: s.database,
+            start: s.start,
+            end: s.end,
+            evalue: s.evalue,
+            score: null,
+          },
+          sequence: s.sequence,
+        })),
+        extractedDomains: cached.extractedDomains ?? [],
+      };
+    } else {
+      interproResult = await runInterProScan(validation.sequence);
+      // Cache the result for future lookups
+      await cacheDomainSlices(validation.sequence, interproResult);
+    }
+
     interproContext = formatInterProContext(interproResult);
   }
 
@@ -51,15 +91,12 @@ export async function POST(req: Request) {
     model,
     system: systemPrompt,
     messages: enrichedMessages,
-<<<<<<< HEAD
-    tools: { blastSearch, esmFoldPredict },
+    tools: { esmFoldPredict },
     maxSteps: 5,
-    toolChoice: "required",
-=======
+    toolChoice: "auto",
     onError: (error) => {
       console.error("streamText error:", error);
     },
->>>>>>> main
   });
 
   return result.toDataStreamResponse();

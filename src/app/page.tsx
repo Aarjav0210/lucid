@@ -212,7 +212,7 @@ export default function Home() {
                 href="#examples"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
-                Try Examples
+                Try Sample Orders
               </a>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function Home() {
       <section id="examples" className="border-b-4 border-bauhaus-black bg-bauhaus-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/60 mb-4">
-            Example Sequences
+            Sample Orders
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {exampleSequences.map((ex, i) => (
@@ -244,8 +244,8 @@ export default function Home() {
                 <span className="block font-bold uppercase tracking-wider text-sm">
                   {ex.name}
                 </span>
-                <span className="block mt-1 text-xs font-medium text-bauhaus-black/50 uppercase tracking-wider">
-                  {ex.expectedRisk} Risk
+                <span className="block mt-1 text-xs font-medium text-bauhaus-black/50 tracking-wider">
+                  {ex.description}
                 </span>
               </button>
             ))}

@@ -1,26 +1,23 @@
 export interface ExampleSequence {
   name: string;
   description: string;
-  expectedRisk: "LOW" | "MEDIUM" | "HIGH" | "UNKNOWN";
   sequence: string;
 }
 
 export const exampleSequences: ExampleSequence[] = [
   {
-    name: "GFP (Green Fluorescent Protein)",
-    description: "Aequorea victoria GFP — common lab reporter protein",
-    expectedRisk: "LOW",
-    sequence: `>GFP_Aequorea_victoria
+    name: "ORD-2024-0847",
+    description: "Customer synthesis order — protein sequence, 238 aa",
+    sequence: `>ORD-2024-0847
 MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTL
 VTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVN
 RIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHY
 QQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK`,
   },
   {
-    name: "Ricin A-chain",
-    description: "Ricinus communis ricin toxin A-chain — known select agent toxin",
-    expectedRisk: "HIGH",
-    sequence: `>Ricin_A_chain_Ricinus_communis
+    name: "SYN-00142",
+    description: "Customer synthesis order — protein sequence, 267 aa",
+    sequence: `>SYN-00142
 IFPKQYPIINFTTAGATVQSYTNFIRAVRGRLTTGADVRHEIPVLPNRVGLPINQRFILY
 ELSNHSAELSVTLALDVTNAYVVGYRAGNSAYFFHPDNQEDAEAITHLFTDVQNRYTFAF
 GGNYDRLEQLAGNLRENIELGNGPLEEAISALYYYSTGGTQLPTLARSFIICIQMISEAAR
@@ -28,10 +25,9 @@ FQYIEGEMRTRIRYNRRSAPDPSVITLENSWGRLSTAIQESNQGAFASPIQLQRRNGSKFP
 VKDHLDKLEAQIGTCVSF`,
   },
   {
-    name: "ampR (Beta-lactamase)",
-    description: "TEM-1 beta-lactamase — confers ampicillin resistance",
-    expectedRisk: "MEDIUM",
-    sequence: `>TEM1_beta_lactamase
+    name: "ORD-2024-1533",
+    description: "Customer synthesis order — protein sequence, 286 aa",
+    sequence: `>ORD-2024-1533
 MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPE
 ERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELS
 CSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMP
@@ -39,10 +35,9 @@ VAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRG
 IIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW`,
   },
   {
-    name: "Unknown Fragment",
-    description: "Short unidentified nucleotide fragment",
-    expectedRisk: "UNKNOWN",
-    sequence: `>Unknown_fragment
+    name: "SYN-00391",
+    description: "Customer synthesis order — nucleotide fragment, 95 bp",
+    sequence: `>SYN-00391
 ATGCGTACCTGAACGGTTACGATCGATTACGCTAGCTACGATCGATCGATCGTAGCTAGCT
 ACGATCGATCGATCGTAGCTAGCTACGATCGATCG`,
   },
