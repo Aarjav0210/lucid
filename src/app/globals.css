@@ -1,1 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-outfit: 'Outfit', sans-serif;
+  --color-bauhaus-red: #D02020;
+  --color-bauhaus-blue: #1040C0;
+  --color-bauhaus-yellow: #F0C020;
+  --color-bauhaus-black: #121212;
+  --color-bauhaus-bg: #F0F0F0;
+  --color-bauhaus-muted: #E0E0E0;
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.dot-grid {
+  background-image: radial-gradient(#121212 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+  opacity: 0.06;
+}
