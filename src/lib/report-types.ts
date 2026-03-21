@@ -40,6 +40,7 @@ export interface StructurePrediction {
   status: "completed" | "error";
   error?: string;
   pdbPath: string;
+  pdbString?: string;           // raw PDB data for 3D rendering
   plddtMean: number;           // 0-100
   plddtPerResidue: number[];
   confidenceCategory: "very_high" | "confident" | "low" | "very_low";
@@ -116,12 +117,15 @@ export interface SynergisticRiskFactor {
   riskContribution: RiskLevel;
 }
 
+export type ScreeningDecision = "Approved" | "Rejected" | "Manual Validation";
+
 export interface IntegratedReport {
   overallRisk: RiskLevel;
-  confidence: number;         // 0.0-1.0
-  architectureSummary: string; // e.g. "A-chain (RIP) → B-chain (lectin)"
+  confidence: number;
+  architectureSummary: string;
   synergisticFactors: SynergisticRiskFactor[];
-  reasoning: string;          // full LLM reasoning
+  reasoning: string;
+  decision: ScreeningDecision;
   flags: string[];
 }
 

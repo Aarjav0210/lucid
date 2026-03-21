@@ -1,6 +1,7 @@
 "use client";
 
-import { Shield, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { Shield, AlertTriangle, ClipboardCheck, XOctagon, CheckCircle } from "lucide-react";
 import type { IntegratedReport as IntegratedReportType } from "@/lib/report-types";
 import { RiskBadge } from "./risk-badge";
 
@@ -17,6 +18,8 @@ interface IntegratedReportProps {
 
 export function IntegratedReport({ report }: IntegratedReportProps) {
   const borderColor = riskBorderColor[report.overallRisk] ?? "border-bauhaus-muted";
+  const decision = report.decision ?? "Manual Validation";
+  const [reviewerAction, setReviewerAction] = useState<"approved" | "rejected" | null>(null);
 
   return (
     <div
@@ -30,12 +33,7 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
             Integrated Risk Assessment
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-bauhaus-black/40">
-            {(report.confidence * 100).toFixed(0)}% confidence
-          </span>
-          <RiskBadge level={report.overallRisk} size="md" />
-        </div>
+        <RiskBadge level={report.overallRisk} size="md" />
       </div>
 
       {/* Architecture summary */}
@@ -48,51 +46,8 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
         </p>
       </div>
 
-      {/* Synergistic risk factors */}
-      {report.synergisticFactors.length > 0 && (
-        <div className="px-6 py-4 border-b border-bauhaus-black/10">
-          <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-3">
-            Synergistic Risk Factors
-          </p>
-          <div className="space-y-3">
-            {report.synergisticFactors.map((factor, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 p-3 bg-bauhaus-red/5 border border-bauhaus-red/20"
-              >
-                <AlertTriangle className="w-4 h-4 text-bauhaus-red shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold">
-                      {factor.domains.join(" + ")}
-                    </span>
-                    <RiskBadge
-                      level={factor.riskContribution}
-                      size="sm"
-                      showLabel={false}
-                    />
-                  </div>
-                  <p className="text-xs font-medium text-bauhaus-black/70 leading-relaxed">
-                    {factor.concern}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* No synergistic factors — positive signal */}
-      {report.synergisticFactors.length === 0 && (
-        <div className="px-6 py-3 border-b border-bauhaus-black/10 bg-bauhaus-blue/5">
-          <p className="text-xs font-medium text-bauhaus-blue">
-            No synergistic risk factors identified between domains.
-          </p>
-        </div>
-      )}
-
-      {/* Full reasoning */}
-      <div className="px-6 py-4 space-y-3">
+      {/* Reasoning */}
+      <div className="px-6 py-4 space-y-3 border-b border-bauhaus-black/10">
         <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
           Reasoning
         </p>
@@ -101,19 +56,97 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
         </div>
       </div>
 
-      {/* Flags */}
-      {report.flags.length > 0 && (
-        <div className="px-6 pb-5">
-          <div className="flex flex-wrap gap-1.5">
-            {report.flags.map((flag, i) => (
-              <span
-                key={i}
-                className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-bauhaus-muted border border-bauhaus-black/20"
-              >
-                {flag}
-              </span>
-            ))}
+      {/* Decision / Action area */}
+      {decision === "Rejected" && (
+        <div className="px-6 py-5 bg-bauhaus-red/10 border-t-4 border-bauhaus-red">
+          <div className="flex items-center gap-3 mb-2">
+            <XOctagon className="w-6 h-6 text-bauhaus-red" />
+            <span className="text-base font-bold uppercase tracking-widest text-bauhaus-red">
+              Order Rejected
+            </span>
           </div>
+          <p className="text-sm font-medium text-bauhaus-red/80">
+            Clear biosecurity risk identified. This order has been automatically rejected.
+          </p>
+        </div>
+      )}
+
+      {decision === "Manual Validation" && (
+        <div className="px-6 py-5 bg-bauhaus-yellow/10 border-t-4 border-bauhaus-yellow">
+          <div className="flex items-center gap-3 mb-3">
+            <AlertTriangle className="w-6 h-6 text-bauhaus-yellow" />
+            <span className="text-base font-bold uppercase tracking-widest text-bauhaus-yellow">
+              Expert Review Required
+            </span>
+          </div>
+          <p className="text-sm font-medium text-bauhaus-black/60 mb-4">
+            This order has been flagged for manual review by a subject matter expert.
+          </p>
+          <button
+            className="px-5 py-2.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-bauhaus-yellow hover:bg-bauhaus-yellow/80 transition-colors shadow-[3px_3px_0px_0px_#121212]"
+            onClick={() => {
+              // TODO: hook up to review workflow
+              alert("Request for expert review submitted.");
+            }}
+          >
+            Send to Expert
+          </button>
+        </div>
+      )}
+
+      {decision === "Approved" && !reviewerAction && (
+        <div className="px-6 py-5 bg-bauhaus-blue/5 border-t-4 border-bauhaus-blue">
+          <div className="flex items-center gap-3 mb-3">
+            <ClipboardCheck className="w-6 h-6 text-bauhaus-blue" />
+            <span className="text-base font-bold uppercase tracking-widest text-bauhaus-blue">
+              Pending Reviewer Approval
+            </span>
+          </div>
+          <p className="text-sm font-medium text-bauhaus-black/60 mb-4">
+            No risks identified by automated screening. A human reviewer must confirm approval before this order can proceed.
+          </p>
+          <div className="flex gap-3">
+            <button
+              className="px-5 py-2.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-bauhaus-blue text-white hover:bg-bauhaus-blue/80 transition-colors shadow-[3px_3px_0px_0px_#121212]"
+              onClick={() => setReviewerAction("approved")}
+            >
+              Approve Order
+            </button>
+            <button
+              className="px-5 py-2.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-white hover:bg-bauhaus-red/10 transition-colors shadow-[3px_3px_0px_0px_#121212]"
+              onClick={() => setReviewerAction("rejected")}
+            >
+              Reject Order
+            </button>
+          </div>
+        </div>
+      )}
+
+      {decision === "Approved" && reviewerAction === "approved" && (
+        <div className="px-6 py-5 bg-green-50 border-t-4 border-green-600">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-6 h-6 text-green-600" />
+            <span className="text-base font-bold uppercase tracking-widest text-green-600">
+              Order Approved
+            </span>
+          </div>
+          <p className="text-sm font-medium text-green-600/80 mt-2">
+            Confirmed by human reviewer. This order may proceed.
+          </p>
+        </div>
+      )}
+
+      {decision === "Approved" && reviewerAction === "rejected" && (
+        <div className="px-6 py-5 bg-bauhaus-red/10 border-t-4 border-bauhaus-red">
+          <div className="flex items-center gap-3">
+            <XOctagon className="w-6 h-6 text-bauhaus-red" />
+            <span className="text-base font-bold uppercase tracking-widest text-bauhaus-red">
+              Order Rejected by Reviewer
+            </span>
+          </div>
+          <p className="text-sm font-medium text-bauhaus-red/80 mt-2">
+            A human reviewer has rejected this order.
+          </p>
         </div>
       )}
     </div>

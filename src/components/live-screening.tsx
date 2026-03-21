@@ -35,7 +35,7 @@ export function LiveScreening() {
       const res = await fetch("/api/screen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sequence: rawSequence }),
+        body: JSON.stringify({ sequence: rawSequence, gemini: true }),
       });
 
       if (!res.ok) {

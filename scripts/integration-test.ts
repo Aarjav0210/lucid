@@ -223,6 +223,7 @@ function printReport(report: SequenceReport): void {
     console.log("│                 INTEGRATED RISK ASSESSMENT                   │");
     console.log("└──────────────────────────────────────────────────────────────┘");
     console.log(`\n  Overall Risk:  ${ir.overallRisk}`);
+    console.log(`  Decision:      ${ir.decision ?? "N/A"}`);
     console.log(`  Confidence:    ${(ir.confidence * 100).toFixed(0)}%`);
     console.log(`  Architecture:  ${ir.architectureSummary}`);
 
