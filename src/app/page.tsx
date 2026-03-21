@@ -3,19 +3,16 @@
 import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 import { exampleSequences } from "@/lib/examples";
-import type { BlastResult } from "@/lib/blast";
 import {
   Circle,
   Square,
   Triangle,
-  ChevronDown,
   ArrowRight,
   AlertTriangle,
   Shield,
-  Search,
 } from "lucide-react";
 
-/* ─── Risk & tier color mappings (Bauhaus palette) ─── */
+/* ─── Risk color mappings (Bauhaus palette) ─── */
 
 const riskColors: Record<string, string> = {
   LOW: "bg-bauhaus-blue text-white",
@@ -29,13 +26,6 @@ const riskBorderColors: Record<string, string> = {
   MEDIUM: "border-bauhaus-yellow",
   HIGH: "border-bauhaus-red",
   UNKNOWN: "border-bauhaus-muted",
-};
-
-const tierColors: Record<string, string> = {
-  exact: "text-bauhaus-red font-bold",
-  high: "text-bauhaus-red",
-  moderate: "text-bauhaus-yellow",
-  low: "text-bauhaus-muted",
 };
 
 function extractRiskLevel(text: string): string | null {
@@ -95,9 +85,9 @@ function CardDecoration({ color, shape }: { color: string; shape: "circle" | "sq
   );
 }
 
-/* ─── BLAST Spinner ─── */
+/* ─── Analyzing Spinner ─── */
 
-function BlastSpinner() {
+function AnalyzingSpinner() {
   return (
     <div className="relative bg-white border-2 sm:border-4 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] sm:shadow-[8px_8px_0px_0px_#121212] p-6">
       <CardDecoration color="bg-bauhaus-blue" shape="circle" />
@@ -108,11 +98,11 @@ function BlastSpinner() {
         </div>
         <div>
           <p className="font-bold uppercase tracking-wider text-sm">
-            Running BLAST Search
+            Analyzing Sequence
           </p>
           <p className="text-sm text-bauhaus-black/60 font-medium mt-1">
-            Querying NCBI databases and cross-referencing threat catalog. This
-            may take 30s–3min.
+            Running InterPro domain scan and LLM risk assessment.
+            This may take a few minutes.
           </p>
         </div>
       </div>
@@ -120,111 +110,6 @@ function BlastSpinner() {
       <div className="mt-4 h-2 w-full bg-bauhaus-muted overflow-hidden">
         <div className="h-full w-1/3 bg-bauhaus-blue animate-[progress_2s_ease-in-out_infinite]" />
       </div>
-    </div>
-  );
-}
-
-/* ─── BLAST Results Card ─── */
-
-function BlastResultsCard({ result }: { result: BlastResult }) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="relative bg-white border-2 sm:border-4 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] sm:shadow-[8px_8px_0px_0px_#121212] transition-transform duration-200 ease-out hover:-translate-y-1">
-      <CardDecoration color="bg-bauhaus-yellow" shape="square" />
-
-      {/* Header */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 sm:p-6 text-left"
-      >
-        <div className="flex items-center gap-3">
-          <Search className="w-5 h-5" />
-          <span className="font-bold uppercase tracking-wider text-sm">
-            BLAST Results
-          </span>
-          <span
-            className={`px-3 py-1 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black ${riskColors[result.riskSignal] ?? "bg-bauhaus-muted"}`}
-          >
-            {result.riskSignal}
-          </span>
-          <span className="text-xs font-medium text-bauhaus-black/50 hidden sm:inline">
-            {result.searchDuration}s &middot; {result.program} &middot;{" "}
-            {result.database}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-bauhaus-black/50">
-            {result.hits.length} hit{result.hits.length !== 1 ? "s" : ""}
-          </span>
-          <ChevronDown
-            className={`w-5 h-5 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
-          />
-        </div>
-      </button>
-
-      {result.status === "error" && (
-        <p className="px-4 sm:px-6 pb-4 text-sm font-medium text-bauhaus-red">{result.error}</p>
-      )}
-      {result.status === "timeout" && (
-        <p className="px-4 sm:px-6 pb-4 text-sm font-medium text-bauhaus-yellow">{result.error}</p>
-      )}
-
-      {/* Expanded hits */}
-      {expanded && result.hits.length > 0 && (
-        <div className="border-t-2 sm:border-t-4 border-bauhaus-black">
-          {result.hits.map((hit, i) => (
-            <div
-              key={`${hit.accession}-${i}`}
-              className={`p-4 sm:p-6 space-y-2 ${i > 0 ? "border-t-2 border-bauhaus-black" : ""}`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="font-bold text-sm break-all">
-                  {hit.title}
-                </span>
-                <span
-                  className={`shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black ${
-                    hit.matchTier === "exact" || hit.matchTier === "high"
-                      ? "bg-bauhaus-red text-white"
-                      : hit.matchTier === "moderate"
-                        ? "bg-bauhaus-yellow text-bauhaus-black"
-                        : "bg-bauhaus-muted text-bauhaus-black"
-                  }`}
-                >
-                  {hit.matchTier.toUpperCase()}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm font-medium text-bauhaus-black/60">
-                <span>
-                  Identity: <strong className="text-bauhaus-black">{hit.identity}%</strong>
-                </span>
-                <span>
-                  Coverage: <strong className="text-bauhaus-black">{hit.coverage}%</strong>
-                </span>
-                <span>
-                  E-value: <strong className="text-bauhaus-black">{hit.evalue.toExponential(1)}</strong>
-                </span>
-                <span>
-                  Score: <strong className="text-bauhaus-black">{hit.bitScore}</strong>
-                </span>
-              </div>
-              {hit.organism && (
-                <p className="text-sm font-medium text-bauhaus-black/50 italic">{hit.organism}</p>
-              )}
-              {hit.threatMatch && (
-                <div className="mt-2 p-3 bg-bauhaus-red text-white border-2 border-bauhaus-black flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span className="text-sm font-bold uppercase tracking-wider">
-                    Threat catalog: {hit.threatMatch.geneName} ({hit.threatMatch.category.replace("_", " ")})
-                    {hit.threatMatch.regulatoryList !== "None" &&
-                      ` — ${hit.threatMatch.regulatoryList} regulated`}
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -273,26 +158,19 @@ export default function Home() {
     ? extractRiskLevel(assistantMessage.content)
     : null;
 
-  const blastInvocations = messages.flatMap((m) =>
-    (m.parts ?? []).filter(
-      (p): p is Extract<typeof p, { type: "tool-invocation" }> =>
-        p.type === "tool-invocation" &&
-        p.toolInvocation.toolName === "blastSearch"
-    )
-  );
-
-  const blastPending = blastInvocations.some(
-    (p) => p.toolInvocation.state === "call" || p.toolInvocation.state === "partial-call"
-  );
-  const blastResult = blastInvocations.find(
-    (p) => p.toolInvocation.state === "result"
-  );
-
   const shapes = ["circle", "square", "triangle"] as const;
   const shapeColors = ["bg-bauhaus-red", "bg-bauhaus-blue", "bg-bauhaus-yellow"];
 
   return (
     <main className="min-h-screen flex flex-col">
+      <style>{`
+        @keyframes progress {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(200%); }
+          100% { transform: translateX(-100%); }
+        }
+      `}</style>
+
       {/* ─── Navigation ─── */}
       <nav className="border-b-4 border-bauhaus-black bg-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
@@ -319,8 +197,8 @@ export default function Home() {
               <span className="text-bauhaus-red">Sequences</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl font-medium text-bauhaus-black/70 max-w-lg leading-relaxed">
-              Phase 1 biosecurity screening — BLAST search + LLM risk assessment.
-              Cross-referenced against US Select Agents & Toxins and dual-use gene catalogs.
+              Biosecurity screening — InterPro domain analysis + LLM risk assessment.
+              Cross-referenced against known threat domains and dual-use gene catalogs.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
@@ -410,7 +288,7 @@ export default function Home() {
                   setSequence(e.target.value);
                   setValidationError(null);
                 }}
-                placeholder={">sequence_header\nATGCGTACCTGA..."}
+                placeholder={">sequence_header\nMSKGEELFTG..."}
                 className="w-full bg-white border-2 sm:border-4 border-bauhaus-black px-4 py-3 text-sm font-mono font-medium placeholder-bauhaus-black/30 focus:outline-none focus:ring-2 focus:ring-bauhaus-blue focus:ring-offset-2 resize-y shadow-[4px_4px_0px_0px_#121212] sm:shadow-[6px_6px_0px_0px_#121212]"
                 disabled={isLoading}
               />
@@ -433,15 +311,8 @@ export default function Home() {
 
             {/* ─── Results ─── */}
             <div className="space-y-6">
-              {/* BLAST progress */}
-              {blastPending && !blastResult && <BlastSpinner />}
-
-              {/* BLAST results card */}
-              {blastResult && blastResult.toolInvocation.state === "result" && (
-                <BlastResultsCard
-                  result={blastResult.toolInvocation.result as BlastResult}
-                />
-              )}
+              {/* Analyzing spinner */}
+              {isLoading && !assistantMessage && <AnalyzingSpinner />}
 
               {/* LLM assessment */}
               {assistantMessage && (
@@ -484,7 +355,7 @@ export default function Home() {
             </span>
           </div>
           <p className="text-xs font-bold uppercase tracking-widest text-white/40 text-center sm:text-right">
-            Phase 1 — BLAST + LLM Assessment
+            InterPro Domain Analysis + LLM Assessment
             <br />
             US Select Agents & Toxins &middot; Dual-Use Gene Catalog
           </p>

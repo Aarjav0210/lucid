@@ -2,10 +2,9 @@ import { streamText } from "ai";
 import { model } from "@/lib/model";
 import { systemPrompt } from "@/lib/prompt";
 import { validateSequence, detectSequenceType } from "@/lib/validate";
-import { blastSearch } from "@/lib/tools/blast-tool";
 import { runInterProScan, type InterProResult } from "@/lib/interpro";
 
-// InterPro + BLAST searches can take several minutes
+// InterPro searches can take several minutes
 export const maxDuration = 600;
 
 export async function POST(req: Request) {
@@ -51,9 +50,6 @@ export async function POST(req: Request) {
     model,
     system: systemPrompt,
     messages: enrichedMessages,
-    tools: { blastSearch },
-    maxSteps: 5,
-    toolChoice: "auto",
     onError: (error) => {
       console.error("streamText error:", error);
     },
