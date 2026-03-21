@@ -353,6 +353,8 @@ function DomainCard({ domain, index }: { domain: DomainAnalysis; index: number }
 
 function UnifiedAssessment({ report }: { report: SequenceReport }) {
   const { unified } = report;
+  const [actionTaken, setActionTaken] = useState<string | null>(null);
+
   return (
     <div className="relative bg-white border-2 sm:border-4 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] sm:shadow-[8px_8px_0px_0px_#121212]">
       {/* Header */}
@@ -421,6 +423,60 @@ function UnifiedAssessment({ report }: { report: SequenceReport }) {
             {unified.recommendation}
           </p>
         </div>
+
+        {/* Action buttons */}
+        {unified.overallRisk === "FLAG" && (
+          <div className="pt-2">
+            {actionTaken === "forwarded" ? (
+              <div className="flex items-center gap-3 p-4 bg-bauhaus-yellow/20 border-2 border-bauhaus-black">
+                <AlertTriangle className="w-5 h-5 text-bauhaus-black" />
+                <span className="text-sm font-bold uppercase tracking-wider">
+                  Forwarded to expert review panel
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setActionTaken("forwarded")}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-bauhaus-yellow text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-yellow/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
+              >
+                <ArrowRight className="w-5 h-5" />
+                Forward to Expert Review
+              </button>
+            )}
+          </div>
+        )}
+
+        {unified.overallRisk === "PASS" && (
+          <div className="pt-2">
+            {actionTaken === "approved" ? (
+              <div className="flex items-center gap-3 p-4 bg-green-100 border-2 border-bauhaus-black">
+                <Shield className="w-5 h-5 text-green-700" />
+                <span className="text-sm font-bold uppercase tracking-wider text-green-800">
+                  Synthesis approved — order cleared
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setActionTaken("approved")}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-green-600/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
+              >
+                <Shield className="w-5 h-5" />
+                Approve Synthesis
+              </button>
+            )}
+          </div>
+        )}
+
+        {unified.overallRisk === "REJECT" && (
+          <div className="pt-2">
+            <div className="flex items-center gap-3 p-4 bg-bauhaus-red/10 border-2 border-bauhaus-black">
+              <X className="w-5 h-5 text-bauhaus-red" />
+              <span className="text-sm font-bold uppercase tracking-wider text-bauhaus-red">
+                Synthesis blocked — order will not proceed
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
