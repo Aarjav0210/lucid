@@ -11,6 +11,10 @@
 # env files
 .env*.local
 
+# cached predictions
+/data/pdb/
+/data/foldseek/
+
 # misc
 .DS_Store
 *.tsbuildinfo
