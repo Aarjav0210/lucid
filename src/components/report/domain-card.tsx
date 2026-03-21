@@ -5,6 +5,7 @@ import { ChevronDown, AlertTriangle } from "lucide-react";
 import type { DomainReport } from "@/lib/report-types";
 import { RiskBadge } from "./risk-badge";
 import { PipelineStep } from "./pipeline-step";
+import { StructureViewer } from "./structure-viewer";
 
 const DOMAIN_COLORS = [
   "border-l-bauhaus-red",
@@ -89,22 +90,30 @@ export function DomainCard({ report, index }: DomainCardProps) {
         }
       >
         {report.structure && (
-          <div className="flex items-center gap-4">
-            <span>
-              Mean pLDDT:{" "}
-              <strong
-                className={
-                  report.structure.plddtMean >= 90
-                    ? "text-green-600"
-                    : report.structure.plddtMean >= 70
-                      ? "text-bauhaus-blue"
-                      : "text-bauhaus-red"
-                }
-              >
-                {report.structure.plddtMean.toFixed(1)}
-              </strong>
-            </span>
-            <span>Confidence: {report.structure.confidenceCategory}</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <span>
+                Mean pLDDT:{" "}
+                <strong
+                  className={
+                    report.structure.plddtMean >= 90
+                      ? "text-green-600"
+                      : report.structure.plddtMean >= 70
+                        ? "text-bauhaus-blue"
+                        : "text-bauhaus-red"
+                  }
+                >
+                  {report.structure.plddtMean.toFixed(1)}
+                </strong>
+              </span>
+              <span>Confidence: {report.structure.confidenceCategory}</span>
+            </div>
+            {report.structure.pdbString && (
+              <StructureViewer
+                pdbString={report.structure.pdbString}
+                plddtMean={report.structure.plddtMean}
+              />
+            )}
           </div>
         )}
       </PipelineStep>

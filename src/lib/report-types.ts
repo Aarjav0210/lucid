@@ -40,6 +40,7 @@ export interface StructurePrediction {
   status: "completed" | "error";
   error?: string;
   pdbPath: string;
+  pdbString?: string;           // raw PDB data for 3D rendering
   plddtMean: number;           // 0-100
   plddtPerResidue: number[];
   confidenceCategory: "very_high" | "confident" | "low" | "very_low";

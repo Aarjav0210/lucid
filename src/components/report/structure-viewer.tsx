@@ -1,0 +1,94 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+interface StructureViewerProps {
+  pdbString: string;
+  plddtMean: number;
+  height?: number;
+}
+
+export function StructureViewer({ pdbString, plddtMean, height = 300 }: StructureViewerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<any>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current || !pdbString) return;
+
+    // Dynamically import 3Dmol (client-only)
+    import("3dmol").then(($3Dmol) => {
+      if (!containerRef.current) return;
+
+      // Clear any previous viewer
+      containerRef.current.innerHTML = "";
+
+      const viewer = $3Dmol.createViewer(containerRef.current, {
+        backgroundColor: "white",
+        antialias: true,
+      });
+
+      viewer.addModel(pdbString, "pdb");
+
+      // Color by pLDDT (B-factor) using AlphaFold-style spectrum
+      viewer.setStyle({}, {
+        cartoon: {
+          colorfunc: (atom: any) => {
+            const b = atom.b; // pLDDT stored in B-factor
+            if (b >= 90) return "rgb(0, 83, 214)";      // very high — blue
+            if (b >= 70) return "rgb(101, 203, 243)";    // confident — light blue
+            if (b >= 50) return "rgb(255, 219, 19)";     // low — yellow
+            return "rgb(255, 125, 69)";                   // very low — orange
+          },
+        },
+      });
+
+      viewer.zoomTo();
+      viewer.render();
+      viewer.spin("y", 0.5);
+      viewerRef.current = viewer;
+      setLoaded(true);
+    });
+
+    return () => {
+      if (viewerRef.current) {
+        viewerRef.current.clear();
+        viewerRef.current = null;
+      }
+    };
+  }, [pdbString]);
+
+  return (
+    <div className="border border-bauhaus-black/10">
+      <div
+        ref={containerRef}
+        style={{ width: "100%", height: `${height}px`, position: "relative" }}
+      />
+      {loaded && (
+        <div className="px-3 py-2 bg-bauhaus-muted/30 border-t border-bauhaus-black/10 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-bauhaus-black/40">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "rgb(0, 83, 214)" }} />
+              &gt;90
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "rgb(101, 203, 243)" }} />
+              70–90
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "rgb(255, 219, 19)" }} />
+              50–70
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "rgb(255, 125, 69)" }} />
+              &lt;50
+            </span>
+          </div>
+          <span className="text-[10px] font-bold text-bauhaus-black/40">
+            pLDDT {plddtMean.toFixed(1)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -245,6 +245,7 @@ async function runDomainPipeline(
       structureResult = {
         status: "completed",
         pdbPath: esm.pdbPath,
+        pdbString: esm.pdbString,
         plddtMean: esm.plddtMean,
         plddtPerResidue: esm.plddtPerResidue,
         confidenceCategory: confidenceCategory(esm.plddtMean),
