@@ -41,6 +41,7 @@ import type {
   IntegratedReport,
   DomainSummary,
   SynergisticRiskFactor,
+  ScreeningDecision,
 } from "./report-types";
 
 // ── Identity masking ──────────────────────────────────────────────────
@@ -145,11 +146,11 @@ function confidenceCategory(
 // ── Per-domain pipeline ──────────────────────────────────────────────
 
 export interface PipelineCallbacks {
-  onDomainStart?: (domainIndex: number, annotation: string) => void;
-  onDiamondComplete?: (domainIndex: number, matched: boolean) => void;
-  onEsmFoldComplete?: (domainIndex: number) => void;
-  onFoldseekComplete?: (domainIndex: number) => void;
-  onDomainComplete?: (domainIndex: number) => void;
+  onDomainStart?: (domainIndex: number, annotation: string) => void | Promise<void>;
+  onDiamondComplete?: (domainIndex: number, matched: boolean) => void | Promise<void>;
+  onEsmFoldComplete?: (domainIndex: number) => void | Promise<void>;
+  onFoldseekComplete?: (domainIndex: number) => void | Promise<void>;
+  onDomainComplete?: (domainIndex: number) => void | Promise<void>;
   onLog?: (message: string) => void;
 }
 
@@ -162,7 +163,7 @@ async function runDomainPipeline(
   const domainId = nextDomainId();
   const tag = `[${domainId}] ${domain.annotation}`;
 
-  callbacks?.onDomainStart?.(domainIndex, domain.annotation);
+  await callbacks?.onDomainStart?.(domainIndex, domain.annotation);
   log(`${tag}: starting pipeline (${domain.sequence.length} AA, ${domain.start}-${domain.end})`);
 
   const progress: DomainProgress = {
@@ -204,7 +205,7 @@ async function runDomainPipeline(
     log(`${tag}: Diamond error — ${diamondResult.error}`);
   }
 
-  callbacks?.onDiamondComplete?.(domainIndex, hasDiamondThreatMatch(diamondResult));
+  await callbacks?.onDiamondComplete?.(domainIndex, hasDiamondThreatMatch(diamondResult));
 
   // ── Early exit: strong Diamond match → skip structure prediction ──
   if (hasDiamondThreatMatch(diamondResult)) {
@@ -222,7 +223,7 @@ async function runDomainPipeline(
         .flatMap((h) => h.threatFlags.map((f) => `${f} (${h.identity}% identity)`)),
     };
 
-    callbacks?.onDomainComplete?.(domainIndex);
+    await callbacks?.onDomainComplete?.(domainIndex);
 
     return {
       domain,
@@ -251,7 +252,7 @@ async function runDomainPipeline(
       progress.structure = "completed";
       log(`${tag}: ESMFold done — pLDDT ${esm.plddtMean.toFixed(1)}`);
 
-      callbacks?.onEsmFoldComplete?.(domainIndex);
+      await callbacks?.onEsmFoldComplete?.(domainIndex);
 
       // ── Stage C: Foldseek ──
       progress.foldseek = "running";
@@ -272,7 +273,7 @@ async function runDomainPipeline(
         progress.foldseek = "completed";
         log(`${tag}: Foldseek done — ${fsHits.length} hit(s), risk=${foldseekResult.riskSignal}`);
 
-        callbacks?.onFoldseekComplete?.(domainIndex);
+        await callbacks?.onFoldseekComplete?.(domainIndex);
       } catch (err) {
         foldseekResult = {
           status: "error",
@@ -522,6 +523,7 @@ export async function runScreeningPipeline(
           "This could indicate a novel protein, a non-coding sequence, or a sequence that does not match " +
           "current domain databases. Without domain annotations, the risk assessment is inconclusive. " +
           "Manual review by a subject matter expert is recommended.",
+        decision: "Manual Validation",
         flags: ["No domains detected", "Manual review recommended"],
       },
       startedAt,
@@ -650,12 +652,17 @@ function buildIntegratedReport(
     flags.push("Synergistic domain architecture detected");
   }
 
+  const decision = overallRisk === "HIGH" ? "Rejected"
+    : overallRisk === "MEDIUM" ? "Manual Validation"
+    : "Approved";
+
   return {
     overallRisk,
     confidence,
     architectureSummary,
     synergisticFactors,
     reasoning: reasoningParts.join("\n"),
+    decision: decision as ScreeningDecision,
     flags: [...new Set(flags)],
   };
 }

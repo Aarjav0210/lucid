@@ -11,8 +11,8 @@
     "test:integration:gemini": "npx tsx scripts/integration-test.ts --gemini"
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.2.0",
-    "ai": "^4.3.0",
+    "@ai-sdk/google": "^1.2.22",
+    "ai": "^4.3.19",
     "lucide-react": "^0.577.0",
     "next": "^15.3.0",
     "react": "^19.1.0",

@@ -28,20 +28,37 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
+      const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
       function send(event: string, data: unknown) {
         const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
         controller.enqueue(encoder.encode(payload));
       }
 
+      // Stagger SSE events slightly so the UI animates through each step,
+      // even when pipeline results are cached and return instantly.
       const callbacks: PipelineCallbacks = {
         onLog: (msg) => send("log", { message: msg }),
-        onDomainStart: (i, annotation) =>
-          send("domain_start", { index: i, annotation }),
-        onDiamondComplete: (i, matched) =>
-          send("diamond_complete", { index: i, matched }),
-        onEsmFoldComplete: (i) => send("esmfold_complete", { index: i }),
-        onFoldseekComplete: (i) => send("foldseek_complete", { index: i }),
-        onDomainComplete: (i) => send("domain_complete", { index: i }),
+        onDomainStart: async (i, annotation) => {
+          await delay(150);
+          send("domain_start", { index: i, annotation });
+        },
+        onDiamondComplete: async (i, matched) => {
+          await delay(300);
+          send("diamond_complete", { index: i, matched });
+        },
+        onEsmFoldComplete: async (i) => {
+          await delay(300);
+          send("esmfold_complete", { index: i });
+        },
+        onFoldseekComplete: async (i) => {
+          await delay(300);
+          send("foldseek_complete", { index: i });
+        },
+        onDomainComplete: async (i) => {
+          await delay(150);
+          send("domain_complete", { index: i });
+        },
       };
 
       try {

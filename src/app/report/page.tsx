@@ -37,7 +37,7 @@ export default function ReportPreview() {
           <div className="flex items-center gap-4">
             <BauhausLogo />
             <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter">
-              Pane
+              Lucid
             </span>
           </div>
           <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
@@ -90,7 +90,7 @@ export default function ReportPreview() {
           <div className="flex items-center gap-4">
             <BauhausLogo />
             <span className="text-lg font-black uppercase tracking-tighter">
-              Pane
+              Lucid
             </span>
           </div>
           <p className="text-xs font-bold uppercase tracking-widest text-white/40">

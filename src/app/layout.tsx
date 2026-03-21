@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pane — Sequence Risk Screening",
+  title: "Lucid — Sequence Risk Screening",
   description: "Biosecurity sequence screening tool",
 };
 

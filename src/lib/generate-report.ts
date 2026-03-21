@@ -12,9 +12,84 @@ import type {
   IntegratedReport,
   DomainSummary,
   RiskLevel,
+  ScreeningDecision,
 } from "./report-types";
 
 // ── Prompt construction ──────────────────────────────────────────────
+
+function buildPipelineContext(report: SequenceReport): string {
+  const sections: string[] = [];
+
+  // InterPro section — collect all domain metadata across all domain reports
+  const interproLines: string[] = [];
+  for (const dr of report.domains) {
+    // Each domain's metadata contains the InterPro signatures
+    if (dr.domain.metadata.length > 0) {
+      for (const m of dr.domain.metadata) {
+        interproLines.push(
+          `  - ${m.signature ?? "N/A"} / ${m.description} / ${m.type} / ${dr.domain.start}–${dr.domain.end}`
+        );
+      }
+    } else {
+      // Fallback: use the domain annotation and signatures
+      const sigs = dr.domain.signatures.join(", ");
+      interproLines.push(
+        `  - ${sigs || "N/A"} / ${dr.domain.annotation} / DOMAIN / ${dr.domain.start}–${dr.domain.end}`
+      );
+    }
+  }
+  sections.push(`InterPro\n${interproLines.length > 0 ? interproLines.join("\n") : "  - No domains identified"}`);
+
+  // DIAMOND section
+  const diamondLines: string[] = [];
+  for (let i = 0; i < report.domains.length; i++) {
+    const dr = report.domains[i];
+    if (dr.diamond && dr.diamond.status === "completed" && dr.diamond.hits.length > 0) {
+      for (const hit of dr.diamond.hits) {
+        const flags = hit.threatFlags.length > 0 ? ` / flagged: ${hit.threatFlags.join(", ")}` : " / not flagged";
+        diamondLines.push(
+          `  - Domain ${i + 1}: ${hit.accession} / ${hit.identity}% identity / e-value ${hit.evalue}${flags}`
+        );
+      }
+    }
+  }
+  sections.push(`DIAMOND\n${diamondLines.length > 0 ? diamondLines.join("\n") : "  - No hits"}`);
+
+  // ESMFold section
+  const esmLines: string[] = [];
+  for (let i = 0; i < report.domains.length; i++) {
+    const dr = report.domains[i];
+    if (dr.structure && dr.structure.status === "completed") {
+      esmLines.push(`  - Domain ${i + 1}: pLDDT ${dr.structure.plddtMean.toFixed(2)}`);
+    } else if (dr.progress.structure === "skipped") {
+      esmLines.push(`  - Domain ${i + 1}: skipped (strong Diamond match)`);
+    } else {
+      esmLines.push(`  - Domain ${i + 1}: ${dr.structure?.status ?? "not run"}`);
+    }
+  }
+  sections.push(`ESMFold\n${esmLines.join("\n")}`);
+
+  // Foldseek section
+  const fsLines: string[] = [];
+  for (let i = 0; i < report.domains.length; i++) {
+    const dr = report.domains[i];
+    if (dr.foldseek && dr.foldseek.hits.length > 0) {
+      const hitDescs = dr.foldseek.hits.slice(0, 5).map((h) => {
+        const flagStr = h.flagged ? `flagged as ${h.riskKeywords.join(", ")}` : "not flagged as toxic";
+        return `${h.uniprotId ?? h.pdbId ?? "unknown"} / ${h.organism} / prob ${h.probability} / e-value ${h.evalue} / ${flagStr}`;
+      });
+      fsLines.push(`  - Domain ${i + 1}: ${dr.foldseek.hits.length} hit(s) — ${hitDescs[0]}`);
+      for (const desc of hitDescs.slice(1)) {
+        fsLines.push(`    ${desc}`);
+      }
+    } else {
+      fsLines.push(`  - Domain ${i + 1}: 0 hits`);
+    }
+  }
+  sections.push(`Foldseek\n${fsLines.join("\n")}`);
+
+  return sections.join("\n\n");
+}
 
 function buildDomainContext(dr: DomainReport, index: number): string {
   const lines: string[] = [];
@@ -77,57 +152,22 @@ function buildDomainContext(dr: DomainReport, index: number): string {
   return lines.join("\n");
 }
 
-const REPORT_SYSTEM_PROMPT = `You are a biosecurity screening analyst. You are generating the final integrated risk assessment for a protein sequence that has been analyzed through a multi-stage pipeline.
-
-CRITICAL RULES:
-1. NEVER reveal the actual identity of any protein, even if you recognize it from the data. Use only the sample/order IDs provided.
-2. Focus on the DOMAIN ARCHITECTURE and what the combination of domains implies functionally.
-3. Be precise about risk levels: HIGH means confirmed threat agent match, MEDIUM means concerning but not confirmed, LOW means no threat indicators.
-4. Always discuss synergistic factors if multiple domains are present.
-
-Your response must be valid JSON with this exact structure:
-{
-  "overallRisk": "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN",
-  "confidence": 0.0-1.0,
-  "architectureSummary": "brief domain layout description",
-  "synergisticFactors": [
-    {
-      "domains": ["domain1 annotation", "domain2 annotation"],
-      "concern": "explanation of synergistic risk",
-      "riskContribution": "HIGH" | "MEDIUM" | "LOW"
-    }
-  ],
-  "reasoning": "detailed multi-paragraph analysis",
-  "flags": ["flag1", "flag2"]
-}`;
+const REPORT_SYSTEM_PROMPT = `You are a biosecurity screening analyst. Respond with valid JSON only.`;
 
 // ── Main generator ──────────────────────────────────────────────────
 
 export async function generateIntegratedReport(
   report: SequenceReport
 ): Promise<IntegratedReport> {
-  const domainContexts = report.domains
-    .map((dr, i) => buildDomainContext(dr, i))
-    .join("\n\n");
+  const pipelineContext = buildPipelineContext(report);
 
-  const userPrompt = `Analyze the following screening results for order ${report.id} and generate an integrated risk assessment.
+  const userPrompt = `${pipelineContext}
 
-## Sequence Info
-- Length: ${report.sequenceLength} AA
-- Domains analyzed: ${report.domains.length}
-
-## Per-Domain Results
-
-${domainContexts}
-
-## Instructions
-Synthesize these per-domain results into a single integrated risk assessment. Consider:
-1. What does the overall domain architecture suggest about the protein's function?
-2. Are there synergistic risk factors between domains?
-3. What is the overall risk level and confidence?
-4. What flags should be raised for human review?
-
-Remember: NEVER reveal actual protein identities. Use the order ID "${report.id}" when referencing this sequence.`;
+Have a look at the following combination of structural domains from the same protein polypeptide chain, and output a structured response with the following schema:
+{
+  "summary": "...",
+  "decision": "Approved" | "Rejected" | "Manual Validation"
+}`;
 
   try {
     const result = await generateText({
@@ -144,16 +184,24 @@ Remember: NEVER reveal actual protein identities. Use the order ID "${report.id}
     const jsonStr = jsonMatch[1]?.trim() ?? text;
     const parsed = JSON.parse(jsonStr) as IntegratedReport;
 
-    // Validate and coerce
+    const summary = (parsed as any).summary ?? "Report generation completed.";
+    const decision = validateDecision(parsed.decision);
+
+    // Derive overallRisk from decision
+    const overallRisk: RiskLevel = decision === "Rejected" ? "HIGH"
+      : decision === "Manual Validation" ? "MEDIUM"
+      : "LOW";
+
     return {
-      overallRisk: validateRiskLevel(parsed.overallRisk),
-      confidence: Math.max(0, Math.min(1, parsed.confidence ?? 0.5)),
-      architectureSummary: parsed.architectureSummary ?? "Unknown architecture",
-      synergisticFactors: Array.isArray(parsed.synergisticFactors)
-        ? parsed.synergisticFactors
-        : [],
-      reasoning: parsed.reasoning ?? "Report generation completed.",
-      flags: Array.isArray(parsed.flags) ? parsed.flags : [],
+      overallRisk,
+      confidence: overallRisk === "HIGH" ? 0.95 : overallRisk === "MEDIUM" ? 0.8 : 0.85,
+      architectureSummary: report.domains.map(
+        (dr) => `${dr.domain.annotation} (${dr.domain.start}–${dr.domain.end})`
+      ).join(" → "),
+      synergisticFactors: [],
+      reasoning: summary,
+      decision,
+      flags: [],
     };
   } catch (err) {
     console.error("Gemini report generation failed:", err);
@@ -169,6 +217,13 @@ function validateRiskLevel(level: unknown): RiskLevel {
     : "UNKNOWN";
 }
 
+function validateDecision(decision: unknown): ScreeningDecision {
+  const valid: ScreeningDecision[] = ["Approved", "Rejected", "Manual Validation"];
+  return valid.includes(decision as ScreeningDecision)
+    ? (decision as ScreeningDecision)
+    : "Manual Validation";
+}
+
 // ── Fallback static report ──────────────────────────────────────────
 
 function buildStaticIntegratedReport(
@@ -176,7 +231,6 @@ function buildStaticIntegratedReport(
 ): IntegratedReport {
   const riskLevels = report.domains
     .map((dr) => dr.summary?.riskLevel ?? "UNKNOWN");
-
   const overallRisk = riskLevels.includes("HIGH")
     ? "HIGH"
     : riskLevels.includes("MEDIUM")
@@ -184,7 +238,6 @@ function buildStaticIntegratedReport(
       : riskLevels.includes("LOW")
         ? "LOW"
         : "UNKNOWN";
-
   const archParts = report.domains.map(
     (dr) => `${dr.domain.annotation} (${dr.domain.start}–${dr.domain.end})`
   );
@@ -194,11 +247,8 @@ function buildStaticIntegratedReport(
     confidence: overallRisk === "HIGH" ? 0.9 : 0.7,
     architectureSummary: archParts.join(" → "),
     synergisticFactors: [],
-    reasoning: `Static analysis of ${report.domains.length} domain(s). ` +
-      report.domains
-        .map((dr) => dr.summary?.reasoning ?? "")
-        .filter(Boolean)
-        .join(" "),
+    reasoning: `Static analysis of ${report.domains.length} domain(s). LLM report generation failed.`,
+    decision: "Manual Validation",
     flags: report.domains.flatMap((dr) => dr.summary?.flags ?? []),
   };
 }
