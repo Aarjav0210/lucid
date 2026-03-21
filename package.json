@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:integration": "npx tsx scripts/integration-test.ts",
+    "test:integration:gemini": "npx tsx scripts/integration-test.ts --gemini"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.0",

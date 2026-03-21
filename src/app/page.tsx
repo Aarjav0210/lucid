@@ -7,6 +7,7 @@ import {
   type SequenceReport,
   type DomainAnalysis,
 } from "@/lib/mock-reports";
+import { LiveScreening } from "@/components/live-screening";
 import {
   Circle,
   Square,
@@ -624,8 +625,15 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href="#orders"
+                href="#screen"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-red text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-red/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
+              >
+                Screen a Sequence
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#orders"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
                 View Sample Orders
                 <ArrowRight className="w-4 h-4" />
@@ -634,6 +642,23 @@ export default function Home() {
           </div>
           <div className="hidden lg:block bg-bauhaus-blue relative overflow-hidden border-l-4 border-bauhaus-black">
             <GeometricComposition />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Live Screening ─── */}
+      <section id="screen" className="border-b-4 border-bauhaus-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-bauhaus-red flex items-center justify-center">
+                <Search className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
+                Screen a Sequence
+              </h2>
+            </div>
+            <LiveScreening />
           </div>
         </div>
       </section>
