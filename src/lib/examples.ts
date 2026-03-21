@@ -1,13 +1,15 @@
 export interface ExampleSequence {
   name: string;
   description: string;
+  hasMockReport: boolean;
   sequence: string;
 }
 
 export const exampleSequences: ExampleSequence[] = [
   {
     name: "ORD-2024-0847",
-    description: "Customer synthesis order — protein sequence, 238 aa",
+    description: "Protein sequence, 398 aa — 4 domains detected",
+    hasMockReport: true,
     sequence: `>ORD-2024-0847
 MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTL
 VTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVN
@@ -16,7 +18,8 @@ QQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK`,
   },
   {
     name: "SYN-00142",
-    description: "Customer synthesis order — protein sequence, 267 aa",
+    description: "Protein sequence, 535 aa — 2 domains detected",
+    hasMockReport: true,
     sequence: `>SYN-00142
 IFPKQYPIINFTTAGATVQSYTNFIRAVRGRLTTGADVRHEIPVLPNRVGLPINQRFILY
 ELSNHSAELSVTLALDVTNAYVVGYRAGNSAYFFHPDNQEDAEAITHLFTDVQNRYTFAF
@@ -26,19 +29,13 @@ VKDHLDKLEAQIGTCVSF`,
   },
   {
     name: "ORD-2024-1533",
-    description: "Customer synthesis order — protein sequence, 286 aa",
+    description: "Protein sequence, 267 aa — 2 domains detected",
+    hasMockReport: true,
     sequence: `>ORD-2024-1533
 MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPE
 ERFPMMSTFKVLLCGAVLSRIDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELS
 CSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMP
 VAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRG
 IIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW`,
-  },
-  {
-    name: "SYN-00391",
-    description: "Customer synthesis order — nucleotide fragment, 95 bp",
-    sequence: `>SYN-00391
-ATGCGTACCTGAACGGTTACGATCGATTACGCTAGCTACGATCGATCGATCGTAGCTAGCT
-ACGATCGATCGATCGTAGCTAGCTACGATCGATCG`,
   },
 ];
