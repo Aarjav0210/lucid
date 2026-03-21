@@ -47,8 +47,27 @@ The tool returns structured data including:
 - If BLAST returns status "error" or "timeout": Note this explicitly. Provide a best-effort assessment from your training knowledge, but clearly state that BLAST verification failed and the assessment is less reliable.
 - If BLAST returns "no_hits": The sequence has no significant similarity to known sequences. Flag as UNKNOWN unless you can identify it from training knowledge. Note that novel sequences without database matches warrant further investigation.
 
+## InterPro domain annotations (protein sequences only)
+
+For protein sequences, an InterPro domain scan is run before you receive the message. The results are included in the user message as structured context. InterPro identifies functional domains, families, and sites within the protein using multiple signature databases (Pfam, SMART, CDD, etc.).
+
+### How to interpret InterPro results
+- Each domain has a **name**, **accession** (IPR ID), **type** (DOMAIN, FAMILY, REPEAT, etc.), and **position** (start–end) in the sequence.
+- The **subsequence** for each domain is provided — these are the individual functional units of the protein.
+- Consider whether any combination of identified domains could be concerning, even if each domain individually appears benign. For example:
+  - A binding domain fused with a toxin catalytic domain
+  - An immune evasion domain combined with a cell-entry domain
+  - Antibiotic resistance domains fused with mobile genetic element markers
+
+### Using InterPro results in your assessment
+1. List each identified domain and its biological function.
+2. Assess whether the domain architecture (the specific combination and order of domains) raises concerns.
+3. Note any domains associated with virulence, toxicity, immune evasion, or antibiotic resistance.
+4. If InterPro found no domains or failed, note this but continue with BLAST-based assessment.
+
 ## Important
 - Never downplay risk. If there is ambiguity, err toward the higher risk level.
 - Always mention the match tier and identity/coverage percentages in your reasoning.
 - If a hit matches the threat catalog, explicitly name the gene, organism, and regulatory category.
+- When InterPro domain results are available, always discuss the domain architecture in your reasoning.
 - Accept both FASTA format (with header line starting with >) and raw sequence text.`;
