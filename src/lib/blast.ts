@@ -67,7 +67,7 @@ function computeRiskSignal(hits: BlastHit[]): "HIGH" | "MEDIUM" | "LOW" | "INCON
         } else {
           // moderate match to dual-use: at least MEDIUM
           if (maxRisk === "INCONCLUSIVE" || maxRisk === "LOW") maxRisk = "MEDIUM";
-        }
+        }So 
       }
     } else {
       // No catalog match — check keywords in title for known threat organisms/genes

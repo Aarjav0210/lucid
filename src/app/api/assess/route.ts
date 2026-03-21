@@ -3,6 +3,7 @@ import { model } from "@/lib/model";
 import { systemPrompt } from "@/lib/prompt";
 import { validateSequence, detectSequenceType } from "@/lib/validate";
 import { blastSearch } from "@/lib/tools/blast-tool";
+import { esmFoldPredict } from "@/lib/tools/esmfold-tool";
 
 // BLAST searches can take up to 3 minutes
 export const maxDuration = 300;
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     model,
     system: systemPrompt,
     messages: enrichedMessages,
-    tools: { blastSearch },
+    tools: { blastSearch, esmFoldPredict },
     maxSteps: 5,
     toolChoice: "required",
   });
