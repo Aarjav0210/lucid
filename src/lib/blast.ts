@@ -1,3 +1,4 @@
+import { unzipSync } from "fflate";
 import { lookupAccession, searchCatalogByKeywords, type ThreatEntry } from "./threat-catalog";
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -166,19 +167,65 @@ interface BlastJson2Hit {
 async function getBlastResults(rid: string): Promise<BlastJson2Hit[]> {
   const url = `${BLAST_BASE}?CMD=Get&RID=${rid}&FORMAT_TYPE=JSON2`;
   const res = await fetch(url);
-  const json = await res.json();
 
-  // Navigate the JSON2 structure
-  const report = json?.BlastOutput2?.[0]?.report;
+  const buf = await res.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+
+  let json: Record<string, unknown>;
+
+  // ZIP files start with "PK" (0x50 0x4B) — NCBI sometimes returns a
+  // compressed archive instead of plain JSON.
+  if (bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b) {
+    console.log("BLAST returned ZIP archive — decompressing");
+    try {
+      const unzipped = unzipSync(bytes);
+      const fileNames = Object.keys(unzipped);
+      const jsonFile = fileNames.find((f) => f.endsWith(".json")) ?? fileNames[0];
+      if (!jsonFile || !unzipped[jsonFile]) {
+        console.warn("ZIP archive contained no files");
+        return [];
+      }
+      const text = new TextDecoder().decode(unzipped[jsonFile]);
+      json = JSON.parse(text);
+    } catch (err) {
+      console.error("Failed to decompress/parse ZIP from BLAST:", err);
+      return [];
+    }
+  } else {
+    try {
+      const text = new TextDecoder().decode(bytes);
+      json = JSON.parse(text);
+    } catch {
+      console.error("Failed to parse BLAST JSON response:", new TextDecoder().decode(bytes.slice(0, 200)));
+      return [];
+    }
+  }
+
+  // Navigate the JSON structure — NCBI uses different schemas:
+  //   JSON2 (plain):  { BlastOutput2: [{ report: { results: { search: { hits } } } }] }
+  //   JSON  (in ZIP):  { BlastJSON: [{ report: { results: { search: { hits } } } }] }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const root = json as any;
+  const container = root.BlastOutput2 ?? root.BlastJSON;
+
+  if (!container) {
+    console.warn("BLAST JSON has unrecognized structure. Top-level keys:", Object.keys(json));
+    return [];
+  }
+
+  // Container can be an array (common) or an object
+  const reportWrapper = Array.isArray(container) ? container[0] : container;
+  const report = reportWrapper?.report;
+
   if (!report) {
-    // Try alternate structure
-    const search = json?.BlastOutput2?.report?.results?.search;
-    if (search?.hits) return search.hits;
+    // Some structures nest directly: container.results.search.hits
+    const search = reportWrapper?.results?.search;
+    if (search?.hits) return search.hits as BlastJson2Hit[];
     return [];
   }
 
   const hits = report?.results?.search?.hits;
-  return hits ?? [];
+  return (hits as BlastJson2Hit[]) ?? [];
 }
 
 // ── Parse hits into our typed format ───────────────────────────────────
