@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Loader2, Download } from "lucide-react";
 import type { SequenceReport as SequenceReportType } from "@/lib/report-types";
 import { DomainRuler } from "./domain-ruler";
 import { DomainCard } from "./domain-card";
@@ -21,6 +21,17 @@ interface SequenceReportProps {
 
 export function SequenceReport({ report, stickyOffset = 0, isGeneratingReport = false }: SequenceReportProps) {
   const [activeSection, setActiveSection] = useState(NAV_SECTIONS[0].id);
+  const [isSavingPdf, setIsSavingPdf] = useState(false);
+
+  const handleSavePdf = useCallback(async () => {
+    setIsSavingPdf(true);
+    try {
+      const { generateScreeningPDF } = await import("@/lib/generate-pdf");
+      generateScreeningPDF(report);
+    } finally {
+      setIsSavingPdf(false);
+    }
+  }, [report]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -145,6 +156,24 @@ export function SequenceReport({ report, stickyOffset = 0, isGeneratingReport = 
         {report.integratedReport && (
           <div id="section-report" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
             <IntegratedReport report={report.integratedReport} />
+          </div>
+        )}
+
+        {/* ── Save as PDF button ── */}
+        {report.integratedReport && (
+          <div className="flex justify-center pt-2 pb-4">
+            <button
+              onClick={handleSavePdf}
+              disabled={isSavingPdf}
+              className="flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-white hover:bg-bauhaus-muted/50 transition-colors shadow-[3px_3px_0px_0px_#121212] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSavingPdf ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {isSavingPdf ? "Generating PDF..." : "Save Report as PDF"}
+            </button>
           </div>
         )}
       </div>
