@@ -20,6 +20,7 @@ import {
   Layers,
   FileText,
   X,
+  Pencil,
 } from "lucide-react";
 
 /* ─── Color maps ─── */
@@ -690,6 +691,23 @@ function ReportView({
 
 export default function Home() {
   const [activeReport, setActiveReport] = useState<SequenceReport | null>(null);
+  const [submittedSequence, setSubmittedSequence] = useState<string | null>(null);
+  const [editingSequence, setEditingSequence] = useState(false);
+  const [editInput, setEditInput] = useState("");
+  const navRef = useRef<HTMLElement>(null);
+  const seqHeroRef = useRef<HTMLElement>(null);
+  const [stickyOffset, setStickyOffset] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const navH = navRef.current?.getBoundingClientRect().height ?? 0;
+      const seqH = seqHeroRef.current?.getBoundingClientRect().height ?? 0;
+      setStickyOffset(navH + seqH);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [submittedSequence, editingSequence]);
 
   const shapes = ["circle", "square", "triangle"] as const;
   const shapeColors = [
@@ -713,7 +731,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col">
       {/* ─── Navigation ─── */}
-      <nav className="border-b-4 border-bauhaus-black bg-white">
+      <nav ref={navRef} className="sticky top-0 z-50 border-b-4 border-bauhaus-black bg-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <BauhausLogo />
@@ -728,7 +746,13 @@ export default function Home() {
       </nav>
 
       {/* ─── Hero Section ─── */}
-      <section className="border-b-4 border-bauhaus-black">
+      <section
+        className={`overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          submittedSequence
+            ? "max-h-0 opacity-0 pointer-events-none"
+            : "max-h-[800px] opacity-100 border-b-4 border-bauhaus-black"
+        }`}
+      >
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2">
           <div className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
             <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
@@ -764,19 +788,86 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Sequence Hero (shown after submission) ─── */}
+      {submittedSequence && (
+        <section ref={seqHeroRef} className="sticky top-[68px] z-40 border-b-4 border-bauhaus-black bg-white/85 backdrop-blur-md hover:bg-white transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
+                    Screening Sequence
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/30">
+                    {submittedSequence.replace(/^>.*\n/, "").replace(/\s+/g, "").length} AA
+                  </span>
+                </div>
+                <p className="font-mono text-sm text-bauhaus-black/50 leading-relaxed break-all line-clamp-2">
+                  {submittedSequence.replace(/^>.*\n/, "").replace(/\s+/g, "")}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingSequence(!editingSequence);
+                  if (!editingSequence) {
+                    setEditInput(submittedSequence);
+                  }
+                }}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/50 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
+              >
+                <Pencil className="w-3 h-3" />
+                Edit
+              </button>
+            </div>
+            {/* Edit dropdown */}
+            {editingSequence && (
+              <div className="mt-3 space-y-2">
+                <textarea
+                  value={editInput}
+                  onChange={(e) => setEditInput(e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3 font-mono text-sm bg-bauhaus-muted/30 text-bauhaus-black border-2 border-bauhaus-black/20 focus:border-bauhaus-black focus:outline-none resize-y placeholder:text-bauhaus-black/25"
+                  spellCheck={false}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingSequence(false);
+                      setSubmittedSequence(editInput);
+                      window.dispatchEvent(new CustomEvent("lucid:resubmit", { detail: editInput }));
+                    }}
+                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-bauhaus-black text-white border-2 border-bauhaus-black hover:bg-bauhaus-black/80 transition-colors"
+                  >
+                    Resubmit
+                  </button>
+                  <button
+                    onClick={() => setEditingSequence(false)}
+                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/50 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* ─── Live Screening ─── */}
       <section id="screen" className="border-b-4 border-bauhaus-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-bauhaus-blue flex items-center justify-center">
-                <Search className="w-4 h-4 text-white" />
+          <div className={submittedSequence ? "max-w-6xl mx-auto" : "max-w-4xl mx-auto"}>
+            {!submittedSequence && (
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-bauhaus-blue flex items-center justify-center">
+                  <Search className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
+                  Screen a Sequence
+                </h2>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
-                Screen a Sequence
-              </h2>
-            </div>
-            <LiveScreening />
+            )}
+            <LiveScreening onSequenceSubmit={setSubmittedSequence} stickyOffset={stickyOffset} />
           </div>
         </div>
       </section>

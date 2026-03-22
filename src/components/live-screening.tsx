@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { SequenceInput } from "./sequence-input";
 import {
   PipelineProgress,
@@ -10,12 +10,18 @@ import {
 import { SequenceReport } from "./report/sequence-report";
 import type { SequenceReport as SequenceReportType } from "@/lib/report-types";
 
-export function LiveScreening() {
+interface LiveScreeningProps {
+  onSequenceSubmit?: (sequence: string) => void;
+  stickyOffset?: number;
+}
+
+export function LiveScreening({ onSequenceSubmit, stickyOffset = 0 }: LiveScreeningProps) {
   const [pipelineState, setPipelineState] = useState<PipelineState | null>(
     null
   );
   const [report, setReport] = useState<SequenceReportType | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   const domainsRef = useRef<DomainProgress[]>([]);
 
@@ -23,6 +29,8 @@ export function LiveScreening() {
     setIsRunning(true);
     setReport(null);
     domainsRef.current = [];
+    setHasSubmitted(true);
+    onSequenceSubmit?.(rawSequence);
 
     const initialState: PipelineState = {
       stage: "starting",
@@ -268,27 +276,34 @@ export function LiveScreening() {
     []
   );
 
+  // Listen for resubmit events from the sequence hero edit
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const seq = (e as CustomEvent).detail as string;
+      handleSubmit(seq);
+    };
+    window.addEventListener("lucid:resubmit", handler);
+    return () => window.removeEventListener("lucid:resubmit", handler);
+  }, [handleSubmit]);
+
   return (
-    <div className="space-y-10">
-      <SequenceInput onSubmit={handleSubmit} isRunning={isRunning} />
+    <div>
+      {!hasSubmitted && (
+        <div className="mb-10">
+          <SequenceInput onSubmit={handleSubmit} isRunning={isRunning} />
+        </div>
+      )}
 
       {pipelineState && pipelineState.stage !== "done" && (
-        <PipelineProgress state={pipelineState} />
+        <div className={hasSubmitted ? "" : "mt-10"}>
+          <PipelineProgress state={pipelineState} />
+        </div>
       )}
 
       {report && (
-        <>
-          <div className="flex justify-center">
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-0.5 h-4 bg-bauhaus-black/20" />
-              <div className="w-3 h-3 rotate-45 border-b-2 border-r-2 border-bauhaus-black/20" />
-              <div className="w-0.5 h-4 bg-bauhaus-black/20" />
-            </div>
-          </div>
-          <div ref={reportRef}>
-            <SequenceReport report={report} />
-          </div>
-        </>
+        <div ref={reportRef} style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
+          <SequenceReport report={report} stickyOffset={stickyOffset} />
+        </div>
       )}
     </div>
   );
