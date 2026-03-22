@@ -40,24 +40,27 @@ export async function POST(req: NextRequest) {
       const callbacks: PipelineCallbacks = {
         onLog: (msg) => send("log", { message: msg }),
         onDomainStart: async (i, annotation) => {
-          await delay(150);
+          await delay(3000);
           send("domain_start", { index: i, annotation });
         },
         onDiamondComplete: async (i, matched) => {
-          await delay(300);
+          await delay(3000);
           send("diamond_complete", { index: i, matched });
         },
         onEsmFoldComplete: async (i) => {
-          await delay(300);
+          await delay(3000);
           send("esmfold_complete", { index: i });
         },
         onFoldseekComplete: async (i) => {
-          await delay(300);
+          await delay(3000);
           send("foldseek_complete", { index: i });
         },
-        onDomainComplete: async (i) => {
-          await delay(150);
-          send("domain_complete", { index: i });
+        onDomainComplete: async (i, domainReport) => {
+          await delay(500);
+          send("domain_complete", { index: i, domainReport });
+        },
+        onDomainsExtracted: async (domains, sequenceLength, orderId) => {
+          send("domains_extracted", { domains, sequenceLength, orderId });
         },
       };
 

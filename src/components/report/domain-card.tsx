@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, AlertTriangle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ChevronDown, AlertTriangle, Loader2 } from "lucide-react";
 import type { DomainReport } from "@/lib/report-types";
 import { RiskBadge } from "./risk-badge";
 import { PipelineStep } from "./pipeline-step";
@@ -101,6 +101,18 @@ export function DomainCard({ report, index }: DomainCardProps) {
   const [summaryExpanded, setSummaryExpanded] = useState(true);
   const borderColor = DOMAIN_BORDER;
   const hasStructure = report.structure?.status === "completed" && report.structure.pdbString;
+  const isLoading = !report.summary;
+
+  // Track when loading finishes to trigger reveal animation
+  const [revealed, setRevealed] = useState(!isLoading);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isLoading && !revealed) {
+      // Small delay so the browser can measure the content height
+      requestAnimationFrame(() => setRevealed(true));
+    }
+  }, [isLoading, revealed]);
 
   return (
     <div
@@ -108,15 +120,21 @@ export function DomainCard({ report, index }: DomainCardProps) {
     >
       {/* Domain header */}
       <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full px-4 py-3 flex items-center justify-between border-b border-bauhaus-black/10 hover:bg-bauhaus-muted/30 transition-colors"
+        onClick={() => !isLoading && setExpanded(!expanded)}
+        className={`w-full px-4 py-3 flex items-center justify-between ${
+          isLoading ? "" : "border-b border-bauhaus-black/10 hover:bg-bauhaus-muted/30"
+        } transition-colors`}
       >
         <div className="flex items-center gap-3">
-          <ChevronDown
-            className={`w-4 h-4 text-bauhaus-black/30 transition-transform duration-200 ${
-              expanded ? "rotate-180" : ""
-            }`}
-          />
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 text-bauhaus-blue animate-spin" />
+          ) : (
+            <ChevronDown
+              className={`w-4 h-4 text-bauhaus-black/30 transition-transform duration-200 ${
+                expanded ? "rotate-180" : ""
+              }`}
+            />
+          )}
           <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
             Domain {index + 1}
           </span>
@@ -127,13 +145,23 @@ export function DomainCard({ report, index }: DomainCardProps) {
             {report.domain.start}–{report.domain.end} ({report.domain.sequence.length} AA)
           </span>
         </div>
-        {report.summary && (
-          <RiskBadge level={report.summary.riskLevel} size="sm" />
+        {isLoading ? (
+          <span className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/30">
+            Analyzing...
+          </span>
+        ) : (
+          report.summary && <RiskBadge level={report.summary.riskLevel} size="sm" />
         )}
       </button>
 
-      {/* Content: two-column if structure exists, single column otherwise */}
-      {expanded && (<>
+      {/* Content: hidden while loading, animated reveal when ready */}
+      {!isLoading && expanded && (
+        <div
+          ref={contentRef}
+          className={`transition-all duration-500 ease-out overflow-hidden ${
+            revealed ? "opacity-100 max-h-[2000px]" : "opacity-0 max-h-0"
+          }`}
+        >
       <div className={hasStructure ? "flex flex-col md:flex-row" : ""}>
         {/* Left: pipeline steps */}
         <div className={hasStructure ? "flex-1 md:border-r border-bauhaus-black/10" : ""}>
@@ -293,7 +321,8 @@ export function DomainCard({ report, index }: DomainCardProps) {
           )}
         </div>
       )}
-      </>)}
+        </div>
+      )}
     </div>
   );
 }

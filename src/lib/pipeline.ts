@@ -155,7 +155,8 @@ export interface PipelineCallbacks {
   onDiamondComplete?: (domainIndex: number, matched: boolean) => void | Promise<void>;
   onEsmFoldComplete?: (domainIndex: number) => void | Promise<void>;
   onFoldseekComplete?: (domainIndex: number) => void | Promise<void>;
-  onDomainComplete?: (domainIndex: number) => void | Promise<void>;
+  onDomainComplete?: (domainIndex: number, domainReport: DomainReport) => void | Promise<void>;
+  onDomainsExtracted?: (domains: ExtractedDomain[], sequenceLength: number, orderId: string) => void | Promise<void>;
   onLog?: (message: string) => void;
 }
 
@@ -232,9 +233,7 @@ async function runDomainPipeline(
         .flatMap((h) => h.threatFlags.map((f) => `${f} (${h.identity}% identity)`)),
     };
 
-    await callbacks?.onDomainComplete?.(domainIndex);
-
-    return {
+    const earlyReport: DomainReport = {
       domain,
       diamond: diamondResult,
       structure: null,
@@ -242,6 +241,9 @@ async function runDomainPipeline(
       summary,
       progress,
     };
+
+    await callbacks?.onDomainComplete?.(domainIndex, earlyReport);
+    return earlyReport;
   }
 
   // ── Stage B: ESMFold ──
@@ -336,9 +338,7 @@ async function runDomainPipeline(
     flags: collectFlags(diamondResult, foldseekResult),
   };
 
-  callbacks?.onDomainComplete?.(domainIndex);
-
-  return {
+  const domainReport: DomainReport = {
     domain,
     diamond: diamondResult,
     structure: structureResult,
@@ -346,6 +346,10 @@ async function runDomainPipeline(
     summary,
     progress,
   };
+
+  await callbacks?.onDomainComplete?.(domainIndex, domainReport);
+
+  return domainReport;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -565,6 +569,8 @@ export async function runScreeningPipeline(
   for (const d of structuralDomains) {
     log(`  • ${d.annotation} (${d.start}-${d.end}, ${d.sequence.length} AA)`);
   }
+
+  await options?.callbacks?.onDomainsExtracted?.(structuralDomains, sequence.length, orderId);
 
   // ── Step 4: Per-domain pipelines (parallel) ──
   log("\n--- Stage 2: Per-Domain Analysis ---");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import type { SequenceReport as SequenceReportType } from "@/lib/report-types";
 import { DomainRuler } from "./domain-ruler";
 import { DomainCard } from "./domain-card";
@@ -15,9 +16,10 @@ const NAV_SECTIONS = [
 interface SequenceReportProps {
   report: SequenceReportType;
   stickyOffset?: number;
+  isGeneratingReport?: boolean;
 }
 
-export function SequenceReport({ report, stickyOffset = 0 }: SequenceReportProps) {
+export function SequenceReport({ report, stickyOffset = 0, isGeneratingReport = false }: SequenceReportProps) {
   const [activeSection, setActiveSection] = useState(NAV_SECTIONS[0].id);
 
   useEffect(() => {
@@ -130,6 +132,16 @@ export function SequenceReport({ report, stickyOffset = 0 }: SequenceReportProps
         </div>
 
         {/* ── Integrated report ── */}
+        {isGeneratingReport && !report.integratedReport && (
+          <div id="section-report" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
+            <div className="bg-white border-2 border-bauhaus-black shadow-[6px_6px_0px_0px_#121212] border-t-[6px] border-t-bauhaus-muted px-6 py-5 flex items-center gap-3">
+              <Loader2 className="w-4 h-4 text-bauhaus-blue animate-spin" />
+              <span className="text-sm font-medium text-bauhaus-black/60">
+                Generating integrated risk assessment...
+              </span>
+            </div>
+          </div>
+        )}
         {report.integratedReport && (
           <div id="section-report" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
             <IntegratedReport report={report.integratedReport} />
