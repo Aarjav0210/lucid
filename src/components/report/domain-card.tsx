@@ -89,14 +89,7 @@ function AlignmentView({ qseq, sseq, isThreat }: { qseq: string; sseq: string; i
   );
 }
 
-const DOMAIN_COLORS = [
-  "border-l-bauhaus-red",
-  "border-l-bauhaus-blue",
-  "border-l-bauhaus-yellow",
-  "border-l-[#8B5CF6]",
-  "border-l-[#059669]",
-  "border-l-[#EA580C]",
-];
+const DOMAIN_BORDER = "border-l-bauhaus-blue";
 
 interface DomainCardProps {
   report: DomainReport;
@@ -104,8 +97,9 @@ interface DomainCardProps {
 }
 
 export function DomainCard({ report, index }: DomainCardProps) {
+  const [expanded, setExpanded] = useState(true);
   const [summaryExpanded, setSummaryExpanded] = useState(true);
-  const borderColor = DOMAIN_COLORS[index % DOMAIN_COLORS.length];
+  const borderColor = DOMAIN_BORDER;
   const hasStructure = report.structure?.status === "completed" && report.structure.pdbString;
 
   return (
@@ -113,8 +107,16 @@ export function DomainCard({ report, index }: DomainCardProps) {
       className={`bg-white border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] border-l-[6px] ${borderColor}`}
     >
       {/* Domain header */}
-      <div className="px-4 py-3 flex items-center justify-between border-b border-bauhaus-black/10">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full px-4 py-3 flex items-center justify-between border-b border-bauhaus-black/10 hover:bg-bauhaus-muted/30 transition-colors"
+      >
         <div className="flex items-center gap-3">
+          <ChevronDown
+            className={`w-4 h-4 text-bauhaus-black/30 transition-transform duration-200 ${
+              expanded ? "rotate-180" : ""
+            }`}
+          />
           <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
             Domain {index + 1}
           </span>
@@ -128,9 +130,10 @@ export function DomainCard({ report, index }: DomainCardProps) {
         {report.summary && (
           <RiskBadge level={report.summary.riskLevel} size="sm" />
         )}
-      </div>
+      </button>
 
       {/* Content: two-column if structure exists, single column otherwise */}
+      {expanded && (<>
       <div className={hasStructure ? "flex flex-col md:flex-row" : ""}>
         {/* Left: pipeline steps */}
         <div className={hasStructure ? "flex-1 md:border-r border-bauhaus-black/10" : ""}>
@@ -290,6 +293,7 @@ export function DomainCard({ report, index }: DomainCardProps) {
           )}
         </div>
       )}
+      </>)}
     </div>
   );
 }
