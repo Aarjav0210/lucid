@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { exampleSequences } from "@/lib/examples";
 import {
   mockReports,
@@ -63,18 +63,136 @@ function BauhausLogo() {
   );
 }
 
-function GeometricComposition() {
+function DnaHelix() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let t = 0;
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    const helices = [
+      { offset: -140, color: "rgba(5,150,105,0.8)", phaseOffset: 0, speed: 0.005 },
+      { offset: 0, color: "rgba(232,65,24,0.85)", phaseOffset: 2.1, speed: 0.006 },
+      { offset: 140, color: "rgba(255,200,0,0.8)", phaseOffset: 4.2, speed: 0.007 },
+    ];
+
+    const draw = () => {
+      const w = canvas.getBoundingClientRect().width;
+      const h = canvas.getBoundingClientRect().height;
+      ctx.clearRect(0, 0, w, h);
+
+      const diagLen = Math.sqrt(w * w + h * h);
+      const angle = Math.atan2(h, w);
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+
+      const amplitude = 50;
+      const step = 14;
+      const twist = 0.07;
+
+      for (const helix of helices) {
+        const numPoints = Math.ceil(diagLen / step) + 6;
+
+        const s1: { x: number; y: number; z: number }[] = [];
+        const s2: { x: number; y: number; z: number }[] = [];
+
+        for (let i = -3; i < numPoints; i++) {
+          const d = -40 + i * step;
+          const phase = i * twist + t * helix.speed + helix.phaseOffset;
+
+          const perp1 = Math.sin(phase) * amplitude + helix.offset;
+          const perp2 = Math.sin(phase + Math.PI) * amplitude + helix.offset;
+          const z1 = Math.cos(phase);
+          const z2 = Math.cos(phase + Math.PI);
+
+          s1.push({ x: d * cosA + perp1 * (-sinA), y: d * sinA + perp1 * cosA, z: z1 });
+          s2.push({ x: d * cosA + perp2 * (-sinA), y: d * sinA + perp2 * cosA, z: z2 });
+        }
+
+        // Rungs
+        for (let i = 0; i < s1.length; i++) {
+          if (i % 3 !== 0) continue;
+          const p1 = s1[i];
+          const p2 = s2[i];
+          const avgZ = (p1.z + p2.z) / 2;
+          ctx.strokeStyle = avgZ > 0 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)";
+          ctx.lineWidth = avgZ > 0 ? 2.5 : 1.5;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+
+        // Strand drawing
+        const drawStrand = (points: typeof s1, isFront: boolean) => {
+          ctx.strokeStyle = helix.color;
+          ctx.lineWidth = isFront ? 5 : 3;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          for (let i = 0; i < points.length; i++) {
+            const p = points[i];
+            const show = isFront ? p.z >= 0 : p.z < 0;
+            if (!show) continue;
+            if (i === 0 || (isFront ? points[i - 1].z < 0 : points[i - 1].z >= 0)) {
+              ctx.moveTo(p.x, p.y);
+            } else {
+              ctx.lineTo(p.x, p.y);
+            }
+          }
+          ctx.stroke();
+
+          for (const p of points) {
+            const show = isFront ? p.z >= 0 : p.z < 0;
+            if (!show) continue;
+            ctx.fillStyle = helix.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, isFront ? 4.5 : 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        };
+
+        // Both strands use the same color
+        drawStrand(s1, false);
+        drawStrand(s2, false);
+        drawStrand(s1, true);
+        drawStrand(s2, true);
+      }
+
+      t++;
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
   return (
-    <div className="relative w-full h-full min-h-[200px]">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-48 sm:h-48 rounded-full border-4 border-white/30" />
-      <div className="absolute top-[15%] left-[20%] w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-bauhaus-red opacity-80" />
-      <div className="absolute bottom-[15%] right-[15%] w-20 h-20 sm:w-28 sm:h-28 bg-bauhaus-yellow opacity-70 rotate-45" />
-      <div className="absolute top-[20%] right-[25%] w-10 h-10 sm:w-14 sm:h-14 bg-white opacity-30" />
-      <div
-        className="absolute bottom-[25%] left-[15%] w-14 h-14 sm:w-20 sm:h-20 bg-white opacity-40"
-        style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+    />
   );
 }
 
@@ -641,7 +759,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden lg:block bg-bauhaus-blue relative overflow-hidden border-l-4 border-bauhaus-black">
-            <GeometricComposition />
+            <DnaHelix />
           </div>
         </div>
       </section>
