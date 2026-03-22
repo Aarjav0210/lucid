@@ -269,7 +269,7 @@ export function LiveScreening() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <SequenceInput onSubmit={handleSubmit} isRunning={isRunning} />
 
       {pipelineState && pipelineState.stage !== "done" && (
@@ -277,9 +277,18 @@ export function LiveScreening() {
       )}
 
       {report && (
-        <div ref={reportRef}>
-          <SequenceReport report={report} />
-        </div>
+        <>
+          <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-1">
+              <div className="w-0.5 h-4 bg-bauhaus-black/20" />
+              <div className="w-3 h-3 rotate-45 border-b-2 border-r-2 border-bauhaus-black/20" />
+              <div className="w-0.5 h-4 bg-bauhaus-black/20" />
+            </div>
+          </div>
+          <div ref={reportRef}>
+            <SequenceReport report={report} />
+          </div>
+        </>
       )}
     </div>
   );

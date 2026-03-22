@@ -14,7 +14,7 @@ export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-bauhaus-black/50">
         <span>1</span>
-        <span>Domain Architecture</span>
+        <span>InterPro Domain Architecture</span>
         <span>{sequenceLength} AA</span>
       </div>
 

@@ -734,7 +734,7 @@ export default function Home() {
             <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
               Screen
               <br />
-              <span className="text-bauhaus-red">Sequences</span>
+              <span className="text-bauhaus-blue">Sequences</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl font-medium text-bauhaus-black/70 max-w-lg leading-relaxed">
               Biosecurity screening — InterPro domain analysis, Diamond sequence
@@ -744,7 +744,7 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href="#screen"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-red text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-red/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
                 Screen a Sequence
                 <ArrowRight className="w-4 h-4" />
@@ -769,7 +769,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-bauhaus-red flex items-center justify-center">
+              <div className="w-8 h-8 bg-bauhaus-blue flex items-center justify-center">
                 <Search className="w-4 h-4 text-white" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">

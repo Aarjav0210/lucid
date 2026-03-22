@@ -13,6 +13,10 @@ export function SequenceReport({ report }: SequenceReportProps) {
   return (
     <div className="space-y-8">
       {/* ── Sequence overview + domain ruler ── */}
+      <div className="space-y-1">
+        <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-4">
+          Structural Domain Identification
+        </p>
       <div className="bg-white border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -34,6 +38,7 @@ export function SequenceReport({ report }: SequenceReportProps) {
           domains={report.domains}
           sequenceLength={report.sequenceLength}
         />
+      </div>
       </div>
 
       {/* ── Connector: domains fan out ── */}
