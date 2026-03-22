@@ -51,9 +51,9 @@ function DnaHelix() {
     window.addEventListener("resize", resize);
 
     const helices = [
-      { offset: -140, color: "rgba(5,150,105,0.8)", phaseOffset: 0, speed: 0.005 },
+      { offset: -220, color: "rgba(5,150,105,0.8)", phaseOffset: 0, speed: 0.005 },
       { offset: 0, color: "rgba(232,65,24,0.85)", phaseOffset: 2.1, speed: 0.006 },
-      { offset: 140, color: "rgba(255,200,0,0.8)", phaseOffset: 4.2, speed: 0.007 },
+      { offset: 220, color: "rgba(255,200,0,0.8)", phaseOffset: 4.2, speed: 0.007 },
     ];
 
     const draw = () => {
@@ -104,39 +104,25 @@ function DnaHelix() {
         }
 
         // Strand drawing
-        const drawStrand = (points: typeof s1, isFront: boolean) => {
+        const drawStrand = (points: typeof s1) => {
           ctx.strokeStyle = helix.color;
-          ctx.lineWidth = isFront ? 5 : 3;
+          ctx.lineWidth = 4;
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
           ctx.beginPath();
           for (let i = 0; i < points.length; i++) {
             const p = points[i];
-            const show = isFront ? p.z >= 0 : p.z < 0;
-            if (!show) continue;
-            if (i === 0 || (isFront ? points[i - 1].z < 0 : points[i - 1].z >= 0)) {
+            if (i === 0) {
               ctx.moveTo(p.x, p.y);
             } else {
               ctx.lineTo(p.x, p.y);
             }
           }
           ctx.stroke();
-
-          for (const p of points) {
-            const show = isFront ? p.z >= 0 : p.z < 0;
-            if (!show) continue;
-            ctx.fillStyle = helix.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, isFront ? 4.5 : 3, 0, Math.PI * 2);
-            ctx.fill();
-          }
         };
 
-        // Both strands use the same color
-        drawStrand(s1, false);
-        drawStrand(s2, false);
-        drawStrand(s1, true);
-        drawStrand(s2, true);
+        drawStrand(s1);
+        drawStrand(s2);
       }
 
       t++;
