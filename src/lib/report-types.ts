@@ -26,6 +26,11 @@ export interface DiamondHit {
   evalue: number;
   bitScore: number;
   threatFlags: string[];  // e.g. ["select_agent", "toxin"]
+  qStart: number;         // alignment start on query (1-based)
+  qEnd: number;           // alignment end on query (1-based)
+  queryLength: number;    // total query sequence length
+  qseq: string;           // aligned query sequence (with gaps)
+  sseq: string;           // aligned subject sequence (with gaps)
 }
 
 export interface DiamondResult {

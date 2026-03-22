@@ -46,7 +46,7 @@ export function SequenceReport({ report }: SequenceReportProps) {
         <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-4">
           Per-Domain Analysis
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="flex flex-col gap-6">
           {report.domains.map((domainReport, i) => (
             <DomainCard key={domainReport.domain.start} report={domainReport} index={i} />
           ))}

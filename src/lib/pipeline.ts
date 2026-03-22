@@ -89,6 +89,11 @@ function classifyDiamondHit(
     evalue: hit.eValue,
     bitScore: hit.bitScore,
     threatFlags,
+    qStart: hit.qStart,
+    qEnd: hit.qEnd,
+    queryLength: hit.qEnd, // will be overridden by caller with actual domain length
+    qseq: hit.qseq,
+    sseq: hit.sseq,
   };
 }
 
@@ -183,7 +188,11 @@ async function runDomainPipeline(
 
   try {
     const raw = await diamondSearch(domain.sequence);
-    const hits = raw.hits.map(classifyDiamondHit);
+    const hits = raw.hits.map((h) => {
+      const hit = classifyDiamondHit(h);
+      hit.queryLength = domain.sequence.length;
+      return hit;
+    });
     diamondResult = {
       status: raw.status === "completed" ? "completed" : raw.status === "no_hits" ? "no_hits" : "error",
       error: raw.error,
@@ -382,7 +391,7 @@ function buildDomainReasoning(
     const flagged = foldseek.hits.filter((h) => h.flagged);
     if (flagged.length > 0) {
       parts.push(
-        `Structural search flagged ${flagged.length} hit(s) with risk keywords: ${flagged.flatMap((h) => h.riskKeywords).join(", ")}.`
+        `Structural search flagged ${flagged.length} hit(s) as potential threats.`
       );
     } else {
       parts.push(
@@ -400,12 +409,11 @@ function collectFlags(
   diamond: ReportDiamondResult | null,
   foldseek: ReportFoldseekResult | null
 ): string[] {
-  const flags: string[] = [];
+  const counts = new Map<string, number>();
   if (diamond?.hits) {
     for (const h of diamond.hits) {
       for (const f of h.threatFlags) {
-        const label = `${f} (${h.identity}% identity)`;
-        if (!flags.includes(label)) flags.push(label);
+        counts.set(f, (counts.get(f) ?? 0) + 1);
       }
     }
   }
@@ -413,12 +421,13 @@ function collectFlags(
     for (const h of foldseek.hits) {
       if (h.flagged) {
         for (const kw of h.riskKeywords) {
-          if (!flags.includes(kw)) flags.push(kw);
+          counts.set(kw, (counts.get(kw) ?? 0) + 1);
         }
       }
     }
   }
-  return flags;
+  // Encode as "keyword:count" so the UI can split and display
+  return [...counts.entries()].map(([kw, n]) => `${kw}:${n}`);
 }
 
 // ── Main pipeline entry point ────────────────────────────────────────
