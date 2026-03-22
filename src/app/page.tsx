@@ -38,6 +38,21 @@ function DnaHelix() {
 
     let animId: number;
     let t = 0;
+    const mouse = { x: -9999, y: -9999 };
+    const nucleotides = ["A", "C", "G", "T"];
+
+    // Deterministic letter per position so it doesn't flicker
+    const letterFor = (helixIdx: number, strandIdx: number, pointIdx: number) =>
+      nucleotides[(helixIdx * 7 + strandIdx * 3 + pointIdx) % 4];
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+    const onMouseLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseleave", onMouseLeave);
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -123,6 +138,43 @@ function DnaHelix() {
 
         drawStrand(s1);
         drawStrand(s2);
+
+        // Dots that morph into nucleotide letters on hover
+        const hoverRadius = 40;
+        const helixIdx = helices.indexOf(helix);
+        const drawDots = (points: typeof s1, strandIdx: number) => {
+          for (let i = 0; i < points.length; i++) {
+            const p = points[i];
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const blend = Math.max(0, 1 - dist / hoverRadius);
+
+            if (blend > 0) {
+              // Letter
+              const letter = letterFor(helixIdx, strandIdx, i);
+              ctx.save();
+              ctx.font = `bold ${10 + blend * 6}px monospace`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillStyle = `rgba(255,255,255,${blend.toFixed(2)})`;
+              ctx.fillText(letter, p.x, p.y);
+              ctx.restore();
+            }
+
+            // Dot (shrinks as letter appears)
+            const dotRadius = (1 - blend) * 3.5;
+            if (dotRadius > 0.2) {
+              ctx.fillStyle = helix.color;
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        };
+
+        drawDots(s1, 0);
+        drawDots(s2, 1);
       }
 
       t++;
@@ -134,6 +186,8 @@ function DnaHelix() {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
+      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("mouseleave", onMouseLeave);
     };
   }, []);
 
