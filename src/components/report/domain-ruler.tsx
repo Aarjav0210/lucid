@@ -19,7 +19,10 @@ export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
       </div>
 
       {/* Ruler bar */}
-      <div className="relative h-12 bg-bauhaus-muted border-2 border-bauhaus-black overflow-hidden">
+      <div
+        className="relative h-12 border-2 border-bauhaus-black overflow-hidden"
+        style={{ backgroundColor: "#f0ece4" }}
+      >
         {domains.map((dr, i) => {
           const left = ((dr.domain.start - 1) / sequenceLength) * 100;
           const width =
@@ -30,7 +33,11 @@ export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
             <div
               key={`${dr.domain.start}-${dr.domain.end}`}
               className={`absolute top-0 h-full ${color} border-r-2 border-bauhaus-black flex items-center justify-center overflow-hidden`}
-              style={{ left: `${left}%`, width: `${width}%` }}
+              style={{
+                left: `${left}%`,
+                width: `${width}%`,
+                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.15) 19px, rgba(255,255,255,0.15) 20px)`,
+              }}
               title={`${dr.domain.annotation} (${dr.domain.start}–${dr.domain.end})`}
             >
               <span className="text-[10px] font-bold text-white uppercase tracking-wider truncate px-1">
