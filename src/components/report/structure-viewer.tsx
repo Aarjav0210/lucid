@@ -34,7 +34,8 @@ export function StructureViewer({ pdbString, plddtMean, height = 300 }: Structur
       viewer.setStyle({}, {
         cartoon: {
           colorfunc: (atom: any) => {
-            const b = atom.b; // pLDDT stored in B-factor
+            // pLDDT stored in B-factor — ESMFold may use 0-1 or 0-100 scale
+            const b = atom.b > 1 ? atom.b : atom.b * 100;
             if (b >= 90) return "rgb(0, 83, 214)";      // very high — blue
             if (b >= 70) return "rgb(101, 203, 243)";    // confident — light blue
             if (b >= 50) return "rgb(255, 219, 19)";     // low — yellow

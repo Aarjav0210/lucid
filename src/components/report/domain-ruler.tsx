@@ -2,14 +2,7 @@
 
 import type { DomainReport } from "@/lib/report-types";
 
-const DOMAIN_COLORS = [
-  "bg-bauhaus-red",
-  "bg-bauhaus-blue",
-  "bg-bauhaus-yellow",
-  "bg-[#8B5CF6]",   // purple
-  "bg-[#059669]",   // emerald
-  "bg-[#EA580C]",   // orange
-];
+const DOMAIN_COLOR = "bg-bauhaus-blue";
 
 interface DomainRulerProps {
   domains: DomainReport[];
@@ -21,23 +14,30 @@ export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-bauhaus-black/50">
         <span>1</span>
-        <span>Domain Architecture</span>
+        <span>InterPro Domain Architecture</span>
         <span>{sequenceLength} AA</span>
       </div>
 
       {/* Ruler bar */}
-      <div className="relative h-12 bg-bauhaus-muted border-2 border-bauhaus-black overflow-hidden">
+      <div
+        className="relative h-12 border-2 border-bauhaus-black overflow-hidden"
+        style={{ backgroundColor: "#f0ece4" }}
+      >
         {domains.map((dr, i) => {
           const left = ((dr.domain.start - 1) / sequenceLength) * 100;
           const width =
             ((dr.domain.end - dr.domain.start + 1) / sequenceLength) * 100;
-          const color = DOMAIN_COLORS[i % DOMAIN_COLORS.length];
+          const color = DOMAIN_COLOR;
 
           return (
             <div
               key={`${dr.domain.start}-${dr.domain.end}`}
               className={`absolute top-0 h-full ${color} border-r-2 border-bauhaus-black flex items-center justify-center overflow-hidden`}
-              style={{ left: `${left}%`, width: `${width}%` }}
+              style={{
+                left: `${left}%`,
+                width: `${width}%`,
+                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.15) 19px, rgba(255,255,255,0.15) 20px)`,
+              }}
               title={`${dr.domain.annotation} (${dr.domain.start}–${dr.domain.end})`}
             >
               <span className="text-[10px] font-bold text-white uppercase tracking-wider truncate px-1">
@@ -51,7 +51,7 @@ export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
       {/* Labels below */}
       <div className="flex flex-wrap gap-3">
         {domains.map((dr, i) => {
-          const color = DOMAIN_COLORS[i % DOMAIN_COLORS.length];
+          const color = DOMAIN_COLOR;
           return (
             <div key={`label-${dr.domain.start}`} className="flex items-center gap-1.5">
               <div className={`w-3 h-3 ${color} border border-bauhaus-black`} />

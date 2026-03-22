@@ -5,7 +5,7 @@ import type { RiskLevel } from "@/lib/report-types";
 const riskStyles: Record<RiskLevel, string> = {
   HIGH: "bg-bauhaus-red text-white",
   MEDIUM: "bg-bauhaus-yellow text-bauhaus-black",
-  LOW: "bg-bauhaus-blue text-white",
+  LOW: "bg-emerald-600 text-white",
   UNKNOWN: "bg-bauhaus-muted text-bauhaus-black",
 };
 

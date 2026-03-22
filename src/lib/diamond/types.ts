@@ -10,6 +10,8 @@ export interface DiamondHit {
   sEnd: number;
   eValue: number;          // e.g. 1e-45
   bitScore: number;
+  qseq: string;            // aligned query sequence (with gaps)
+  sseq: string;            // aligned subject sequence (with gaps)
   description?: string;    // e.g. "Ricin A-chain"
 }
 

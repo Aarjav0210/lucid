@@ -3,8 +3,6 @@
 import { useState, useCallback } from "react";
 import { ArrowRight, AlertTriangle, Loader2 } from "lucide-react";
 
-const MAX_AA = 400;
-
 interface SequenceInputProps {
   onSubmit: (sequence: string) => void;
   isRunning: boolean;
@@ -46,11 +44,6 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
       return;
     }
 
-    if (seq.length > MAX_AA) {
-      setError(`Sequence exceeds the ${MAX_AA} amino acid limit (${seq.length} residues).`);
-      return;
-    }
-
     // Check it's protein, not nucleotide
     const aminoOnly = /[DEFHIKLMPQRSVWY]/i;
     if (!aminoOnly.test(seq)) {
@@ -70,14 +63,12 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
         </span>
         <span
           className={`text-xs font-bold uppercase tracking-widest ${
-            aaCount > MAX_AA
-              ? "text-bauhaus-red"
-              : aaCount > 0
-                ? "text-bauhaus-black/40"
-                : "text-bauhaus-black/20"
+            aaCount > 0
+              ? "text-bauhaus-black/40"
+              : "text-bauhaus-black/20"
           }`}
         >
-          {aaCount} / {MAX_AA} AA
+          {aaCount} AA
         </span>
       </div>
 
@@ -88,7 +79,7 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
             setInput(e.target.value);
             setError(null);
           }}
-          placeholder={`Paste a protein sequence (FASTA or raw, up to ${MAX_AA} amino acids)...\n\nExample:\n>ORD-2026-0001\nMSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK...`}
+          placeholder={`Paste a protein sequence (FASTA or raw)...\n\nExample:\n>ORD-2026-0001\nMSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK...`}
           rows={6}
           disabled={isRunning}
           className="w-full px-4 py-3 font-mono text-sm bg-bauhaus-muted/30 border-2 border-bauhaus-black/20 focus:border-bauhaus-black focus:outline-none resize-y placeholder:text-bauhaus-black/25 disabled:opacity-50"
@@ -105,7 +96,7 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
         <button
           onClick={handleSubmit}
           disabled={isRunning || aaCount === 0}
-          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-bauhaus-red text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-red/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
+          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
         >
           {isRunning ? (
             <>

@@ -1,8 +1,7 @@
 import type { SequenceReport } from "./report-types";
 
 /**
- * Mock report for the ricin-like Type II RIP sequence.
- * Two structural domains: A-chain (ribosome-inactivating) + B-chain (lectin).
+ * HIGH RISK — Ricin-like Type II RIP (Rejected)
  */
 export const mockRicinReport: SequenceReport = {
   id: "mock-ricin-001",
@@ -41,26 +40,11 @@ export const mockRicinReport: SequenceReport = {
             evalue: 0,
             bitScore: 612,
             threatFlags: ["select_agent", "toxin"],
-          },
-          {
-            accession: "P24476",
-            title: "Abrin-a A chain",
-            organism: "Abrus precatorius",
-            identity: 51.3,
-            coverage: 89.2,
-            evalue: 2.1e-78,
-            bitScore: 298,
-            threatFlags: ["select_agent", "toxin"],
-          },
-          {
-            accession: "Q8W1S0",
-            title: "Type I RIP - Trichosanthin",
-            organism: "Trichosanthes kirilowii",
-            identity: 32.1,
-            coverage: 72.4,
-            evalue: 1.8e-22,
-            bitScore: 105,
-            threatFlags: [],
+            qStart: 1,
+            qEnd: 284,
+            queryLength: 284,
+            qseq: "IFPKQYPIINFTTAGATVQSYTNFIRAVRGRLTTGADVRHEIPVLPNRVGLPINQRFILVELSNHAELSVTLALDVTNAYVVGYRAGNSAYFFHPDNQEDAEAITHLFTDVQNRYTFAFGGNYDRLEQLAGNLRENIELGNGPLEEAISALYYYSTGGTQLPTLARSFIICIQMISEAARFQYIEGEMRTRIRYNRRSAPDPSVITLENSWGRLSTAIQESNQGAFASPIQLQRRNGSKFSVYDVSILIPIIALMVY",
+            sseq: "IFPKQYPIINFTTAGATVQSYTNFIRAVRGRLTTGADVRHEIPVLPNRVGLPINQRFILVELSNHAELSVTLALDVTNAYVVGYRAGNSAYFFHPDNQEDAEAITHLFTDVQNRYTFAFGGNYDRLEQLAGNLRENIELGNGPLEEAISALYYYSTGGTQLPTLARSFIICIQMISEAARFQYIEGEMRTRIRYNRRSAPDPSVITLENSWGRLSTAIQESNQGAFASPIQLQRRNGSKFSVYDVSILIPIIALMVY",
           },
         ],
         riskSignal: "HIGH",
@@ -107,13 +91,8 @@ export const mockRicinReport: SequenceReport = {
         riskLevel: "HIGH",
         confidence: 0.98,
         reasoning:
-          "This domain is a ribosome-inactivating protein (RIP) A-chain with 98.2% identity to ricin. It contains the N-glycosidase catalytic site that depurinates 28S rRNA, irreversibly inactivating eukaryotic ribosomes and halting protein synthesis. Both Diamond sequence alignment and Foldseek structural search confirm near-identical matches to ricin (Ricinus communis), a federally regulated Select Agent toxin. The ESMFold structure prediction shows high confidence (pLDDT 91.4), and the predicted fold is consistent with known RIP crystal structures.",
-        flags: [
-          "98.2% identity to ricin A chain (P02879)",
-          "N-glycosidase catalytic domain confirmed",
-          "Select Agent — US Federal Select Agent Program",
-          "Structural match to PDB 2AAI (ricin)",
-        ],
+          "This domain is a ribosome-inactivating protein (RIP) A-chain with 98.2% identity to ricin. It contains the N-glycosidase catalytic site that depurinates 28S rRNA, irreversibly inactivating eukaryotic ribosomes. Both Diamond and Foldseek confirm near-identical matches to ricin, a federally regulated Select Agent toxin.",
+        flags: ["toxin:2", "select_agent:2"],
       },
       progress: {
         diamond: "completed",
@@ -131,13 +110,7 @@ export const mockRicinReport: SequenceReport = {
         annotation: "Ricin B lectin",
         signatures: ["IPR000772", "IPR035992"],
         isLinker: false,
-        metadata: [
-          {
-            signature: "IPR035992",
-            description: "Ricin_B-like_lectins",
-            type: "HOMOLOGOUS_SUPERFAMILY",
-          },
-        ],
+        metadata: [],
       },
       diamond: {
         status: "completed",
@@ -152,16 +125,11 @@ export const mockRicinReport: SequenceReport = {
             evalue: 0,
             bitScore: 485,
             threatFlags: ["select_agent", "toxin"],
-          },
-          {
-            accession: "P11140",
-            title: "Abrin B chain",
-            organism: "Abrus precatorius",
-            identity: 45.2,
-            coverage: 91.7,
-            evalue: 6.3e-52,
-            bitScore: 212,
-            threatFlags: ["select_agent", "toxin"],
+            qStart: 1,
+            qEnd: 255,
+            queryLength: 255,
+            qseq: "CKSNTDANQLWTLKRDNTIRSNGKCLTTYGYSPGVYVMIYDCNTAATDATRWQIWDNGTIINPRSSLVLAATSGNSGTTLTVQTNIYAVSQGWLPTNNTQPFVTTIVGLYGLCLQANSGQVWIEDCSSEKAEQQWALYADGSIRPQQNRDNCLTSDSNIRETVVKILSCGPASSGQRWMFKNDGTILNLYSGLVLDVRASDPSLKQIILYPLHGDPNQIWLPLF",
+            sseq: "CKSNTDANQLWTLKRDNTIRSNGKCLTTYGYSPGVYVMIYDCNTAATDATRWQIWDNGTIINPRSSLVLAATSGNSGTTLTVQTNIYAVSQGWLPTNNTQPFVTTIVGLYGLCLQANSGQVWIEDCSSEKAEQQWALYADGSIRPQQNRDNCLTSDSNIRETVVKILSCGPASSGQRWMFKNDGTILNLYSGLVLDVRASDPSLKQIILYPLHGDPNQIWLPLF",
           },
         ],
         riskSignal: "HIGH",
@@ -197,13 +165,8 @@ export const mockRicinReport: SequenceReport = {
         riskLevel: "HIGH",
         confidence: 0.97,
         reasoning:
-          "This domain is a Ricin B-type lectin with 97.8% identity to the ricin B chain. The B chain functions as a galactose-binding lectin that binds cell surface glycoproteins and glycolipids, enabling endocytosis of the holotoxin. Without a delivery mechanism like this lectin, the A-chain catalytic domain cannot enter cells efficiently. The Ricin B lectin is the critical cell-entry component that transforms a ribosome-inactivating enzyme into a potent whole-organism toxin.",
-        flags: [
-          "97.8% identity to ricin B chain (P02879)",
-          "Galactose-binding lectin — cell entry domain",
-          "Enables endocytic uptake of catalytic A-chain",
-          "Select Agent component",
-        ],
+          "This domain is a Ricin B-type lectin with 97.8% identity to the ricin B chain. It functions as a galactose-binding lectin enabling endocytosis of the holotoxin — the critical cell-entry component.",
+        flags: ["toxin:2", "select_agent:1"],
       },
       progress: {
         diamond: "completed",
@@ -220,23 +183,20 @@ export const mockRicinReport: SequenceReport = {
       "A-chain (Ribosome-inactivating protein, 36–319) → B-chain (Ricin B lectin, 322–576)",
     synergisticFactors: [
       {
-        domains: [
-          "Ribosome-inactivating protein",
-          "Ricin B lectin",
-        ],
+        domains: ["Ribosome-inactivating protein", "Ricin B lectin"],
         concern:
-          "Type II RIP architecture: the enzymatic A-chain depurinates ribosomes to halt protein synthesis, while the B-chain lectin binds cell surface galactose residues to mediate toxin internalization via endocytosis. Neither domain alone is as dangerous — the A-chain cannot enter cells without the B-chain delivery mechanism. Together they constitute a functional holotoxin matching ricin, a US Select Agent.",
+          "Type II RIP architecture: the enzymatic A-chain depurinates ribosomes while the B-chain lectin mediates toxin internalization. Together they constitute a functional holotoxin matching ricin, a US Select Agent.",
         riskContribution: "HIGH",
       },
     ],
     reasoning:
-      "This sequence encodes a complete Type II ribosome-inactivating protein (RIP) with the classic A-B toxin architecture. The A-chain (residues 36–319) is a potent N-glycosidase that catalytically inactivates eukaryotic ribosomes by depurinating a specific adenine in 28S rRNA. The B-chain (residues 322–576) is a galactose-binding lectin that mediates cell surface binding and endocytic uptake.\n\nThe synergistic combination is critical: Type I RIPs (A-chain only) are orders of magnitude less toxic than Type II RIPs because they lack a cell-entry mechanism. The B-chain lectin transforms a moderately toxic enzyme into one of the most potent biological toxins known.\n\nBoth chains show >97% sequence identity to ricin (Ricinus communis, P02879) and structural similarity confirmed by Foldseek against PDB 2AAI. Ricin is classified as a Select Agent under the US Federal Select Agent Program and is regulated under the Chemical Weapons Convention.",
+      "This sequence encodes a complete Type II ribosome-inactivating protein with the classic A-B toxin architecture. Both chains show >97% identity to ricin (Ricinus communis). Ricin is classified as a Select Agent under the US Federal Select Agent Program.",
+    decision: "Rejected",
     flags: [
-      "Type II RIP holotoxin — catalytic + delivery domains",
-      "98.2% identity to ricin A chain, 97.8% to ricin B chain",
-      "US Federal Select Agent (HHS/USDA)",
-      "Structural homology confirmed (PDB 2AAI)",
-      "Synergistic A+B architecture increases toxicity by ~1000x vs A-chain alone",
+      "Type II RIP holotoxin",
+      "98.2% identity to ricin A chain",
+      "US Federal Select Agent",
+      "Synergistic A+B architecture",
     ],
   },
   startedAt: "2026-03-21T18:30:00.000Z",
@@ -244,7 +204,192 @@ export const mockRicinReport: SequenceReport = {
 };
 
 /**
- * Mock report for c-Src kinase — benign multi-domain protein.
+ * MEDIUM RISK — Chimeric construct with partial toxin homology (Manual Validation)
+ */
+export const mockChimericReport: SequenceReport = {
+  id: "mock-chimeric-001",
+  inputSequence:
+    "MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEKAVQVKVKALPDAQFEVVHSLAKWKRQQIAATGFHISDTHRGDTYGIFQINSRYWCNDGKTPGAVDGCHPFNYSRLHYLKQSDPDSELVQFGGLGKHAGRGGGFEPANLARGGIINPRSSLVLAATSGNSGTTLTVQTNIYAVSQGWLPTNNTQPFVTTIVGLYGLCLQANSGQVWI",
+  sequenceLength: 221,
+  status: "completed",
+  domains: [
+    {
+      domain: {
+        sequence:
+          "MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEKAVQVKVKALPDAQFEVVHSLAKWKRQQIAATGFHISDTHRGDTYGIFQINSRYWCNDGKTPGAVDGCHPFNYSRLHYLKQSDPDSELVQFGGLGKHAGRGGG",
+        start: 1,
+        end: 152,
+        annotation: "N-glycosidase domain",
+        signatures: ["IPR016138"],
+        isLinker: false,
+        metadata: [],
+      },
+      diamond: {
+        status: "completed",
+        durationMs: 3100,
+        hits: [
+          {
+            accession: "Q8W1S0",
+            title: "Trichosanthin (Type I RIP)",
+            organism: "Trichosanthes kirilowii",
+            identity: 42.5,
+            coverage: 78.3,
+            evalue: 3.2e-18,
+            bitScore: 92,
+            threatFlags: ["toxin"],
+            qStart: 5,
+            qEnd: 148,
+            queryLength: 152,
+            qseq: "YIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQ-DNLSGAEKAVQVKVKALPDAQFEVVHSLAKWKRQQIAATGFHI-SDTHRGDTYGIFQINSRYWCNDGKTPGAVDGCHPFNYSRLHYLKQSDPDSELVQF",
+            sseq: "YISKQRPISFVKSHYTARLEEALGLIEVQAPILSRVGDGSQDADLSAAEKAVQIKVKSLPDAQFEVAHSLAKWKREQIAATGFHITDDAHRGDTYGIFQINSRYWCNDGKTPRAVDACHPFNYSRLHYLKQSDPDAELVQF",
+          },
+        ],
+        riskSignal: "MEDIUM",
+      },
+      structure: {
+        status: "completed",
+        pdbPath: "data/pdb/mock-chimeric-a.pdb",
+        plddtMean: 74.2,
+        plddtPerResidue: Array.from({ length: 152 }, () =>
+          Math.round(65 + Math.random() * 20)
+        ),
+        confidenceCategory: "confident",
+      },
+      foldseek: {
+        status: "completed",
+        durationMs: 6200,
+        hits: [
+          {
+            pdbId: "1MRJ",
+            uniprotId: "Q8W1S0",
+            proteinName: "Trichosanthin",
+            organism: "Trichosanthes kirilowii",
+            probability: 0.85,
+            evalue: 4.1e-12,
+            keywords: ["Toxin", "N-glycosidase"],
+            flagged: true,
+            riskKeywords: ["Toxin"],
+          },
+        ],
+        riskSignal: "MEDIUM",
+      },
+      summary: {
+        riskLevel: "MEDIUM",
+        confidence: 0.72,
+        reasoning:
+          "This domain shows moderate similarity (42.5% identity) to trichosanthin, a Type I ribosome-inactivating protein. While not a direct match to a Select Agent, the N-glycosidase catalytic activity could pose risk if combined with a delivery mechanism.",
+        flags: ["toxin:1"],
+      },
+      progress: {
+        diamond: "completed",
+        structure: "completed",
+        foldseek: "completed",
+        summary: "completed",
+      },
+    },
+    {
+      domain: {
+        sequence:
+          "FEPANLARGGIINPRSSLVLAATSGNSGTTLTVQTNIYAVSQGWLPTNNTQPFVTTIVGLYGLCLQANSGQVWI",
+        start: 149,
+        end: 221,
+        annotation: "Lectin-like domain",
+        signatures: ["IPR000772"],
+        isLinker: false,
+        metadata: [],
+      },
+      diamond: {
+        status: "completed",
+        durationMs: 2800,
+        hits: [
+          {
+            accession: "P02879",
+            title: "Ricin B chain fragment",
+            organism: "Ricinus communis",
+            identity: 88.4,
+            coverage: 62.1,
+            evalue: 1.2e-28,
+            bitScore: 128,
+            threatFlags: ["toxin"],
+            qStart: 1,
+            qEnd: 73,
+            queryLength: 73,
+            qseq: "FEPANLARGGIINPRSSLVLAATSGNSGTTLTVQTNIYAVSQGWLPTNNTQPFVTTIVGLYGLCLQANSGQVWI",
+            sseq: "FEPANLARGGIINPRSSLVLAATSGNSGTTLTVQTNIYAVSQGWLPTNNTQPFVTTIVGLYGLCLQANSGQVWI",
+          },
+        ],
+        riskSignal: "MEDIUM",
+      },
+      structure: {
+        status: "completed",
+        pdbPath: "data/pdb/mock-chimeric-b.pdb",
+        plddtMean: 68.9,
+        plddtPerResidue: Array.from({ length: 73 }, () =>
+          Math.round(60 + Math.random() * 18)
+        ),
+        confidenceCategory: "low",
+      },
+      foldseek: {
+        status: "completed",
+        durationMs: 5400,
+        hits: [
+          {
+            pdbId: "2AAI",
+            uniprotId: "P02879",
+            proteinName: "Ricin B chain",
+            organism: "Ricinus communis",
+            probability: 0.78,
+            evalue: 2.3e-8,
+            keywords: ["Lectin", "Cell binding"],
+            flagged: true,
+            riskKeywords: ["Toxin"],
+          },
+        ],
+        riskSignal: "MEDIUM",
+      },
+      summary: {
+        riskLevel: "MEDIUM",
+        confidence: 0.68,
+        reasoning:
+          "This truncated lectin-like domain shows 88.4% identity to a fragment of the ricin B chain. While incomplete, it retains potential galactose-binding capability that could facilitate cell entry of a catalytic domain. The low pLDDT (68.9) suggests uncertain folding.",
+        flags: ["toxin:1"],
+      },
+      progress: {
+        diamond: "completed",
+        structure: "completed",
+        foldseek: "completed",
+        summary: "completed",
+      },
+    },
+  ],
+  integratedReport: {
+    overallRisk: "MEDIUM",
+    confidence: 0.75,
+    architectureSummary:
+      "N-glycosidase domain (1–152) → Lectin-like domain (149–221)",
+    synergisticFactors: [
+      {
+        domains: ["N-glycosidase domain", "Lectin-like domain"],
+        concern:
+          "Potential chimeric RIP construct: the N-glycosidase has partial similarity to Type I RIPs, and the truncated lectin domain resembles a ricin B chain fragment. This combination could reconstitute a delivery mechanism, though both domains show only partial homology.",
+        riskContribution: "MEDIUM",
+      },
+    ],
+    reasoning:
+      "This construct contains a partial N-glycosidase domain with moderate similarity to trichosanthin (42.5%) fused to a truncated lectin domain matching ricin B chain (88.4%). While neither domain is a complete threat on its own, the chimeric architecture suggests a possible attempt to engineer a toxin delivery system. The incomplete nature and low structural confidence warrant expert review.",
+    decision: "Manual Validation",
+    flags: [
+      "Partial RIP catalytic domain",
+      "Truncated ricin B lectin fragment",
+      "Chimeric architecture — possible engineered construct",
+    ],
+  },
+  startedAt: "2026-03-22T10:15:00.000Z",
+  completedAt: "2026-03-22T10:17:30.000Z",
+};
+
+/**
+ * LOW RISK — Human c-Src kinase (Approved)
  */
 export const mockSrcReport: SequenceReport = {
   id: "mock-src-001",
@@ -277,6 +422,11 @@ export const mockSrcReport: SequenceReport = {
             evalue: 2.1e-38,
             bitScore: 142,
             threatFlags: [],
+            qStart: 1,
+            qEnd: 62,
+            queryLength: 62,
+            qseq: "FGGFNSSDTVTSPQRAGPLAGGVTTFVALYDYESRTETDLSFKKGERLQIVNNTEGDWWLAHS",
+            sseq: "FGGFNSSDTVTSPQRAGPLAGGVTTFVALYDYESRTETDLSFKKGERLQIVNNTEGDWWLAHS",
           },
         ],
         riskSignal: "LOW",
@@ -312,11 +462,8 @@ export const mockSrcReport: SequenceReport = {
         riskLevel: "LOW",
         confidence: 0.95,
         reasoning:
-          "Standard SH3 domain found in Src-family kinases. 100% identity to human c-Src (P12931). SH3 domains mediate protein-protein interactions via proline-rich motif binding and are ubiquitous in eukaryotic signaling proteins. No association with pathogenicity.",
-        flags: [
-          "100% identity to human c-Src SH3",
-          "Standard signaling domain",
-        ],
+          "Standard SH3 domain found in Src-family kinases. 100% identity to human c-Src (P12931). No association with pathogenicity.",
+        flags: [],
       },
       progress: {
         diamond: "completed",
@@ -349,6 +496,11 @@ export const mockSrcReport: SequenceReport = {
             evalue: 8.4e-62,
             bitScore: 228,
             threatFlags: [],
+            qStart: 1,
+            qEnd: 103,
+            queryLength: 103,
+            qseq: "IQAEEWYFGKITRRESERLLLNAENPRGTFLVRESETTKGAYCLSVSDFDNAKGLNVKHYKIRKLDSGGFYITSRTQFNSLQQLVAYYSKHADGLCHRLTTVCPTSKPQTQ",
+            sseq: "IQAEEWYFGKITRRESERLLLNAENPRGTFLVRESETTKGAYCLSVSDFDNAKGLNVKHYKIRKLDSGGFYITSRTQFNSLQQLVAYYSKHADGLCHRLTTVCPTSKPQTQ",
           },
         ],
         riskSignal: "LOW",
@@ -384,11 +536,8 @@ export const mockSrcReport: SequenceReport = {
         riskLevel: "LOW",
         confidence: 0.95,
         reasoning:
-          "Standard SH2 domain from human c-Src. SH2 domains bind phosphorylated tyrosine residues to regulate intracellular signaling cascades. This is one of the most common and well-characterized domain types in the human proteome with no biosecurity relevance.",
-        flags: [
-          "100% identity to human c-Src SH2",
-          "Phosphotyrosine-binding signaling domain",
-        ],
+          "Standard SH2 domain from human c-Src. SH2 domains bind phosphorylated tyrosine residues to regulate intracellular signaling cascades. No biosecurity relevance.",
+        flags: [],
       },
       progress: {
         diamond: "completed",
@@ -406,18 +555,7 @@ export const mockSrcReport: SequenceReport = {
         annotation: "Protein kinase domain",
         signatures: ["IPR000719", "IPR020635"],
         isLinker: false,
-        metadata: [
-          {
-            signature: "IPR017441",
-            description: "Protein_kinase_ATP_BS",
-            type: "BINDING_SITE",
-          },
-          {
-            signature: "IPR008266",
-            description: "Tyr_kinase_AS",
-            type: "ACTIVE_SITE",
-          },
-        ],
+        metadata: [],
       },
       diamond: {
         status: "completed",
@@ -432,6 +570,11 @@ export const mockSrcReport: SequenceReport = {
             evalue: 0,
             bitScore: 548,
             threatFlags: [],
+            qStart: 1,
+            qEnd: 267,
+            queryLength: 267,
+            qseq: "GLAKDAWEIPRESLRLEVKLGQGCFGEVWMGTWNGTTRVAIKTLKPGTMSPEAFLQEAQVMKKLRHEKLVQLYAVVSEEPIYIVTEYMSKGSLLDFLKGETGKYLRLPQLVDMAAQIASGMAYVERMNYVHRDLRAANILVGENLVCKVADFGLARLIEDNEYTARQGAKFPIKWTAPEAALYGRFTIKSDVWSFGILLTELTTKGRVPYPGMVNREVLDQVERGYRMPCPPECPESLHDLMCQCWRKEPEERPTFEYLQAFLEDYFTSTEPQYQPGENL",
+            sseq: "GLAKDAWEIPRESLRLEVKLGQGCFGEVWMGTWNGTTRVAIKTLKPGTMSPEAFLQEAQVMKKLRHEKLVQLYAVVSEEPIYIVTEYMSKGSLLDFLKGETGKYLRLPQLVDMAAQIASGMAYVERMNYVHRDLRAANILVGENLVCKVADFGLARLIEDNEYTARQGAKFPIKWTAPEAALYGRFTIKSDVWSFGILLTELTTKGRVPYPGMVNREVLDQVERGYRMPCPPECPESLHDLMCQCWRKEPEERPTFEYLQAFLEDYFTSTEPQYQPGENL",
           },
         ],
         riskSignal: "LOW",
@@ -467,12 +610,8 @@ export const mockSrcReport: SequenceReport = {
         riskLevel: "LOW",
         confidence: 0.93,
         reasoning:
-          "Tyrosine kinase catalytic domain identical to human c-Src. Contains the conserved ATP-binding site and catalytic loop. Tyrosine kinases are fundamental to eukaryotic cell signaling — growth, differentiation, and metabolism. While Src is a proto-oncogene (gain-of-function mutations can contribute to cancer), its wild-type form is a normal human protein with no biosecurity implications.",
-        flags: [
-          "100% identity to human c-Src kinase domain",
-          "Proto-oncogene (cancer relevance, not biosecurity)",
-          "Standard ATP-binding kinase fold",
-        ],
+          "Tyrosine kinase catalytic domain identical to human c-Src. Standard ATP-binding kinase fold with no biosecurity implications.",
+        flags: [],
       },
       progress: {
         diamond: "completed",
@@ -489,14 +628,16 @@ export const mockSrcReport: SequenceReport = {
       "SH3 domain (84–145) → SH2 domain (146–248) → Tyrosine kinase (270–536)",
     synergisticFactors: [],
     reasoning:
-      "This sequence encodes human c-Src (P12931), the prototypical non-receptor tyrosine kinase. The SH3 → SH2 → kinase domain architecture is the hallmark of Src-family kinases, which are fundamental regulators of cell signaling in all vertebrates.\n\nNo synergistic risk factors were identified. The three domains function together as a signaling switch: SH3 and SH2 mediate autoinhibition and substrate recognition, while the kinase domain catalyzes tyrosine phosphorylation. This is a well-characterized human protein with no association with toxins, virulence factors, or biological weapons.\n\nWhile c-Src is a proto-oncogene (constitutive activation contributes to some cancers), oncogene status does not constitute a biosecurity risk — the protein is endogenous to every human cell.",
-    flags: [
-      "100% match to human c-Src (P12931)",
-      "Standard Src-family kinase architecture",
-      "No toxin, virulence, or dual-use domains",
-      "Proto-oncogene (cancer research relevance only)",
-    ],
+      "This sequence encodes human c-Src (P12931), the prototypical non-receptor tyrosine kinase. The SH3 → SH2 → kinase architecture is the hallmark of Src-family kinases. No toxin, virulence, or dual-use domains detected. While c-Src is a proto-oncogene, this does not constitute a biosecurity risk.",
+    decision: "Approved",
+    flags: [],
   },
   startedAt: "2026-03-21T18:35:00.000Z",
   completedAt: "2026-03-21T18:37:12.000Z",
 };
+
+export const sampleReports = [
+  { label: "Ricin Holotoxin", description: "Type II RIP — HIGH risk", report: mockRicinReport },
+  { label: "Chimeric Construct", description: "Partial toxin homology — MEDIUM risk", report: mockChimericReport },
+  { label: "Human c-Src Kinase", description: "Benign signaling protein — LOW risk", report: mockSrcReport },
+];

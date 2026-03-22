@@ -8,7 +8,7 @@ import { RiskBadge } from "./risk-badge";
 const riskBorderColor: Record<string, string> = {
   HIGH: "border-bauhaus-red",
   MEDIUM: "border-bauhaus-yellow",
-  LOW: "border-bauhaus-blue",
+  LOW: "border-emerald-600",
   UNKNOWN: "border-bauhaus-muted",
 };
 
@@ -95,10 +95,10 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
       )}
 
       {decision === "Approved" && !reviewerAction && (
-        <div className="px-6 py-5 bg-bauhaus-blue/5 border-t-4 border-bauhaus-blue">
+        <div className="px-6 py-5 bg-emerald-600/5 border-t-4 border-emerald-600">
           <div className="flex items-center gap-3 mb-3">
-            <ClipboardCheck className="w-6 h-6 text-bauhaus-blue" />
-            <span className="text-base font-bold uppercase tracking-widest text-bauhaus-blue">
+            <ClipboardCheck className="w-6 h-6 text-emerald-600" />
+            <span className="text-base font-bold uppercase tracking-widest text-emerald-600">
               Pending Reviewer Approval
             </span>
           </div>
@@ -107,7 +107,7 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
           </p>
           <div className="flex gap-3">
             <button
-              className="px-5 py-2.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-bauhaus-blue text-white hover:bg-bauhaus-blue/80 transition-colors shadow-[3px_3px_0px_0px_#121212]"
+              className="px-5 py-2.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-emerald-600 text-white hover:bg-emerald-600/80 transition-colors shadow-[3px_3px_0px_0px_#121212]"
               onClick={() => setReviewerAction("approved")}
             >
               Approve Order

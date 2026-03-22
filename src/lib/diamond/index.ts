@@ -50,7 +50,7 @@ export async function diamondSearch(
       `-d "${dbPath}"`,
       `-q "${queryPath}"`,
       `-o "${outPath}"`,
-      "--outfmt 6",
+      "--outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq",
       "--sensitive",
       "--max-target-seqs 25",
     ].join(" ");

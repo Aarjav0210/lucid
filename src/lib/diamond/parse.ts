@@ -1,8 +1,8 @@
 import type { DiamondHit } from "./types";
 
 /**
- * Parse DIAMOND's default tabular output (outfmt 6).
- * Columns: qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
+ * Parse DIAMOND's tabular output (outfmt 6).
+ * Columns: qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq
  */
 export function parseDiamondOutput(tsv: string): DiamondHit[] {
   const hits: DiamondHit[] = [];
@@ -12,7 +12,7 @@ export function parseDiamondOutput(tsv: string): DiamondHit[] {
     if (!trimmed || trimmed.startsWith("#")) continue;
 
     const cols = trimmed.split("\t");
-    if (cols.length < 12) continue;
+    if (cols.length < 14) continue;
 
     hits.push({
       target: cols[1],
@@ -26,6 +26,8 @@ export function parseDiamondOutput(tsv: string): DiamondHit[] {
       sEnd: parseInt(cols[9], 10),
       eValue: parseFloat(cols[10]),
       bitScore: parseFloat(cols[11]),
+      qseq: cols[12],
+      sseq: cols[13],
     });
   }
 
