@@ -1,5 +1,3 @@
-const MAX_SEQUENCE_LENGTH = 400; // 400 amino acid limit
-
 export interface ValidationResult {
   valid: boolean;
   error?: string;
@@ -37,14 +35,6 @@ export function validateSequence(input: string): ValidationResult {
       valid: false,
       error:
         "Sequence contains invalid characters. Only standard nucleotide (ACGT) or amino acid letters are accepted.",
-      sequence: "",
-    };
-  }
-
-  if (sequence.length > MAX_SEQUENCE_LENGTH) {
-    return {
-      valid: false,
-      error: `Sequence exceeds the ${MAX_SEQUENCE_LENGTH} amino acid limit (${sequence.length} residues).`,
       sequence: "",
     };
   }

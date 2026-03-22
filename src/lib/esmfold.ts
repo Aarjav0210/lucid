@@ -74,14 +74,12 @@ export async function predictStructureEsm(
   if (await fileExists(filePath)) {
     const pdbString = await readFile(filePath, "utf-8");
     const plddtPerResidue = extractPlddtFromPdb(pdbString);
-    const plddtMean =
+    const plddtRaw =
       plddtPerResidue.length > 0
-        ? Math.round(
-            (plddtPerResidue.reduce((a, b) => a + b, 0) /
-              plddtPerResidue.length) *
-              100
-          ) / 100
+        ? plddtPerResidue.reduce((a, b) => a + b, 0) / plddtPerResidue.length
         : 0;
+    // ESMFold stores pLDDT in B-factor as 0-1; normalize to 0-100
+    const plddtMean = plddtRaw <= 1 ? Math.round(plddtRaw * 10000) / 100 : Math.round(plddtRaw * 100) / 100;
 
     return {
       status: "completed",
@@ -125,14 +123,12 @@ export async function predictStructureEsm(
 
     const pdbString = await response.text();
     const plddtPerResidue = extractPlddtFromPdb(pdbString);
-    const plddtMean =
+    const plddtRaw =
       plddtPerResidue.length > 0
-        ? Math.round(
-            (plddtPerResidue.reduce((a, b) => a + b, 0) /
-              plddtPerResidue.length) *
-              100
-          ) / 100
+        ? plddtPerResidue.reduce((a, b) => a + b, 0) / plddtPerResidue.length
         : 0;
+    // ESMFold stores pLDDT in B-factor as 0-1; normalize to 0-100
+    const plddtMean = plddtRaw <= 1 ? Math.round(plddtRaw * 10000) / 100 : Math.round(plddtRaw * 100) / 100;
 
     // Write to disk
     await mkdir(PDB_DIR, { recursive: true });

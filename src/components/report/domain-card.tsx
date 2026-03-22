@@ -198,8 +198,8 @@ export function DomainCard({ report, index }: DomainCardProps) {
             }
           >
             {report.foldseek && report.foldseek.hits.length > 0 && (
-              <div className="space-y-1.5">
-                {report.foldseek.hits.slice(0, 5).map((hit, i) => (
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-3">
+                {report.foldseek.hits.map((hit, i) => (
                   <div key={`fs-${i}`} className="flex items-start justify-between gap-2">
                     <div>
                       <span className="font-bold">{hit.proteinName}</span>
