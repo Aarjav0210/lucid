@@ -93,9 +93,17 @@ export default function ReportPreview() {
               Lucid
             </span>
           </div>
-          <p className="text-xs font-bold uppercase tracking-widest text-white/40">
-            InterPro + Diamond + ESMFold + Foldseek + LLM
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/40">
+              InterPro + Diamond + ESMFold + Foldseek + LLM
+            </p>
+            <a
+              href="mailto:aarjav02@gmail.com"
+              className="px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-white/40 text-white/70 hover:bg-white hover:text-bauhaus-black transition-colors"
+            >
+              Get in Touch
+            </a>
+          </div>
         </div>
       </footer>
     </main>

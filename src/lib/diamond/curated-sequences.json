@@ -1,4 +1,26 @@
 [
-  { "id": "P02879", "name": "Ricin A-chain", "category": "toxin" },
+  { "id": "P02879", "name": "Ricin", "category": "select_agent_toxin" },
+
+  { "id": "P11140", "name": "Abrin-a", "category": "select_agent_toxin" },
+  { "id": "Q06077", "name": "Abrin-b", "category": "select_agent_toxin" },
+  { "id": "P28590", "name": "Abrin-c", "category": "select_agent_toxin" },
+  { "id": "Q06076", "name": "Abrin-d", "category": "select_agent_toxin" },
+
+  { "id": "P0DPI0", "name": "Botulinum neurotoxin type A", "category": "select_agent_toxin" },
+  { "id": "P10844", "name": "Botulinum neurotoxin type B", "category": "select_agent_toxin" },
+  { "id": "Q00496", "name": "Botulinum neurotoxin type E", "category": "select_agent_toxin" },
+
+  { "id": "P0A0L2", "name": "Staphylococcal enterotoxin type A", "category": "select_agent_toxin" },
+  { "id": "P01552", "name": "Staphylococcal enterotoxin type B", "category": "select_agent_toxin" },
+  { "id": "P01553", "name": "Staphylococcal enterotoxin type C1", "category": "select_agent_toxin" },
+  { "id": "P20723", "name": "Staphylococcal enterotoxin type D", "category": "select_agent_toxin" },
+  { "id": "P12993", "name": "Staphylococcal enterotoxin type E", "category": "select_agent_toxin" },
+
+  { "id": "P00588", "name": "Diphtheria toxin", "category": "toxin" },
+  { "id": "Q9FBI2", "name": "Shiga toxin subunit A", "category": "toxin" },
+  { "id": "Q7BQ98", "name": "Shiga toxin subunit B", "category": "toxin" },
+  { "id": "Q02307", "name": "Clostridium perfringens epsilon toxin", "category": "toxin" },
+  { "id": "P04958", "name": "Tetanus toxin", "category": "toxin" },
+
   { "id": "P01308", "name": "Human insulin", "category": "control" }
 ]

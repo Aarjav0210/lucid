@@ -3,7 +3,7 @@ import { runScreeningPipeline, type PipelineCallbacks } from "@/lib/pipeline";
 import { enhanceReportWithGemini } from "@/lib/generate-report";
 import { validateSequence } from "@/lib/validate";
 
-export const maxDuration = 600; // 10 minutes — InterPro can be slow
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);

@@ -66,7 +66,28 @@ function maskAccession(_accession: string): string {
 
 // ── Diamond result → report format ───────────────────────────────────
 
-const CURATED_THREAT_ACCESSIONS = new Set(["P02879"]); // extend as curated-sequences.json grows
+const CURATED_THREAT_ACCESSIONS = new Set([
+  // HHS Select Agent Toxins (protein-based)
+  "P02879",  // Ricin
+  "P11140",  // Abrin-a
+  "Q06077",  // Abrin-b
+  "P28590",  // Abrin-c
+  "Q06076",  // Abrin-d
+  "P0DPI0",  // Botulinum neurotoxin type A
+  "P10844",  // Botulinum neurotoxin type B
+  "Q00496",  // Botulinum neurotoxin type E
+  "P0A0L2",  // Staphylococcal enterotoxin type A
+  "P01552",  // Staphylococcal enterotoxin type B
+  "P01553",  // Staphylococcal enterotoxin type C1
+  "P20723",  // Staphylococcal enterotoxin type D
+  "P12993",  // Staphylococcal enterotoxin type E
+  // Additional regulated toxins
+  "P00588",  // Diphtheria toxin
+  "Q9FBI2",  // Shiga toxin subunit A
+  "Q7BQ98",  // Shiga toxin subunit B
+  "Q02307",  // Clostridium perfringens epsilon toxin
+  "P04958",  // Tetanus toxin
+]);
 
 function classifyDiamondHit(
   hit: import("./diamond/types").DiamondHit

@@ -7,7 +7,7 @@ import { runInterProScan, type InterProResult } from "@/lib/interpro";
 import { cacheDomainSlices, getCachedDomainSlices } from "@/lib/domain-cache";
 
 // InterPro searches can take several minutes
-export const maxDuration = 600;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
