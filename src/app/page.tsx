@@ -445,6 +445,12 @@ export default function Home() {
             <span className="text-lg font-black uppercase tracking-tighter">
               Lucid
             </span>
+            <span className="hidden sm:flex items-center gap-3 ml-2 pl-4 border-l border-white/10">
+              <img src="/Brown University Icon.png" alt="Brown University" className="h-5 w-auto opacity-40 grayscale brightness-200" />
+              <img src="/UPenn Shield Icon.png" alt="University of Pennsylvania" className="h-5 w-auto opacity-40 grayscale brightness-200" />
+              <img src="/Yale Bulldogs Logo.png" alt="Yale University" className="h-5 w-auto opacity-40 grayscale brightness-200" />
+              <img src="/Kings College London Icon.png" alt="King's College London" className="h-5 w-auto opacity-40 grayscale brightness-200" />
+            </span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold uppercase tracking-widest text-white/40 text-center sm:text-right">
