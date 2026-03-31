@@ -21,7 +21,9 @@ export interface EsmFoldResult {
 const ESM_API_URL =
   process.env.ESM_API_URL ?? "https://api.esmatlas.com/foldSequence/v1/pdb/";
 const TIMEOUT_MS = 120_000; // 2 minutes
-const PDB_DIR = path.resolve(process.cwd(), "data", "pdb");
+const PDB_DIR = process.env.VERCEL
+  ? "/tmp/pdb"
+  : path.resolve(process.cwd(), "data", "pdb");
 
 // ── pLDDT extraction ──────────────────────────────────────────────────
 

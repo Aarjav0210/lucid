@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import { mkdir, writeFile, readFile, access, unlink } from "fs/promises";
 import path from "path";
 import { promisify } from "util";
+import { getDiamondBin } from "./resolve-bin";
 
 const execAsync = promisify(exec);
 
@@ -82,7 +83,8 @@ export async function buildCuratedDatabase(
     await unlink(`${DB_PATH}.dmnd`);
   }
 
-  await execAsync(`diamond makedb --in "${FASTA_PATH}" -d "${DB_PATH}"`, {
+  const bin = getDiamondBin();
+  await execAsync(`"${bin}" makedb --in "${FASTA_PATH}" -d "${DB_PATH}"`, {
     timeout: 30_000,
   });
 

@@ -6,10 +6,10 @@ import { promisify } from "util";
 import type { DiamondHit, DiamondResult } from "./types";
 import { parseDiamondOutput } from "./parse";
 import { buildCuratedDatabase, getDatabasePath } from "./database";
+import { getDiamondBin, getTmpDir } from "./resolve-bin";
 
 const execAsync = promisify(exec);
 
-const TMP_DIR = path.resolve(process.cwd(), "data", "diamond", "tmp");
 const TIMEOUT_MS = 60_000;
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -30,8 +30,9 @@ export async function diamondSearch(
 ): Promise<DiamondResult> {
   const start = Date.now();
   const id = randomUUID();
-  const queryPath = path.join(TMP_DIR, `query_${id}.fasta`);
-  const outPath = path.join(TMP_DIR, `result_${id}.tsv`);
+  const tmpDir = getTmpDir();
+  const queryPath = path.join(tmpDir, `query_${id}.fasta`);
+  const outPath = path.join(tmpDir, `result_${id}.tsv`);
 
   try {
     // Ensure database exists
@@ -41,12 +42,13 @@ export async function diamondSearch(
     }
 
     // Write query to temp FASTA
-    await mkdir(TMP_DIR, { recursive: true });
+    await mkdir(tmpDir, { recursive: true });
     await writeFile(queryPath, `>query\n${sequence}\n`, "utf-8");
 
     // Run DIAMOND
+    const bin = getDiamondBin();
     const cmd = [
-      "diamond blastp",
+      `"${bin}" blastp`,
       `-d "${dbPath}"`,
       `-q "${queryPath}"`,
       `-o "${outPath}"`,

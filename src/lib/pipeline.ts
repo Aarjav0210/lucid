@@ -204,124 +204,111 @@ async function runDomainPipeline(
   let structureResult: StructurePrediction | null = null;
   let foldseekResult: ReportFoldseekResult | null = null;
 
-  // ── Stage A: Diamond ──
-  progress.diamond = "running";
-  log(`${tag}: running Diamond alignment...`);
+  // ── Stage A: Diamond (run concurrently with ESMFold) ──
+  // ── Stage B: ESMFold + Foldseek ──
+  // Diamond and structure prediction run in parallel; a failure in one
+  // must never block the other.
 
-  try {
-    const raw = await diamondSearch(domain.sequence);
-    const hits = raw.hits.map((h) => {
-      const hit = classifyDiamondHit(h);
-      hit.queryLength = domain.sequence.length;
-      return hit;
-    });
-    diamondResult = {
-      status: raw.status === "completed" ? "completed" : raw.status === "no_hits" ? "no_hits" : "error",
-      error: raw.error,
-      durationMs: raw.searchDuration * 1000,
-      hits,
-      riskSignal: hits.length > 0 ? diamondRiskSignal(hits) : "LOW",
-    };
-    progress.diamond = "completed";
-    log(`${tag}: Diamond done — ${hits.length} hit(s), risk=${diamondResult.riskSignal}`);
-  } catch (err) {
-    diamondResult = {
-      status: "error",
-      error: err instanceof Error ? err.message : String(err),
-      durationMs: 0,
-      hits: [],
-      riskSignal: "UNKNOWN",
-    };
-    progress.diamond = "error";
-    log(`${tag}: Diamond error — ${diamondResult.error}`);
-  }
-
-  await callbacks?.onDiamondComplete?.(domainIndex, hasDiamondThreatMatch(diamondResult));
-
-  // ── Early exit: strong Diamond match → skip structure prediction ──
-  if (hasDiamondThreatMatch(diamondResult)) {
-    log(`${tag}: strong Diamond match detected — skipping ESMFold/Foldseek`);
-    progress.structure = "skipped";
-    progress.foldseek = "skipped";
-    progress.summary = "completed";
-
-    const summary: DomainSummary = {
-      riskLevel: diamondResult.riskSignal,
-      confidence: 0.95,
-      reasoning: `Strong sequence alignment detected against curated threat database. Domain "${domain.annotation}" (${domain.start}-${domain.end}) shows significant identity to known threats. Structural analysis was skipped as sequence-level evidence is sufficient for risk classification.`,
-      flags: diamondResult.hits
-        .filter((h) => h.threatFlags.length > 0)
-        .flatMap((h) => h.threatFlags.map((f) => `${f} (${h.identity}% identity)`)),
-    };
-
-    const earlyReport: DomainReport = {
-      domain,
-      diamond: diamondResult,
-      structure: null,
-      foldseek: null,
-      summary,
-      progress,
-    };
-
-    await callbacks?.onDomainComplete?.(domainIndex, earlyReport);
-    return earlyReport;
-  }
-
-  // ── Stage B: ESMFold ──
-  progress.structure = "running";
-  log(`${tag}: running ESMFold structure prediction...`);
-
-  try {
-    const esm = await predictStructureEsm(domain.sequence);
-    if (esm.status === "completed") {
-      structureResult = {
-        status: "completed",
-        pdbPath: esm.pdbPath,
-        pdbString: esm.pdbString,
-        plddtMean: esm.plddtMean,
-        plddtPerResidue: esm.plddtPerResidue,
-        confidenceCategory: confidenceCategory(esm.plddtMean),
+  const diamondPromise = (async () => {
+    progress.diamond = "running";
+    log(`${tag}: running Diamond alignment...`);
+    try {
+      const raw = await diamondSearch(domain.sequence);
+      const hits = raw.hits.map((h) => {
+        const hit = classifyDiamondHit(h);
+        hit.queryLength = domain.sequence.length;
+        return hit;
+      });
+      diamondResult = {
+        status: raw.status === "completed" ? "completed" : raw.status === "no_hits" ? "no_hits" : "error",
+        error: raw.error,
+        durationMs: raw.searchDuration * 1000,
+        hits,
+        riskSignal: hits.length > 0 ? diamondRiskSignal(hits) : "LOW",
       };
-      progress.structure = "completed";
-      log(`${tag}: ESMFold done — pLDDT ${esm.plddtMean.toFixed(1)}`);
+      progress.diamond = "completed";
+      log(`${tag}: Diamond done — ${hits.length} hit(s), risk=${diamondResult.riskSignal}`);
+    } catch (err) {
+      diamondResult = {
+        status: "error",
+        error: err instanceof Error ? err.message : String(err),
+        durationMs: 0,
+        hits: [],
+        riskSignal: "UNKNOWN",
+      };
+      progress.diamond = "error";
+      log(`${tag}: Diamond error — ${diamondResult.error}`);
+    }
+    await callbacks?.onDiamondComplete?.(domainIndex, hasDiamondThreatMatch(diamondResult));
+  })();
 
-      await callbacks?.onEsmFoldComplete?.(domainIndex);
-
-      // ── Stage C: Foldseek ──
-      progress.foldseek = "running";
-      log(`${tag}: running Foldseek structural search...`);
-
-      try {
-        const seqHash = createHash("sha256")
-          .update(domain.sequence.toUpperCase())
-          .digest("hex");
-        const fsRaw = await searchStructure(esm.pdbString, { sequenceHash: seqHash });
-        const fsHits = fsRaw.hits.map(convertFoldseekHit);
-        foldseekResult = {
-          status: fsHits.length > 0 ? "completed" : "no_hits",
-          durationMs: 0, // timing not tracked in raw result
-          hits: fsHits,
-          riskSignal: fsHits.length > 0 ? foldseekRiskSignal(fsHits) : "LOW",
+  const structurePromise = (async () => {
+    progress.structure = "running";
+    log(`${tag}: running ESMFold structure prediction...`);
+    try {
+      const esm = await predictStructureEsm(domain.sequence);
+      if (esm.status === "completed") {
+        structureResult = {
+          status: "completed",
+          pdbPath: esm.pdbPath,
+          pdbString: esm.pdbString,
+          plddtMean: esm.plddtMean,
+          plddtPerResidue: esm.plddtPerResidue,
+          confidenceCategory: confidenceCategory(esm.plddtMean),
         };
-        progress.foldseek = "completed";
-        log(`${tag}: Foldseek done — ${fsHits.length} hit(s), risk=${foldseekResult.riskSignal}`);
+        progress.structure = "completed";
+        log(`${tag}: ESMFold done — pLDDT ${esm.plddtMean.toFixed(1)}`);
 
-        await callbacks?.onFoldseekComplete?.(domainIndex);
-      } catch (err) {
-        foldseekResult = {
+        await callbacks?.onEsmFoldComplete?.(domainIndex);
+
+        // ── Stage C: Foldseek ──
+        progress.foldseek = "running";
+        log(`${tag}: running Foldseek structural search...`);
+
+        try {
+          const seqHash = createHash("sha256")
+            .update(domain.sequence.toUpperCase())
+            .digest("hex");
+          const fsRaw = await searchStructure(esm.pdbString, { sequenceHash: seqHash });
+          const fsHits = fsRaw.hits.map(convertFoldseekHit);
+          foldseekResult = {
+            status: fsHits.length > 0 ? "completed" : "no_hits",
+            durationMs: 0,
+            hits: fsHits,
+            riskSignal: fsHits.length > 0 ? foldseekRiskSignal(fsHits) : "LOW",
+          };
+          progress.foldseek = "completed";
+          log(`${tag}: Foldseek done — ${fsHits.length} hit(s), risk=${foldseekResult.riskSignal}`);
+
+          await callbacks?.onFoldseekComplete?.(domainIndex);
+        } catch (err) {
+          foldseekResult = {
+            status: "error",
+            error: err instanceof Error ? err.message : String(err),
+            durationMs: 0,
+            hits: [],
+            riskSignal: "UNKNOWN",
+          };
+          progress.foldseek = "error";
+          log(`${tag}: Foldseek error — ${foldseekResult.error}`);
+        }
+      } else {
+        structureResult = {
           status: "error",
-          error: err instanceof Error ? err.message : String(err),
-          durationMs: 0,
-          hits: [],
-          riskSignal: "UNKNOWN",
+          error: esm.error,
+          pdbPath: "",
+          plddtMean: 0,
+          plddtPerResidue: [],
+          confidenceCategory: "very_low",
         };
-        progress.foldseek = "error";
-        log(`${tag}: Foldseek error — ${foldseekResult.error}`);
+        progress.structure = "error";
+        progress.foldseek = "skipped";
+        log(`${tag}: ESMFold error — ${esm.error}`);
       }
-    } else {
+    } catch (err) {
       structureResult = {
         status: "error",
-        error: esm.error,
+        error: err instanceof Error ? err.message : String(err),
         pdbPath: "",
         plddtMean: 0,
         plddtPerResidue: [],
@@ -329,21 +316,11 @@ async function runDomainPipeline(
       };
       progress.structure = "error";
       progress.foldseek = "skipped";
-      log(`${tag}: ESMFold error — ${esm.error}`);
+      log(`${tag}: ESMFold error — ${structureResult.error}`);
     }
-  } catch (err) {
-    structureResult = {
-      status: "error",
-      error: err instanceof Error ? err.message : String(err),
-      pdbPath: "",
-      plddtMean: 0,
-      plddtPerResidue: [],
-      confidenceCategory: "very_low",
-    };
-    progress.structure = "error";
-    progress.foldseek = "skipped";
-    log(`${tag}: ESMFold error — ${structureResult.error}`);
-  }
+  })();
+
+  await Promise.all([diamondPromise, structurePromise]);
 
   // ── Domain summary ──
   progress.summary = "completed";

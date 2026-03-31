@@ -19,6 +19,9 @@
 # domain cache
 /.domain-cache/
 
+# diamond binary (downloaded at build time)
+/bin/
+
 # misc
 .DS_Store
 *.tsbuildinfo
