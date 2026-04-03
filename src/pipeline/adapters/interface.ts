@@ -47,6 +47,8 @@ export interface FetchResult {
 export interface SourceAdapter {
   readonly source: Source;
   readonly name: string;
+  /** If true, events are point-in-time snapshots and should be insert-only (skip duplicates). */
+  readonly temporal?: boolean;
   fetch(): Promise<unknown>;
   normalize(raw: unknown): FetchResult;
 }

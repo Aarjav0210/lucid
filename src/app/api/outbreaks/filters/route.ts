@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import * as countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
 
-countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
+countries.registerLocale(enLocale);
 
 export async function GET() {
   try {

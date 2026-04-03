@@ -112,6 +112,92 @@ npm run test:integration
 npm run test:integration:gemini
 ```
 
+## Database Setup (PandemicPulse)
+
+The outbreak tracking pipeline (Pulse) requires a PostgreSQL database with PostGIS. The database itself is **not** checked into git — these steps recreate it from scratch.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed and running
+
+### 1. Start PostgreSQL
+
+```bash
+docker compose up -d
+```
+
+This starts a `postgis/postgis:16-3.4` container with:
+- **User:** `pandemic` / **Password:** `pandemic`
+- **Database:** `pandemic_pulse`
+- **Port:** `5432`
+
+Data is persisted in a Docker volume (`pgdata`). To wipe and start fresh:
+
+```bash
+docker compose down -v   # removes volume
+docker compose up -d
+```
+
+### 2. Configure environment
+
+Copy the example env file if you haven't already:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Verify `DATABASE_URL` is set (the default matches the Docker container):
+
+```
+DATABASE_URL="postgresql://pandemic:pandemic@localhost:5432/pandemic_pulse?schema=public"
+```
+
+### 3. Push the schema
+
+Apply the Prisma schema to the database (creates all tables, indexes, and enums):
+
+```bash
+npm run db:push
+```
+
+Generate the Prisma client (usually automatic, but run if you see import errors):
+
+```bash
+npm run db:generate
+```
+
+### 4. Seed outbreak data
+
+Run every adapter once to populate the database from all sources (WHO DON, disease.sh, CDC Socrata, Delphi Epidata, Global.health):
+
+```bash
+npm run pipeline:seed
+```
+
+This fetches live data from each source and inserts it. Takes ~5–15 minutes depending on network speed (disease.sh fetches full COVID history: ~140k events).
+
+### 5. Run the status lifecycle
+
+Age events through the status pipeline (`active` → `monitoring` → `contained` → `resolved`) based on how stale their `lastReportDate` is:
+
+```bash
+npm run test:lifecycle
+```
+
+### Quick reference
+
+| Command | Description |
+|---|---|
+| `docker compose up -d` | Start PostgreSQL |
+| `docker compose down -v` | Destroy database and volume |
+| `npm run db:push` | Apply schema to database |
+| `npm run db:generate` | Regenerate Prisma client |
+| `npm run db:studio` | Open Prisma Studio (visual DB browser) |
+| `npm run pipeline:seed` | Fetch and insert data from all sources |
+| `npm run test:lifecycle` | Run status lifecycle transitions |
+| `npm run pipeline:status` | Check pipeline poll logs |
+| `npm run pipeline` | Start the scheduled pipeline (cron) |
+
 ## External Services
 
 | Service | Purpose | Auth |

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { SourceAdapter } from "../adapters/interface.js";
-import { upsertEvents, upsertTimeSeries } from "../db/upsert.js";
+import { upsertEvents, batchCreateEvents, upsertTimeSeries } from "../db/upsert.js";
 import { childLogger } from "../utils/logger.js";
 
 const log = childLogger("runner");
@@ -13,7 +13,9 @@ export async function runAdapter(adapter: SourceAdapter): Promise<void> {
     const rawData = await adapter.fetch();
     const { events, timeSeries } = adapter.normalize(rawData);
 
-    const { created, updated } = await upsertEvents(events);
+    const { created, updated } = adapter.temporal
+      ? await batchCreateEvents(events)
+      : await upsertEvents(events);
 
     let tsUpserted = 0;
     if (timeSeries?.length) {

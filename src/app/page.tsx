@@ -12,7 +12,9 @@ import {
   ArrowRight,
   Search,
   Pencil,
+  Radio,
 } from "lucide-react";
+import Link from "next/link";
 
 /* ─── Geometric decorations ─── */
 
@@ -240,9 +242,18 @@ export default function Home() {
               Lucid
             </span>
           </div>
-          <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-            Sequence Risk Screening
-          </span>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/pulse"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/60 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
+            >
+              <Radio className="w-3 h-3 text-bauhaus-red" />
+              Pulse
+            </Link>
+            <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
+              Sequence Risk Screening
+            </span>
+          </div>
         </div>
       </nav>
 

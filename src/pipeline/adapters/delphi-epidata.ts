@@ -2,7 +2,6 @@ import type {
   SourceAdapter,
   FetchResult,
   NormalizedEvent,
-  TimeSeriesEntry,
 } from "./interface.js";
 import { fetchWithRetry } from "../utils/retry.js";
 import { childLogger } from "../utils/logger.js";
@@ -55,6 +54,7 @@ function currentEpiweekRange(): { start: number; end: number } {
 export const delphiAdapter: SourceAdapter = {
   source: "delphi_epidata",
   name: "Delphi Epidata (FluView + COVIDcast)",
+  temporal: true,
 
   async fetch(): Promise<RawPayload> {
     log.info("Fetching Delphi Epidata");
@@ -108,23 +108,15 @@ export const delphiAdapter: SourceAdapter = {
   normalize(raw: unknown): FetchResult {
     const { fluview, covidcast } = raw as RawPayload;
     const events: NormalizedEvent[] = [];
-    const timeSeries: TimeSeriesEntry[] = [];
 
-    // Group fluview by region → one OutbreakEvent per region for the current season
-    const regionGroups = new Map<string, FluViewRow[]>();
     for (const row of fluview) {
-      const existing = regionGroups.get(row.region) ?? [];
-      existing.push(row);
-      regionGroups.set(row.region, existing);
-    }
-
-    for (const [region, rows] of regionGroups) {
       try {
-        const regionNum = parseInt(region.replace("hhs", ""), 10);
-        const sorted = rows.sort((a, b) => a.epiweek - b.epiweek);
-        const latest = sorted[sorted.length - 1];
-        const year = Math.floor(latest.epiweek / 100);
-        const sourceId = `delphi:fluview:${region}:${year}`;
+        const regionNum = parseInt(row.region.replace("hhs", ""), 10);
+        const iliCount = row.num_ili ?? 0;
+        if (iliCount === 0) continue;
+
+        const sourceId = `delphi:fluview:${row.region}:${row.epiweek}`;
+        const weekDate = epiweekToDate(row.epiweek);
 
         events.push({
           source: "delphi_epidata",
@@ -137,25 +129,14 @@ export const delphiAdapter: SourceAdapter = {
           locationName: hhsRegionName(regionNum),
           countryIso: "USA",
           adminRegion: hhsRegionName(regionNum),
-          dateReported: epiweekToDate(sorted[0].epiweek),
-          lastReportDate: epiweekToDate(latest.epiweek),
-          caseCount: latest.num_ili ?? null,
+          dateReported: weekDate,
+          lastReportDate: weekDate,
+          caseCount: iliCount,
           sourceUrl: "https://gis.cdc.gov/grasp/fluview/fluportaldashboard.html",
-          rawData: { region, latestEpiweek: latest.epiweek, latestILI: latest.ili },
+          rawData: { region: row.region, epiweek: row.epiweek, ili: row.ili, num_ili: row.num_ili },
         });
-
-        for (const row of sorted) {
-          timeSeries.push({
-            sourceId,
-            date: epiweekToDate(row.epiweek),
-            newCases: row.num_ili ?? null,
-            cumulativeCases: null,
-            cumulativeDeaths: null,
-            newDeaths: null,
-          });
-        }
       } catch (err) {
-        log.warn({ err, region }, "Failed to normalize fluview region");
+        log.warn({ err, region: row.region }, "Failed to normalize fluview row");
       }
     }
 
@@ -201,10 +182,7 @@ export const delphiAdapter: SourceAdapter = {
       }
     }
 
-    log.info(
-      { events: events.length, timeSeries: timeSeries.length },
-      "Normalized Delphi data",
-    );
-    return { events, timeSeries };
+    log.info({ events: events.length }, "Normalized Delphi data");
+    return { events };
   },
 };

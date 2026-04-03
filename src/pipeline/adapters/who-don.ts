@@ -7,6 +7,9 @@ const log = childLogger("who-don");
 
 const BASE_URL = "https://www.who.int/api/news/diseaseoutbreaknews";
 
+const PAGE_SIZE = 100;
+const MAX_ITEMS = 5000;
+
 interface WHOItem {
   Id: string;
   Title: string;
@@ -19,6 +22,7 @@ interface WHOItem {
 }
 
 interface WHOResponse {
+  "@odata.count"?: number;
   value: WHOItem[];
 }
 
@@ -45,11 +49,27 @@ function extractCountry(item: WHOItem): { name: string; iso: string } {
     const tag = item.CountryTags[0];
     return { name: tag.Name, iso: toAlpha3(tag.IsoCode ?? tag.Name) };
   }
-  const titleParts = item.Title?.split(" – ") ?? [];
-  if (titleParts.length > 1) {
-    const countryPart = titleParts[titleParts.length - 1].trim();
-    return { name: countryPart, iso: toAlpha3(countryPart) };
+
+  const title = item.Title ?? "";
+
+  // Try em-dash first, then regular dash/hyphen (with or without surrounding spaces)
+  for (const sep of [" – ", " - ", "- "]) {
+    const idx = title.lastIndexOf(sep);
+    if (idx === -1) continue;
+
+    let candidate = title.slice(idx + sep.length).trim();
+
+    // Strip trailing suffixes like "- Update 3", "(Update)", etc.
+    candidate = candidate
+      .replace(/\s*[-–]\s*[Uu]pdate.*$/i, "")
+      .replace(/\s*\([Uu]pdate.*?\)\s*$/i, "")
+      .trim();
+    if (!candidate) continue;
+
+    const iso = toAlpha3(candidate);
+    if (iso !== "UNK") return { name: candidate, iso };
   }
+
   return { name: "Unknown", iso: "UNK" };
 }
 
@@ -75,11 +95,34 @@ export const whoDonAdapter: SourceAdapter = {
   name: "WHO Disease Outbreak News",
 
   async fetch(): Promise<WHOResponse> {
-    log.info("Fetching WHO DON feed");
-    const res = await fetchWithRetry(
-      `${BASE_URL}?$orderby=PublicationDate desc&$top=50`,
-    );
-    return (await res.json()) as WHOResponse;
+    log.info("Fetching WHO DON feed (paginated)");
+    const allItems: WHOItem[] = [];
+    let skip = 0;
+    let totalAvailable: number | undefined;
+
+    while (allItems.length < MAX_ITEMS) {
+      const url =
+        `${BASE_URL}?$orderby=PublicationDate desc&$top=${PAGE_SIZE}&$skip=${skip}&$count=true`;
+      const res = await fetchWithRetry(url);
+      const page = (await res.json()) as WHOResponse;
+
+      if (totalAvailable === undefined && page["@odata.count"] != null) {
+        totalAvailable = page["@odata.count"];
+        log.info({ totalAvailable }, "WHO DON total reports available");
+      }
+
+      const items = page.value ?? [];
+      if (items.length === 0) break;
+
+      allItems.push(...items);
+      log.debug({ fetched: allItems.length, pageSize: items.length }, "WHO DON page fetched");
+
+      if (items.length < PAGE_SIZE) break;
+      skip += PAGE_SIZE;
+    }
+
+    log.info({ total: allItems.length }, "WHO DON fetch complete");
+    return { value: allItems };
   },
 
   normalize(raw: unknown): FetchResult {

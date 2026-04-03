@@ -52,22 +52,37 @@ export function buildOutbreakWhere(
   }
 
   if (filters.disease_name) {
-    where.diseaseName = { contains: filters.disease_name, mode: "insensitive" };
+    const names = filters.disease_name.split(",").map((s) => s.trim());
+    if (names.length === 1) {
+      where.diseaseName = { contains: names[0], mode: "insensitive" };
+    } else {
+      where.AND = [
+        ...(Array.isArray(where.AND) ? where.AND : []),
+        { OR: names.map((n) => ({ diseaseName: { contains: n, mode: "insensitive" as const } })) },
+      ];
+    }
   }
 
   if (filters.pathogen_name) {
-    where.pathogenName = {
-      contains: filters.pathogen_name,
-      mode: "insensitive",
-    };
+    const names = filters.pathogen_name.split(",").map((s) => s.trim());
+    if (names.length === 1) {
+      where.pathogenName = { contains: names[0], mode: "insensitive" };
+    } else {
+      where.AND = [
+        ...(Array.isArray(where.AND) ? where.AND : []),
+        { OR: names.map((n) => ({ pathogenName: { contains: n, mode: "insensitive" as const } })) },
+      ];
+    }
   }
 
   if (filters.pathogen_type) {
-    where.pathogenType = filters.pathogen_type as never;
+    const types = filters.pathogen_type.split(",").map((s) => s.trim());
+    where.pathogenType = { in: types as never };
   }
 
   if (filters.country_iso) {
-    where.countryIso = filters.country_iso.toUpperCase();
+    const isos = filters.country_iso.split(",").map((s) => s.trim().toUpperCase());
+    where.countryIso = isos.length === 1 ? isos[0] : { in: isos };
   }
 
   if (filters.source) {
@@ -83,9 +98,9 @@ export function buildOutbreakWhere(
       );
     }
     if (filters.date_to) {
-      (where.lastReportDate as Prisma.DateTimeFilter).lte = new Date(
-        filters.date_to,
-      );
+      const endOfDay = new Date(filters.date_to);
+      endOfDay.setUTCHours(23, 59, 59, 999);
+      (where.lastReportDate as Prisma.DateTimeFilter).lte = endOfDay;
     }
   }
 

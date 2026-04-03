@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { NormalizedEvent, TimeSeriesEntry } from "../adapters/interface.js";
 import { childLogger } from "../utils/logger.js";
+import { getCountryCentroid } from "../utils/country-centroids.js";
 
 const log = childLogger("upsert");
 
@@ -9,12 +10,90 @@ export interface UpsertResult {
   updated: number;
 }
 
+const BATCH_SIZE = 500;
+
+/**
+ * Insert-only path for temporal adapters: uses createMany + skipDuplicates
+ * for dramatically better throughput on large historical datasets.
+ */
+export async function batchCreateEvents(events: NormalizedEvent[]): Promise<UpsertResult> {
+  const viable = events.filter((e) => e.caseCount == null || e.caseCount > 0);
+  if (viable.length < events.length) {
+    log.info(
+      { skipped: events.length - viable.length, kept: viable.length },
+      "Filtered out events with zero reported cases",
+    );
+  }
+
+  const records = viable.map((event) => {
+    const centroid =
+      event.latitude == null && event.countryIso !== "UNK"
+        ? getCountryCentroid(event.countryIso)
+        : null;
+    return {
+      source: event.source,
+      sourceId: event.sourceId,
+      diseaseName: event.diseaseName,
+      pathogenName: event.pathogenName ?? null,
+      pathogenType: event.pathogenType ?? null,
+      hostSpeciesCategory: event.hostSpeciesCategory,
+      hostSpeciesDetail: event.hostSpeciesDetail ?? null,
+      status: event.status,
+      locationName: event.locationName,
+      countryIso: event.countryIso,
+      adminRegion: event.adminRegion ?? null,
+      latitude: event.latitude ?? centroid?.latitude ?? null,
+      longitude: event.longitude ?? centroid?.longitude ?? null,
+      dateReported: event.dateReported,
+      dateOnset: event.dateOnset ?? null,
+      lastReportDate: event.lastReportDate,
+      resolutionDate: event.resolutionDate ?? null,
+      caseCount: event.caseCount ?? null,
+      deathCount: event.deathCount ?? null,
+      recoveredCount: event.recoveredCount ?? null,
+      sourceUrl: event.sourceUrl ?? null,
+      rawData: event.rawData as object,
+    };
+  });
+
+  let created = 0;
+  for (let i = 0; i < records.length; i += BATCH_SIZE) {
+    const chunk = records.slice(i, i + BATCH_SIZE);
+    const result = await prisma.outbreakEvent.createMany({
+      data: chunk,
+      skipDuplicates: true,
+    });
+    created += result.count;
+  }
+
+  log.info(
+    { total: viable.length, created, skippedDuplicates: viable.length - created },
+    "Batch create complete",
+  );
+  return { created, updated: 0 };
+}
+
 export async function upsertEvents(events: NormalizedEvent[]): Promise<UpsertResult> {
   let created = 0;
   let updated = 0;
 
-  for (const event of events) {
+  const viable = events.filter((e) => e.caseCount == null || e.caseCount > 0);
+  if (viable.length < events.length) {
+    log.info(
+      { skipped: events.length - viable.length, kept: viable.length },
+      "Filtered out events with zero reported cases",
+    );
+  }
+
+  for (const event of viable) {
     try {
+      const centroid =
+        event.latitude == null && event.countryIso !== "UNK"
+          ? getCountryCentroid(event.countryIso)
+          : null;
+      const lat = event.latitude ?? centroid?.latitude ?? null;
+      const lng = event.longitude ?? centroid?.longitude ?? null;
+
       const result = await prisma.outbreakEvent.upsert({
         where: {
           source_source_id: {
@@ -34,8 +113,8 @@ export async function upsertEvents(events: NormalizedEvent[]): Promise<UpsertRes
           locationName: event.locationName,
           countryIso: event.countryIso,
           adminRegion: event.adminRegion ?? null,
-          latitude: event.latitude ?? null,
-          longitude: event.longitude ?? null,
+          latitude: lat,
+          longitude: lng,
           dateReported: event.dateReported,
           dateOnset: event.dateOnset ?? null,
           lastReportDate: event.lastReportDate,
@@ -51,7 +130,12 @@ export async function upsertEvents(events: NormalizedEvent[]): Promise<UpsertRes
           deathCount: event.deathCount ?? undefined,
           recoveredCount: event.recoveredCount ?? undefined,
           lastReportDate: event.lastReportDate,
-          status: event.status,
+          ...(event.status === "resolved" && {
+            status: "resolved" as const,
+            resolutionDate: new Date(),
+          }),
+          latitude: lat ?? undefined,
+          longitude: lng ?? undefined,
           rawData: event.rawData as object,
         },
       });
