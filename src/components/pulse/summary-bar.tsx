@@ -43,7 +43,7 @@ export function SummaryBar({ data }: SummaryBarProps) {
   }, [data]);
 
   return (
-    <div className="border-t border-border bg-card px-4 py-2">
+    <div className="border-t border-border bg-white px-4 py-2">
       <div className="flex items-center justify-center gap-6 text-xs">
         <SummaryStat
           icon={<Activity className="w-3.5 h-3.5" />}
@@ -52,7 +52,7 @@ export function SummaryBar({ data }: SummaryBarProps) {
         />
         <Divider />
         <SummaryStat
-          icon={<AlertTriangle className="w-3.5 h-3.5 text-red-500" />}
+          icon={<AlertTriangle className="w-3.5 h-3.5 text-bauhaus-red" />}
           label="Active"
           value={stats.active.toLocaleString()}
           highlight
@@ -95,8 +95,8 @@ function SummaryStat({
     <div className="flex items-center gap-2">
       {icon}
       <div>
-        <span className="text-muted-foreground">{label}</span>{" "}
-        <span className={highlight ? "font-bold text-red-500" : "font-bold"}>
+        <span className="text-bauhaus-black/50 font-bold uppercase tracking-wider">{label}</span>{" "}
+        <span className={highlight ? "font-black text-bauhaus-red" : "font-black"}>
           {value}
         </span>
       </div>
@@ -105,5 +105,5 @@ function SummaryStat({
 }
 
 function Divider() {
-  return <span className="w-px h-4 bg-border" />;
+  return <span className="w-px h-4 bg-bauhaus-black/20" />;
 }

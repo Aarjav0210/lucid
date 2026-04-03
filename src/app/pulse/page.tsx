@@ -117,9 +117,9 @@ export default function PulsePage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground">
+    <div className="h-screen flex flex-col bg-bauhaus-bg text-bauhaus-black">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-border bg-card">
+      <nav className="sticky top-0 z-50 border-b border-border bg-white">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
@@ -128,15 +128,15 @@ export default function PulsePage() {
                 Lucid
               </span>
             </Link>
-            <span className="w-px h-6 bg-border" />
+            <span className="w-px h-6 bg-bauhaus-black/20" />
             <div className="flex items-center gap-2">
-              <Radio className="w-4 h-4 text-red-500" />
+              <Radio className="w-4 h-4 text-bauhaus-red" />
               <span className="text-sm font-bold uppercase tracking-wider">
                 Pulse
               </span>
             </div>
           </div>
-          <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
             Global Outbreak Tracker
           </span>
         </div>
@@ -180,12 +180,12 @@ export default function PulsePage() {
 
           {/* Error overlay */}
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm z-10">
-              <div className="bg-card border border-destructive/50 rounded-lg p-6 max-w-sm text-center shadow-lg">
-                <p className="text-sm font-medium text-destructive">{error}</p>
+            <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm z-10">
+              <div className="bg-white border-2 border-bauhaus-red p-6 max-w-sm text-center shadow-[4px_4px_0px_0px_#D02020]">
+                <p className="text-sm font-bold text-bauhaus-red">{error}</p>
                 <button
                   onClick={() => fetchGeoJSON(filters)}
-                  className="mt-3 text-xs font-medium text-primary hover:underline"
+                  className="mt-3 text-xs font-bold uppercase tracking-wider text-bauhaus-blue hover:underline"
                 >
                   Retry
                 </button>
@@ -199,8 +199,8 @@ export default function PulsePage() {
             geojson &&
             geojson.features.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                <div className="bg-card/90 backdrop-blur-sm border border-border rounded-lg p-6 max-w-sm text-center shadow-lg pointer-events-auto">
-                  <p className="text-sm text-muted-foreground">
+                <div className="bg-white border-2 border-bauhaus-black p-6 max-w-sm text-center shadow-[4px_4px_0px_0px_#121212] pointer-events-auto">
+                  <p className="text-sm font-bold uppercase tracking-wider text-bauhaus-black/50">
                     No outbreaks match your filters
                   </p>
                 </div>
