@@ -9,6 +9,7 @@
 /build
 
 # env files
+.env
 .env*.local
 
 # cached predictions and databases
@@ -21,6 +22,9 @@
 
 # diamond binary (downloaded at build time)
 /bin/
+
+# prisma
+prisma/migrations/**/migration_lock.toml
 
 # misc
 .DS_Store

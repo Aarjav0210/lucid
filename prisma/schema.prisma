@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Source {
+  who_don
+  disease_sh
+  delphi_epidata
+  cdc_nndss
+  cdc_socrata
+  global_health
+}
+
+enum PathogenType {
+  virus
+  bacterium
+  fungus
+  parasite
+  prion
+  unknown
+}
+
+enum HostSpeciesCategory {
+  human
+  animal
+  crop
+}
+
+enum OutbreakStatus {
+  active
+  monitoring
+  contained
+  resolved
+}
+
+enum PollStatus {
+  success
+  partial
+  failed
+}
+
+model OutbreakEvent {
+  id                  String              @id @default(uuid()) @db.Uuid
+  source              Source
+  sourceId            String              @map("source_id")
+  diseaseName         String              @map("disease_name")
+  pathogenName        String?             @map("pathogen_name")
+  pathogenType        PathogenType?       @map("pathogen_type")
+  hostSpeciesCategory HostSpeciesCategory @map("host_species_category")
+  hostSpeciesDetail   String?             @map("host_species_detail")
+  status              OutbreakStatus      @default(active)
+  locationName        String              @map("location_name")
+  countryIso          String              @map("country_iso") @db.VarChar(3)
+  adminRegion         String?             @map("admin_region")
+  latitude            Float?
+  longitude           Float?
+  dateReported        DateTime            @map("date_reported")
+  dateOnset           DateTime?           @map("date_onset")
+  lastReportDate      DateTime            @map("last_report_date")
+  resolutionDate      DateTime?           @map("resolution_date")
+  caseCount           Int?                @map("case_count")
+  deathCount          Int?                @map("death_count")
+  recoveredCount      Int?                @map("recovered_count")
+  sourceUrl           String?             @map("source_url")
+  rawData             Json                @map("raw_data")
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @default(now()) @updatedAt @map("updated_at")
+
+  timeSeries OutbreakTimeSeries[]
+
+  @@unique([source, sourceId], name: "source_source_id")
+  @@index([diseaseName, status])
+  @@index([countryIso, status])
+  @@index([hostSpeciesCategory])
+  @@index([lastReportDate])
+  @@map("outbreak_events")
+}
+
+model OutbreakTimeSeries {
+  id               String @id @default(uuid()) @db.Uuid
+  outbreakEventId  String @map("outbreak_event_id") @db.Uuid
+  date             DateTime @db.Date
+  cumulativeCases  Int?   @map("cumulative_cases")
+  cumulativeDeaths Int?   @map("cumulative_deaths")
+  newCases         Int?   @map("new_cases")
+  newDeaths        Int?   @map("new_deaths")
+
+  outbreakEvent OutbreakEvent @relation(fields: [outbreakEventId], references: [id], onDelete: Cascade)
+
+  @@unique([outbreakEventId, date])
+  @@index([outbreakEventId, date])
+  @@map("outbreak_time_series")
+}
+
+model SourcePollLog {
+  id            String     @id @default(uuid()) @db.Uuid
+  source        Source
+  startedAt     DateTime   @map("started_at")
+  completedAt   DateTime?  @map("completed_at")
+  status        PollStatus
+  eventsFetched Int        @default(0) @map("events_fetched")
+  eventsCreated Int        @default(0) @map("events_created")
+  eventsUpdated Int        @default(0) @map("events_updated")
+  errorMessage  String?    @map("error_message")
+
+  @@index([source, startedAt])
+  @@map("source_poll_logs")
+}
