@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lucid — Sequence Risk Screening",
-  description: "Biosecurity sequence screening tool",
+  title: "Lucid — Biosecurity Infrastructure",
+  description: "The complete security layer for bioengineering. Sequence screening, KYC audits, virtual cell models, protocol simulations, and outbreak surveillance.",
 };
 
 export default function RootLayout({
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-bauhaus-bg text-bauhaus-black antialiased font-outfit">
         {children}
+        <Analytics />
       </body>
     </html>
   );
