@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { sampleReports } from "@/lib/mock-report";
-import { LiveScreening } from "@/components/live-screening";
-import { SequenceReport as SequenceReportComponent } from "@/components/report/sequence-report";
-import type { SequenceReport as SequenceReportType } from "@/lib/report-types";
+import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
+import { track } from "@vercel/analytics";
 import {
   Circle,
   Square,
   Triangle,
   ArrowRight,
+  Shield,
   Search,
-  Pencil,
+  Globe,
+  FlaskConical,
+  Activity,
 } from "lucide-react";
 
 /* ─── Geometric decorations ─── */
@@ -26,213 +27,168 @@ function BauhausLogo() {
   );
 }
 
-function DnaHelix() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+/* ─── Product definitions ─── */
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+type Product = {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  icon: React.ElementType;
+  accentBg: string;
+  accentText: string;
+  borderColor: string;
+  href: string | null;
+  featured?: boolean;
+};
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+const products: Product[] = [
+  {
+    id: "screening",
+    name: "Sequence Screening",
+    tagline: "Multi-approach biosecurity analysis",
+    description:
+      "Multi-layered screening that catches harmful sequences standard BLAST-based analysis misses — combining sequence, structural, and functional approaches to flag threats that evade conventional detection.",
+    icon: Search,
+    accentBg: "bg-bauhaus-blue",
+    accentText: "text-white",
+    borderColor: "border-bauhaus-blue",
+    href: "/screening",
+    featured: true,
+  },
+  {
+    id: "kyc",
+    name: "Automated KYC Audits",
+    tagline: "Know your customer, instantly",
+    description:
+      "Compliance checks for biological material orders. Flag high-risk actors before synthesis begins.",
+    icon: Shield,
+    accentBg: "bg-bauhaus-red",
+    accentText: "text-white",
+    borderColor: "border-bauhaus-red",
+    href: null,
+  },
+  {
+    id: "virtual-cell",
+    name: "Virtual Cell World Models",
+    tagline: "Test novel pathogens safely",
+    description:
+      "High-fidelity in silico environments to model novel pathogen behavior before any wet-lab work begins.",
+    icon: Globe,
+    accentBg: "bg-bauhaus-yellow",
+    accentText: "text-bauhaus-black",
+    borderColor: "border-bauhaus-yellow",
+    href: null,
+  },
+  {
+    id: "protocol-sim",
+    name: "Protocol Preparedness Simulations",
+    tagline: "Hyper-realistic response training",
+    description:
+      "Full-fidelity outbreak scenario simulations to train teams and stress-test containment protocols.",
+    icon: FlaskConical,
+    accentBg: "bg-bauhaus-black",
+    accentText: "text-white",
+    borderColor: "border-bauhaus-black",
+    href: null,
+  },
+  {
+    id: "outbreak-tracker",
+    name: "Pathogen Outbreak Tracker",
+    tagline: "Real-time global surveillance",
+    description:
+      "Live monitoring of pathogen outbreak signals across global health networks, flagging biosecurity-relevant events as they emerge.",
+    icon: Activity,
+    accentBg: "bg-bauhaus-red",
+    accentText: "text-white",
+    borderColor: "border-bauhaus-red",
+    href: null,
+  },
+];
 
-    let animId: number;
-    let t = 0;
-    const mouse = { x: -9999, y: -9999 };
-    const nucleotides = ["A", "C", "G", "T"];
+/* ─── Product Card ─── */
 
-    // Deterministic letter per position so it doesn't flicker
-    const letterFor = (helixIdx: number, strandIdx: number, pointIdx: number) =>
-      nucleotides[(helixIdx * 7 + strandIdx * 3 + pointIdx) % 4];
+function ProductCard({ product, onComingSoon }: { product: Product; onComingSoon: () => void }) {
+  const Icon = product.icon;
 
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    };
-    const onMouseLeave = () => { mouse.x = -9999; mouse.y = -9999; };
-    canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("mouseleave", onMouseLeave);
+  const cardContent = (
+    <div
+      className="group relative flex flex-col h-full border-2 border-bauhaus-black bg-white shadow-[4px_4px_0px_0px_#121212] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#121212] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 cursor-pointer overflow-hidden"
+    >
+      <div className={`h-1.5 w-full ${product.accentBg}`} />
 
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-    };
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-start justify-between mb-3">
+          <div className={`w-9 h-9 flex items-center justify-center ${product.accentBg}`}>
+            <Icon className={`w-4 h-4 ${product.accentText}`} />
+          </div>
+        </div>
 
-    resize();
-    window.addEventListener("resize", resize);
+        <p className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/40 mb-1">
+          {product.tagline}
+        </p>
+        <h3 className="text-base font-black uppercase tracking-tighter leading-tight mb-2">
+          {product.name}
+        </h3>
+        <p className="text-xs font-medium text-bauhaus-black/60 leading-relaxed flex-1">
+          {product.description}
+        </p>
 
-    const helices = [
-      { offset: -220, color: "rgba(5,150,105,0.8)", phaseOffset: 0, speed: 0.005 },
-      { offset: 0, color: "rgba(232,65,24,0.85)", phaseOffset: 2.1, speed: 0.006 },
-      { offset: 220, color: "rgba(255,200,0,0.8)", phaseOffset: 4.2, speed: 0.007 },
-    ];
+        <div className="mt-4 flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black">
+            Launch
+          </span>
+          <ArrowRight className="w-3 h-3 text-bauhaus-black transition-transform group-hover:translate-x-1" />
+        </div>
+      </div>
+    </div>
+  );
 
-    const draw = () => {
-      const w = canvas.getBoundingClientRect().width;
-      const h = canvas.getBoundingClientRect().height;
-      ctx.clearRect(0, 0, w, h);
-
-      const diagLen = Math.sqrt(w * w + h * h);
-      const angle = Math.atan2(h, w);
-      const cosA = Math.cos(angle);
-      const sinA = Math.sin(angle);
-
-      const amplitude = 50;
-      const step = 14;
-      const twist = 0.07;
-
-      for (const helix of helices) {
-        const numPoints = Math.ceil(diagLen / step) + 6;
-
-        const s1: { x: number; y: number; z: number }[] = [];
-        const s2: { x: number; y: number; z: number }[] = [];
-
-        for (let i = -3; i < numPoints; i++) {
-          const d = -40 + i * step;
-          const phase = i * twist + t * helix.speed + helix.phaseOffset;
-
-          const perp1 = Math.sin(phase) * amplitude + helix.offset;
-          const perp2 = Math.sin(phase + Math.PI) * amplitude + helix.offset;
-          const z1 = Math.cos(phase);
-          const z2 = Math.cos(phase + Math.PI);
-
-          s1.push({ x: d * cosA + perp1 * (-sinA), y: d * sinA + perp1 * cosA, z: z1 });
-          s2.push({ x: d * cosA + perp2 * (-sinA), y: d * sinA + perp2 * cosA, z: z2 });
-        }
-
-        // Rungs
-        for (let i = 0; i < s1.length; i++) {
-          if (i % 3 !== 0) continue;
-          const p1 = s1[i];
-          const p2 = s2[i];
-          const avgZ = (p1.z + p2.z) / 2;
-          ctx.strokeStyle = avgZ > 0 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)";
-          ctx.lineWidth = avgZ > 0 ? 2.5 : 1.5;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
-        }
-
-        // Strand drawing
-        const drawStrand = (points: typeof s1) => {
-          ctx.strokeStyle = helix.color;
-          ctx.lineWidth = 4;
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-          ctx.beginPath();
-          for (let i = 0; i < points.length; i++) {
-            const p = points[i];
-            if (i === 0) {
-              ctx.moveTo(p.x, p.y);
-            } else {
-              ctx.lineTo(p.x, p.y);
-            }
-          }
-          ctx.stroke();
-        };
-
-        drawStrand(s1);
-        drawStrand(s2);
-
-        // Dots that morph into nucleotide letters on hover
-        const hoverRadius = 40;
-        const helixIdx = helices.indexOf(helix);
-        const drawDots = (points: typeof s1, strandIdx: number) => {
-          for (let i = 0; i < points.length; i++) {
-            const p = points[i];
-            const dx = p.x - mouse.x;
-            const dy = p.y - mouse.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const blend = Math.max(0, 1 - dist / hoverRadius);
-
-            if (blend > 0) {
-              // Letter
-              const letter = letterFor(helixIdx, strandIdx, i);
-              ctx.save();
-              ctx.font = `bold ${10 + blend * 6}px monospace`;
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-              ctx.fillStyle = `rgba(255,255,255,${blend.toFixed(2)})`;
-              ctx.fillText(letter, p.x, p.y);
-              ctx.restore();
-            }
-
-            // Dot (shrinks as letter appears)
-            const dotRadius = (1 - blend) * 3.5;
-            if (dotRadius > 0.2) {
-              ctx.fillStyle = helix.color;
-              ctx.beginPath();
-              ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-        };
-
-        drawDots(s1, 0);
-        drawDots(s2, 1);
-      }
-
-      t++;
-      animId = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", resize);
-      canvas.removeEventListener("mousemove", onMouseMove);
-      canvas.removeEventListener("mouseleave", onMouseLeave);
-    };
-  }, []);
+  if (product.href) {
+    return (
+      <Link
+        href={product.href}
+        className="contents"
+        onClick={() => track("product_click", { product: product.id, name: product.name })}
+      >
+        {cardContent}
+      </Link>
+    );
+  }
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-    />
+    <div
+      onClick={() => {
+        track("product_click", { product: product.id, name: product.name });
+        onComingSoon();
+      }}
+      className="contents"
+    >
+      {cardContent}
+    </div>
   );
 }
 
+/* ─── Landing Page ─── */
 
+export default function LandingPage() {
+  const featured = products.find((p) => p.featured)!;
+  const rest = products.filter((p) => !p.featured);
 
-/* ─── Main Page ─── */
-
-export default function Home() {
-  const [activeReport, setActiveReport] = useState<SequenceReportType | null>(null);
-  const [submittedSequence, setSubmittedSequence] = useState<string | null>(null);
-  const [editingSequence, setEditingSequence] = useState(false);
-  const [editInput, setEditInput] = useState("");
-  const navRef = useRef<HTMLElement>(null);
-  const seqHeroRef = useRef<HTMLElement>(null);
-  const [stickyOffset, setStickyOffset] = useState(0);
+  const [toast, setToast] = useState(false);
 
   useEffect(() => {
-    const measure = () => {
-      const navH = navRef.current?.getBoundingClientRect().height ?? 0;
-      const seqH = seqHeroRef.current?.getBoundingClientRect().height ?? 0;
-      setStickyOffset(navH + seqH);
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [submittedSequence, editingSequence]);
+    if (!toast) return;
+    const id = setTimeout(() => setToast(false), 2500);
+    return () => clearTimeout(id);
+  }, [toast]);
 
-  const riskColors: Record<string, string> = {
-    HIGH: "bg-bauhaus-red text-white",
-    MEDIUM: "bg-bauhaus-yellow text-bauhaus-black",
-    LOW: "bg-emerald-600 text-white",
-  };
+  const showComingSoon = useCallback(() => setToast(true), []);
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col relative">
       {/* ─── Navigation ─── */}
-      <nav ref={navRef} className="sticky top-0 z-50 border-b-4 border-bauhaus-black bg-white">
+      <nav className="sticky top-0 z-50 border-b-4 border-bauhaus-black bg-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <BauhausLogo />
@@ -240,202 +196,205 @@ export default function Home() {
               Lucid
             </span>
           </div>
-          <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-            Sequence Risk Screening
-          </span>
+          <div className="flex items-center gap-6">
+            <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
+              Biosecurity Infrastructure
+            </span>
+            <a
+              href="mailto:aarjav02@gmail.com"
+              className="text-xs font-bold uppercase tracking-widest text-bauhaus-black border-2 border-bauhaus-black px-3 py-1.5 hover:bg-bauhaus-black hover:text-white transition-colors"
+            >
+              Contact
+            </a>
+          </div>
         </div>
       </nav>
 
-      {/* ─── Hero Section ─── */}
-      <section
-        className={`overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-          submittedSequence
-            ? "max-h-0 opacity-0 pointer-events-none"
-            : "max-h-[800px] opacity-100 border-b-4 border-bauhaus-black"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2">
-          <div className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
-              Screen
-              <br />
-              <span className="text-bauhaus-blue">Sequences</span>
-            </h1>
-            <p className="mt-6 text-lg sm:text-xl font-medium text-bauhaus-black/70 max-w-lg leading-relaxed">
-              Biosecurity screening — InterPro domain analysis, Diamond sequence
-              search, ESMfold structure prediction, and FoldSeek structural
-              similarity. Cross-referenced against known threat domains.
+      {/* ─── Hero ─── */}
+      <section className="border-b-4 border-bauhaus-black overflow-x-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12">
+          {/* Left: copy */}
+          <div className="lg:col-span-7 py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-3">
+              Lucid Bio &mdash; Biosecurity Infrastructure
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#screen"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.9]">
+              The Complete
+              <br />
+              <span className="text-bauhaus-red">Security</span>
+              <br />
+              Layer For
+              <br />
+              <span className="text-bauhaus-blue">Bioengineering</span>
+            </h1>
+            <p className="mt-5 text-base sm:text-lg font-medium text-bauhaus-black/65 max-w-xl leading-relaxed">
+              Covering your bases so you can focus on delivering product. From sequence screening to outbreak surveillance — Lucid handles biosecurity end-to-end.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-black text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-black/80 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
-                Screen a Sequence
+                Explore Products
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
               <a
-                href="#orders"
+                href="mailto:aarjav02@gmail.com"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
-                View Sample Orders
+                Get in Touch
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>
           </div>
-          <div className="hidden lg:block bg-bauhaus-blue relative overflow-hidden border-l-4 border-bauhaus-black">
-            <DnaHelix />
+
+          {/* Right: geometric Bauhaus panel */}
+          <div className="hidden lg:flex lg:col-span-5 border-l-4 border-bauhaus-black relative overflow-hidden">
+            {/* Color blocks */}
+            <div className="absolute inset-0 flex flex-col">
+              <div className="flex-1 bg-bauhaus-red" />
+              <div className="flex-1 bg-bauhaus-yellow" />
+              <div className="flex-1 bg-bauhaus-blue" />
+            </div>
+            {/* Overlapping circle */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-52 h-52 rounded-full border-[14px] border-white opacity-20" />
+            </div>
+            {/* Geometric shapes */}
+            <div className="absolute bottom-6 right-6 w-32 h-32 bg-bauhaus-black opacity-15" />
+            <div className="absolute top-6 left-6 w-20 h-20 bg-white opacity-10" />
+            {/* Text overlay */}
+            <div className="relative z-10 flex flex-col justify-end p-8">
+              <p className="text-white font-black text-4xl uppercase tracking-tighter leading-none opacity-90">
+                Bio
+                <br />
+                Security
+                <br />
+                Covered.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Sequence Hero (shown after submission) ─── */}
-      {submittedSequence && (
-        <section ref={seqHeroRef} className="sticky top-[68px] z-40 border-b-4 border-bauhaus-black bg-white/85 backdrop-blur-md hover:bg-white transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-                    Screening Sequence
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/30">
-                    {submittedSequence.replace(/^>.*\n/, "").replace(/\s+/g, "").length} AA
-                  </span>
-                </div>
-                <p className="font-mono text-sm text-bauhaus-black/50 leading-relaxed break-all line-clamp-2">
-                  {submittedSequence.replace(/^>.*\n/, "").replace(/\s+/g, "")}
+      {/* ─── Stats Bar ─── */}
+      <section className="border-b-4 border-bauhaus-black bg-bauhaus-black text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
+            {[
+              { label: "Analysis Approaches", value: "4" },
+              { label: "Threat Databases", value: "5+" },
+              { label: "Products", value: "5" },
+              { label: "Coverage", value: "End-to-End" },
+            ].map((stat) => (
+              <div key={stat.label} className="flex-1 text-center px-4 py-1.5">
+                <p className="text-xl sm:text-2xl font-black uppercase tracking-tighter text-bauhaus-yellow">
+                  {stat.value}
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mt-0.5">
+                  {stat.label}
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingSequence(!editingSequence);
-                  if (!editingSequence) {
-                    setEditInput(submittedSequence);
-                  }
-                }}
-                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/50 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
-              >
-                <Pencil className="w-3 h-3" />
-                Edit
-              </button>
-            </div>
-            {/* Edit dropdown */}
-            {editingSequence && (
-              <div className="mt-3 space-y-2">
-                <textarea
-                  value={editInput}
-                  onChange={(e) => setEditInput(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 font-mono text-sm bg-bauhaus-muted/30 text-bauhaus-black border-2 border-bauhaus-black/20 focus:border-bauhaus-black focus:outline-none resize-y placeholder:text-bauhaus-black/25"
-                  spellCheck={false}
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setEditingSequence(false);
-                      setSubmittedSequence(editInput);
-                      window.dispatchEvent(new CustomEvent("lucid:resubmit", { detail: editInput }));
-                    }}
-                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-bauhaus-black text-white border-2 border-bauhaus-black hover:bg-bauhaus-black/80 transition-colors"
-                  >
-                    Resubmit
-                  </button>
-                  <button
-                    onClick={() => setEditingSequence(false)}
-                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/50 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ─── Live Screening ─── */}
-      <section id="screen" className="border-b-4 border-bauhaus-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          <div className={submittedSequence ? "max-w-6xl mx-auto" : "max-w-4xl mx-auto"}>
-            {!submittedSequence && (
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-bauhaus-blue flex items-center justify-center">
-                  <Search className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
-                  Screen a Sequence
-                </h2>
-              </div>
-            )}
-            <LiveScreening onSequenceSubmit={setSubmittedSequence} stickyOffset={stickyOffset} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ─── Sample Orders ─── */}
-      <section
-        id="orders"
-        className="border-b-4 border-bauhaus-black bg-bauhaus-yellow"
-      >
+      {/* ─── Products ─── */}
+      <section id="products" className="border-b-4 border-bauhaus-black bg-bauhaus-bg scroll-mt-[72px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/60 mb-4">
-            Sample Orders — Select to view screening report
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {sampleReports.map((sample) => {
-              const risk = sample.report.integratedReport?.overallRisk ?? "LOW";
-              const isActive = activeReport?.id === sample.report.id;
-              return (
-                <button
-                  key={sample.report.id}
-                  onClick={() => {
-                    setActiveReport(sample.report);
-                    setTimeout(() => {
-                      document.getElementById("report")?.scrollIntoView({ behavior: "smooth" });
-                    }, 50);
-                  }}
-                  className={`group relative text-left p-4 bg-white border-2 border-bauhaus-black shadow-[3px_3px_0px_0px_#121212] sm:shadow-[4px_4px_0px_0px_#121212] hover:-translate-y-1 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 ${isActive ? "ring-2 ring-bauhaus-black ring-offset-2" : ""}`}
-                >
-                  <span className="block font-bold uppercase tracking-wider text-sm">
-                    {sample.label}
-                  </span>
-                  <span className="block mt-1 text-xs font-medium text-bauhaus-black/50 tracking-wider">
-                    {sample.description}
-                  </span>
-                  <span
-                    className={`inline-block mt-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest border border-bauhaus-black ${riskColors[risk] ?? ""}`}
-                  >
-                    {risk}
-                  </span>
-                </button>
-              );
-            })}
+          {/* Section header */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-7 h-7 bg-bauhaus-black flex items-center justify-center shrink-0">
+              <Square className="w-3.5 h-3.5 text-white fill-white" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
+              Products
+            </h2>
+            <div className="flex-1 h-0.5 bg-bauhaus-black/10 ml-2" />
+          </div>
+
+          {/* Featured card (Sequence Screening) — full width */}
+          <div className="mb-3">
+            <Link href={featured.href!} className="block" onClick={() => track("product_click", { product: featured.id, name: featured.name })}>
+              <div className="group relative border-2 border-bauhaus-black bg-white shadow-[4px_4px_0px_0px_#121212] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#121212] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 overflow-hidden">
+                <div className="h-1.5 w-full bg-bauhaus-blue" />
+                <div className="grid grid-cols-1 lg:grid-cols-3">
+                  {/* Left: text */}
+                  <div className="lg:col-span-2 p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 flex items-center justify-center bg-bauhaus-blue">
+                          <Search className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 border border-emerald-600 px-2 py-0.5">
+                          Live
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/40 mb-1.5">
+                        {featured.tagline}
+                      </p>
+                      <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter leading-tight mb-3">
+                        {featured.name}
+                      </h3>
+                      <p className="text-sm font-medium text-bauhaus-black/60 leading-relaxed max-w-2xl">
+                        {featured.description}
+                      </p>
+                    </div>
+                    <div className="mt-5 flex items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-blue">
+                        Launch Tool
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5 text-bauhaus-blue transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                  {/* Right: visual */}
+                  <div className="hidden lg:flex bg-bauhaus-blue items-center justify-center p-8 border-l-2 border-bauhaus-black min-h-[200px]">
+                    <div className="text-center">
+                      <div className="flex gap-4 justify-center mb-4">
+                        {["Sequence", "Structure", "Function", "Synergistic"].map((label) => (
+                          <div key={label} className="flex flex-col items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white opacity-60" />
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-white/60 [writing-mode:vertical-rl] rotate-180">
+                              {label}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest">
+                        Analysis Layers
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          {/* Remaining 4 products in a 4-column grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {rest.map((product) => (
+              <ProductCard key={product.id} product={product} onComingSoon={showComingSoon} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ─── Sample Report View ─── */}
-      {activeReport && (
-        <section id="report" className="border-b-4 border-bauhaus-black">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-                Sample Screening Report
-              </p>
-              <button
-                onClick={() => setActiveReport(null)}
-                className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 hover:text-bauhaus-black transition-colors"
-              >
-                Close
-              </button>
-            </div>
-            <div className="max-w-6xl mx-auto">
-              <SequenceReportComponent report={activeReport} />
-            </div>
+      {/* ─── Mission Strip ─── */}
+      <section className="border-b-4 border-bauhaus-black bg-bauhaus-yellow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <div className="max-w-5xl">
+            <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/50 mb-3">
+              Our Mission
+            </p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tighter leading-tight text-bauhaus-black">
+              The next decade of biology will move faster than any before it.
+              <br />
+              Security has to move just as fast — not to slow innovation down, but to make sure it stays safe as it scales.
+            </p>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* ─── Footer ─── */}
       <footer className="bg-bauhaus-black text-white border-t-4 border-bauhaus-black mt-auto">
@@ -454,9 +413,9 @@ export default function Home() {
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold uppercase tracking-widest text-white/40 text-center sm:text-right">
-              Diamond + ESMfold + FoldSeek + LLM Assessment
+              The Complete Security Layer for Bioengineering
               <br />
-              US Select Agents & Toxins &middot; Dual-Use Gene Catalog
+              Sequence &middot; Structure &middot; Function &middot; Surveillance
             </p>
             <a
               href="mailto:aarjav02@gmail.com"
@@ -467,6 +426,18 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      {/* ─── Toast ─── */}
+      <div
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${
+          toast
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="px-5 py-3 bg-bauhaus-black text-white text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_rgba(18,18,18,0.3)]">
+          Coming Soon — Stay Tuned
+        </div>
+      </div>
     </main>
   );
 }
