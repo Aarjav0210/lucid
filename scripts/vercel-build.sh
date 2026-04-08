@@ -17,5 +17,13 @@ if [ ! -f data/diamond/curated_toxins.dmnd ]; then
   echo "[build] Diamond database ready"
 fi
 
+# Prisma client (required for API routes that import from @prisma/client)
+npx prisma generate
+
+# Apply migrations when building for deploy (set DATABASE_URL + DIRECT_URL in the host)
+if [ -n "${DATABASE_URL:-}" ] && [ -n "${DIRECT_URL:-}" ]; then
+  npx prisma migrate deploy
+fi
+
 # Run the standard Next.js build
 next build
