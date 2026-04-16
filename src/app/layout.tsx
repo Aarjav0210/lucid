@@ -5,6 +5,24 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Lucid — Biosecurity Infrastructure",
   description: "The complete security layer for bioengineering. Sequence screening, KYC audits, virtual cell models, protocol simulations, and outbreak surveillance.",
+  openGraph: {
+    title: "Lucid — Biosecurity Infrastructure",
+    description:
+      "The complete security layer for bioengineering. Sequence screening, KYC audits, virtual cell models, protocol simulations, and outbreak surveillance.",
+    images: [
+      {
+        url: "/og-image.png",
+        alt: "Lucid Biosecurity Infrastructure",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lucid — Biosecurity Infrastructure",
+    description:
+      "The complete security layer for bioengineering. Sequence screening, KYC audits, virtual cell models, protocol simulations, and outbreak surveillance.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
