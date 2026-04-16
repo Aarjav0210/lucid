@@ -12,6 +12,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og-image.png",
+        width: 1024,
+        height: 537,
         alt: "Lucid Biosecurity Infrastructure",
       },
     ],
