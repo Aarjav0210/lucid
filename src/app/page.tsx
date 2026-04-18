@@ -3,6 +3,9 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
+import { getCalApi } from "@calcom/embed-react";
+
+const CAL_LINK = "aarjav-jain/lucid-bio";
 import {
   Circle,
   Square,
@@ -13,6 +16,10 @@ import {
   Globe,
   FlaskConical,
   Activity,
+  Dna,
+  Box,
+  Fingerprint,
+  Layers,
 } from "lucide-react";
 
 /* ─── Geometric decorations ─── */
@@ -185,17 +192,25 @@ export default function LandingPage() {
 
   const showComingSoon = useCallback(() => setToast(true), []);
 
+  useEffect(() => {
+    (async () => {
+      const cal = await getCalApi({ namespace: "intro" });
+      cal("ui", {
+        hideEventTypeDetails: false,
+        layout: "month_view",
+        theme: "light",
+      });
+    })();
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col relative">
       {/* ─── Navigation ─── */}
       <nav className="sticky top-0 z-50 border-b-4 border-bauhaus-black bg-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <BauhausLogo />
-            <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter">
-              Lucid
-            </span>
-          </div>
+          <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter">
+            Lucid
+          </span>
           <div className="flex items-center gap-6">
             <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
               Biosecurity Infrastructure
@@ -206,6 +221,15 @@ export default function LandingPage() {
             >
               Contact
             </a>
+            <button
+              data-cal-namespace="intro"
+              data-cal-link={CAL_LINK}
+              data-cal-config='{"layout":"month_view","theme":"light"}'
+              onClick={() => track("book_call_click", { location: "nav" })}
+              className="text-xs font-bold uppercase tracking-widest text-white bg-bauhaus-black border-2 border-bauhaus-black px-3 py-1.5 hover:bg-bauhaus-blue hover:border-bauhaus-blue transition-colors"
+            >
+              Book a Call
+            </button>
           </div>
         </div>
       </nav>
@@ -225,10 +249,10 @@ export default function LandingPage() {
               <br />
               Layer For
               <br />
-              <span className="text-bauhaus-blue">Bioengineering</span>
+              <span className="text-bauhaus-blue">Biosynthesis</span>
             </h1>
             <p className="mt-5 text-base sm:text-lg font-medium text-bauhaus-black/65 max-w-xl leading-relaxed">
-              Covering your bases so you can focus on delivering product. From sequence screening to outbreak surveillance — Lucid handles biosecurity end-to-end.
+              Prevent biosecurity threats before they emerge. Comprehensive screening and surveillance that scales with synthetic biology.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
@@ -238,13 +262,16 @@ export default function LandingPage() {
                 Explore Products
                 <ArrowRight className="w-4 h-4" />
               </button>
-              <a
-                href="mailto:aarjav02@gmail.com"
+              <button
+                data-cal-namespace="intro"
+                data-cal-link={CAL_LINK}
+                data-cal-config='{"layout":"month_view","theme":"light"}'
+                onClick={() => track("book_call_click", { location: "hero" })}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
-                Get in Touch
+                Book a Call
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -350,20 +377,28 @@ export default function LandingPage() {
                   </div>
                   {/* Right: visual */}
                   <div className="hidden lg:flex bg-bauhaus-blue items-center justify-center p-8 border-l-2 border-bauhaus-black min-h-[200px]">
-                    <div className="text-center">
-                      <div className="flex gap-4 justify-center mb-4">
-                        {["Sequence", "Structure", "Function", "Synergistic"].map((label) => (
-                          <div key={label} className="flex flex-col items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-white opacity-60" />
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-white/60 [writing-mode:vertical-rl] rotate-180">
+                    <div className="w-full max-w-[280px]">
+                      <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-4 text-center">
+                        Analysis Layers
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { label: "Sequence", Icon: Dna },
+                          { label: "Structure", Icon: Box },
+                          { label: "Function", Icon: Fingerprint },
+                          { label: "Synergistic", Icon: Layers },
+                        ].map(({ label, Icon }) => (
+                          <div
+                            key={label}
+                            className="flex flex-col items-start gap-2 px-3 py-3 border border-white/25 bg-white/5"
+                          >
+                            <Icon className="w-5 h-5 text-white/90" />
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-white/90">
                               {label}
                             </p>
                           </div>
                         ))}
                       </div>
-                      <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest">
-                        Analysis Layers
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -388,9 +423,10 @@ export default function LandingPage() {
               Our Mission
             </p>
             <p className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tighter leading-tight text-bauhaus-black">
-              The next decade of biology will move faster than any before it.
+              Synthetic biology is accelerating exponentially, but biosecurity isn&apos;t keeping pace.
               <br />
-              Security has to move just as fast — not to slow innovation down, but to make sure it stays safe as it scales.
+              <br />
+              We&apos;re building the security infrastructure that scales with biology&apos;s potential, so breakthrough science doesn&apos;t become a breakthrough threat.
             </p>
           </div>
         </div>
@@ -413,16 +449,27 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold uppercase tracking-widest text-white/40 text-center sm:text-right">
-              The Complete Security Layer for Bioengineering
+              The Complete Security Layer for Biosynthesis
               <br />
               Sequence &middot; Structure &middot; Function &middot; Surveillance
             </p>
-            <a
-              href="mailto:aarjav02@gmail.com"
-              className="px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-white/40 text-white/70 hover:bg-white hover:text-bauhaus-black transition-colors"
-            >
-              Get in Touch
-            </a>
+            <div className="flex items-center gap-2">
+              <a
+                href="mailto:aarjav02@gmail.com"
+                className="px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-white/40 text-white/70 hover:bg-white hover:text-bauhaus-black transition-colors"
+              >
+                Get in Touch
+              </a>
+              <button
+                data-cal-namespace="intro"
+                data-cal-link={CAL_LINK}
+                data-cal-config='{"layout":"month_view","theme":"light"}'
+                onClick={() => track("book_call_click", { location: "footer" })}
+                className="px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-white bg-white text-bauhaus-black hover:bg-bauhaus-blue hover:border-bauhaus-blue hover:text-white transition-colors"
+              >
+                Book a Call
+              </button>
+            </div>
           </div>
         </div>
       </footer>
