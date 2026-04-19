@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { mkdir, writeFile, readFile, access } from "fs/promises";
 import path from "path";
+import { blobCacheEnabled, readBlobText, writeBlobText } from "./blob-cache";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ const TIMEOUT_MS = 120_000; // 2 minutes
 const PDB_DIR = process.env.VERCEL
   ? "/tmp/pdb"
   : path.resolve(process.cwd(), "data", "pdb");
+const BLOB_PREFIX = "esmfold";
 
 // ── pLDDT extraction ──────────────────────────────────────────────────
 
@@ -55,6 +57,10 @@ function pdbFilePath(hash: string): string {
   return path.join(PDB_DIR, `${hash}.pdb`);
 }
 
+function blobPathname(hash: string): string {
+  return `${BLOB_PREFIX}/${hash}.pdb`;
+}
+
 async function fileExists(filePath: string): Promise<boolean> {
   try {
     await access(filePath);
@@ -64,18 +70,44 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
+/**
+ * Look up a cached PDB by sequence hash. Checks Vercel Blob first when
+ * enabled, otherwise falls back to the local filesystem cache. Returns
+ * the PDB text plus the resolved locator (blob URL or local path).
+ */
+async function readCachedPdb(
+  hash: string
+): Promise<{ pdbString: string; locator: string } | null> {
+  if (blobCacheEnabled()) {
+    const data = await readBlobText(blobPathname(hash));
+    if (data) {
+      // When read via findBlobUrl we don't keep the URL around here; the
+      // pathname is deterministic and sufficient as a locator for the
+      // downstream report. Callers use pdbString, not pdbPath, for
+      // rendering the structure.
+      return { pdbString: data, locator: blobPathname(hash) };
+    }
+  }
+
+  const filePath = pdbFilePath(hash);
+  if (await fileExists(filePath)) {
+    const pdbString = await readFile(filePath, "utf-8");
+    return { pdbString, locator: filePath };
+  }
+
+  return null;
+}
+
 // ── Main entry point ──────────────────────────────────────────────────
 
 export async function predictStructureEsm(
   sequence: string
 ): Promise<EsmFoldResult> {
   const hash = seqHash(sequence);
-  const filePath = pdbFilePath(hash);
 
-  // Check disk cache
-  if (await fileExists(filePath)) {
-    const pdbString = await readFile(filePath, "utf-8");
-    const plddtPerResidue = extractPlddtFromPdb(pdbString);
+  const cached = await readCachedPdb(hash);
+  if (cached) {
+    const plddtPerResidue = extractPlddtFromPdb(cached.pdbString);
     const plddtRaw =
       plddtPerResidue.length > 0
         ? plddtPerResidue.reduce((a, b) => a + b, 0) / plddtPerResidue.length
@@ -85,8 +117,8 @@ export async function predictStructureEsm(
 
     return {
       status: "completed",
-      pdbString,
-      pdbPath: filePath,
+      pdbString: cached.pdbString,
+      pdbPath: cached.locator,
       sequenceLength: sequence.length,
       plddtMean,
       plddtPerResidue,
@@ -132,14 +164,27 @@ export async function predictStructureEsm(
     // ESMFold stores pLDDT in B-factor as 0-1; normalize to 0-100
     const plddtMean = plddtRaw <= 1 ? Math.round(plddtRaw * 10000) / 100 : Math.round(plddtRaw * 100) / 100;
 
-    // Write to disk
-    await mkdir(PDB_DIR, { recursive: true });
-    await writeFile(filePath, pdbString, "utf-8");
+    // Persist to cache. Prefer Vercel Blob so other serverless instances
+    // (and users) get cache hits; otherwise fall back to the local FS
+    // cache (dev without a blob token configured).
+    let pdbLocator: string;
+    const blobUrl = blobCacheEnabled()
+      ? await writeBlobText(blobPathname(hash), pdbString, "chemical/x-pdb")
+      : null;
+
+    if (blobUrl) {
+      pdbLocator = blobUrl;
+    } else {
+      const filePath = pdbFilePath(hash);
+      await mkdir(PDB_DIR, { recursive: true });
+      await writeFile(filePath, pdbString, "utf-8");
+      pdbLocator = filePath;
+    }
 
     return {
       status: "completed",
       pdbString,
-      pdbPath: filePath,
+      pdbPath: pdbLocator,
       sequenceLength: sequence.length,
       plddtMean,
       plddtPerResidue,

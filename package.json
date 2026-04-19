@@ -16,6 +16,7 @@
     "@calcom/atoms": "^2.5.0",
     "@calcom/embed-react": "^1.5.3",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.3.3",
     "3dmol": "^2.5.4",
     "ai": "^4.3.19",
     "jspdf": "^4.2.1",

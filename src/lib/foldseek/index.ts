@@ -1,12 +1,13 @@
-import { createHash } from "crypto";
 import { mkdir, writeFile, readFile, access } from "fs/promises";
 import path from "path";
 import type { FoldseekResult, ParsedTarget } from "./types";
 import { parseHitTarget, deduplicateHits } from "./parse";
 import { enrichHitsConcurrently } from "./enrich";
+import { blobCacheEnabled, readBlobText, writeBlobText } from "../blob-cache";
 
 const FOLDSEEK_BASE = "https://search.foldseek.com/api";
 const CACHE_DIR = path.resolve(process.cwd(), "data", "foldseek");
+const BLOB_PREFIX = "foldseek";
 
 // ── Error class ───────────────────────────────────────────────────────
 
@@ -38,6 +39,10 @@ function cachePath(hash: string): string {
   return path.join(CACHE_DIR, `${hash}.json`);
 }
 
+function blobPathname(hash: string): string {
+  return `${BLOB_PREFIX}/${hash}.json`;
+}
+
 async function fileExists(filePath: string): Promise<boolean> {
   try {
     await access(filePath);
@@ -48,6 +53,17 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 async function readCache(hash: string): Promise<FoldseekResult | null> {
+  if (blobCacheEnabled()) {
+    const data = await readBlobText(blobPathname(hash));
+    if (data) {
+      try {
+        return JSON.parse(data) as FoldseekResult;
+      } catch {
+        // Corrupt blob entry — fall through to the local FS cache.
+      }
+    }
+  }
+
   const fp = cachePath(hash);
   if (!(await fileExists(fp))) return null;
   try {
@@ -59,8 +75,16 @@ async function readCache(hash: string): Promise<FoldseekResult | null> {
 }
 
 async function writeCache(hash: string, result: FoldseekResult): Promise<void> {
+  const serialized = JSON.stringify(result);
+
+  if (blobCacheEnabled()) {
+    const url = await writeBlobText(blobPathname(hash), serialized, "application/json");
+    if (url) return;
+    // Blob write failed — fall through to the local FS as a best effort.
+  }
+
   await mkdir(CACHE_DIR, { recursive: true });
-  await writeFile(cachePath(hash), JSON.stringify(result), "utf-8");
+  await writeFile(cachePath(hash), serialized, "utf-8");
 }
 
 // ── Main pipeline ─────────────────────────────────────────────────────

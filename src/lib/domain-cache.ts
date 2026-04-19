@@ -3,6 +3,7 @@ import { mkdir, writeFile, readFile, readdir } from "fs/promises";
 import path from "path";
 import type { InterProResult, DomainSlice } from "./interpro";
 import type { ExtractedDomain, DomainMetadata } from "./extract-domains";
+import { blobCacheEnabled, readBlobText, writeBlobText } from "./blob-cache";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -45,6 +46,7 @@ export interface CachedDomainEntry {
 // ── Constants ──────────────────────────────────────────────────────────
 
 const CACHE_DIR = path.join(process.cwd(), ".domain-cache");
+const BLOB_PREFIX = "domain-cache";
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -54,6 +56,10 @@ function hashSequence(sequence: string): string {
 
 function cacheFilePath(hash: string): string {
   return path.join(CACHE_DIR, `${hash}.json`);
+}
+
+function blobPathname(hash: string): string {
+  return `${BLOB_PREFIX}/${hash}.json`;
 }
 
 // ── Public API ─────────────────────────────────────────────────────────
@@ -66,8 +72,6 @@ export async function cacheDomainSlices(
   inputSequence: string,
   result: InterProResult
 ): Promise<CachedDomainEntry> {
-  await mkdir(CACHE_DIR, { recursive: true });
-
   const hash = hashSequence(inputSequence);
 
   const entry: CachedDomainEntry = {
@@ -97,7 +101,21 @@ export async function cacheDomainSlices(
     })),
   };
 
-  await writeFile(cacheFilePath(hash), JSON.stringify(entry, null, 2), "utf-8");
+  const serialized = JSON.stringify(entry, null, 2);
+
+  if (blobCacheEnabled()) {
+    const url = await writeBlobText(blobPathname(hash), serialized, "application/json");
+    if (url) {
+      console.log(
+        `Domain cache: wrote ${entry.slices.length} slice(s) → blob ${BLOB_PREFIX}/${hash.slice(0, 12)}...json`
+      );
+      return entry;
+    }
+    // Blob write failed — fall through to local FS as a best-effort backup.
+  }
+
+  await mkdir(CACHE_DIR, { recursive: true });
+  await writeFile(cacheFilePath(hash), serialized, "utf-8");
   console.log(`Domain cache: wrote ${entry.slices.length} slice(s) → .domain-cache/${hash.slice(0, 12)}...json`);
 
   return entry;
@@ -111,6 +129,18 @@ export async function getCachedDomainSlices(
   inputSequence: string
 ): Promise<CachedDomainEntry | null> {
   const hash = hashSequence(inputSequence);
+
+  if (blobCacheEnabled()) {
+    const data = await readBlobText(blobPathname(hash));
+    if (data) {
+      try {
+        return JSON.parse(data) as CachedDomainEntry;
+      } catch {
+        // Corrupt blob entry — ignore and try local FS fallback.
+      }
+    }
+  }
+
   try {
     const data = await readFile(cacheFilePath(hash), "utf-8");
     return JSON.parse(data) as CachedDomainEntry;
