@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { track } from "@vercel/analytics";
 import { Loader2 } from "lucide-react";
 import { SequenceInput } from "./sequence-input";
 import { SequenceReport } from "./report/sequence-report";
@@ -33,6 +34,9 @@ export function LiveScreening({ onSequenceSubmit, stickyOffset = 0 }: LiveScreen
     setGeneratingReport(false);
     setHasSubmitted(true);
     onSequenceSubmit?.(rawSequence);
+
+    const cleanedSequence = rawSequence.replace(/^>.*\n/, "").replace(/\s+/g, "");
+    track("screen_sequence", { length: cleanedSequence.length });
 
     try {
       const res = await fetch("/api/screen", {
