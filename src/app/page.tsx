@@ -239,9 +239,6 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12">
           {/* Left: copy */}
           <div className="lg:col-span-7 py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-            <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-3">
-              Lucid Bio &mdash; Biosecurity Infrastructure
-            </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.9]">
               The Complete
               <br />
@@ -252,7 +249,7 @@ export default function LandingPage() {
               <span className="text-bauhaus-blue">Biosynthesis</span>
             </h1>
             <p className="mt-5 text-base sm:text-lg font-medium text-bauhaus-black/65 max-w-xl leading-relaxed">
-              Prevent biosecurity threats before they emerge. Comprehensive screening and surveillance that scales with synthetic biology.
+              Prevent biosecurity threats before they emerge.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
@@ -423,9 +420,6 @@ export default function LandingPage() {
               Our Mission
             </p>
             <p className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tighter leading-tight text-bauhaus-black">
-              Synthetic biology is accelerating exponentially, but biosecurity isn&apos;t keeping pace.
-              <br />
-              <br />
               We&apos;re building the security infrastructure that scales with biology&apos;s potential, so breakthrough science doesn&apos;t become a breakthrough threat.
             </p>
           </div>
