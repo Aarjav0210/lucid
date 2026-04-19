@@ -1,23 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Circle,
-  Square,
-  Triangle,
-} from "lucide-react";
 import { SequenceReport } from "@/components/report/sequence-report";
 import { mockRicinReport, mockSrcReport } from "@/lib/mock-report";
-
-function BauhausLogo() {
-  return (
-    <div className="flex items-center gap-2">
-      <Circle className="w-5 h-5 fill-bauhaus-red text-bauhaus-red" />
-      <Square className="w-5 h-5 fill-bauhaus-blue text-bauhaus-blue" />
-      <Triangle className="w-5 h-5 fill-bauhaus-yellow text-bauhaus-yellow" />
-    </div>
-  );
-}
+import { SiteNav } from "@/components/site-nav";
 
 type MockKey = "ricin" | "src";
 
@@ -31,20 +17,7 @@ export default function ReportPreview() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b-4 border-bauhaus-black bg-white">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <BauhausLogo />
-            <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter">
-              Lucid
-            </span>
-          </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-            Report Preview (Mock Data)
-          </span>
-        </div>
-      </nav>
+      <SiteNav trackLocation="nav_report" />
 
       {/* Toggle */}
       <section className="border-b-4 border-bauhaus-black bg-bauhaus-yellow">
@@ -88,7 +61,6 @@ export default function ReportPreview() {
       <footer className="bg-bauhaus-black text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <BauhausLogo />
             <span className="text-lg font-black uppercase tracking-tighter">
               Lucid
             </span>

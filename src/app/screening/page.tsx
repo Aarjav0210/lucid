@@ -6,27 +6,11 @@ import { LiveScreening } from "@/components/live-screening";
 import { SequenceReport as SequenceReportComponent } from "@/components/report/sequence-report";
 import type { SequenceReport as SequenceReportType } from "@/lib/report-types";
 import {
-  Circle,
-  Square,
-  Triangle,
   ArrowRight,
-  ArrowLeft,
   Search,
   Pencil,
 } from "lucide-react";
-import Link from "next/link";
-
-/* ─── Geometric decorations ─── */
-
-function BauhausLogo() {
-  return (
-    <div className="flex items-center gap-2">
-      <Circle className="w-5 h-5 fill-bauhaus-red text-bauhaus-red" />
-      <Square className="w-5 h-5 fill-bauhaus-blue text-bauhaus-blue" />
-      <Triangle className="w-5 h-5 fill-bauhaus-yellow text-bauhaus-yellow" />
-    </div>
-  );
-}
+import { SiteNav } from "@/components/site-nav";
 
 function DnaHelix() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -225,29 +209,7 @@ export default function ScreeningPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* ─── Navigation ─── */}
-      <nav ref={navRef} className="sticky top-0 z-50 border-b-4 border-bauhaus-black bg-white">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
-              <BauhausLogo />
-              <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter">
-                Lucid
-              </span>
-            </Link>
-            <span className="hidden sm:flex items-center gap-2 ml-2 pl-4 border-l-2 border-bauhaus-black/10 text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-              Sequence Screening
-            </span>
-          </div>
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-bauhaus-black/50 hover:text-bauhaus-black transition-colors"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            All Products
-          </Link>
-        </div>
-      </nav>
+      <SiteNav ref={navRef} trackLocation="nav_screening" />
 
       {/* ─── Hero Section ─── */}
       <section
@@ -453,7 +415,6 @@ export default function ScreeningPage() {
       <footer className="bg-bauhaus-black text-white border-t-4 border-bauhaus-black mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <BauhausLogo />
             <span className="text-lg font-black uppercase tracking-tighter">
               Lucid
             </span>

@@ -3,9 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { track } from "@vercel/analytics";
-import { getCalApi } from "@calcom/embed-react";
-
-const CAL_LINK = "aarjav-jain/lucid-bio";
+import { SiteNav, CAL_LINK } from "@/components/site-nav";
 import {
   Circle,
   Square,
@@ -192,47 +190,9 @@ export default function LandingPage() {
 
   const showComingSoon = useCallback(() => setToast(true), []);
 
-  useEffect(() => {
-    (async () => {
-      const cal = await getCalApi({ namespace: "intro" });
-      cal("ui", {
-        hideEventTypeDetails: false,
-        layout: "month_view",
-        theme: "light",
-      });
-    })();
-  }, []);
-
   return (
     <main className="min-h-screen flex flex-col relative">
-      {/* ─── Navigation ─── */}
-      <nav className="sticky top-0 z-50 border-b-4 border-bauhaus-black bg-white">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
-          <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter">
-            Lucid
-          </span>
-          <div className="flex items-center gap-6">
-            <span className="hidden sm:block text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-              Biosecurity Infrastructure
-            </span>
-            <a
-              href="mailto:aarjav02@gmail.com"
-              className="text-xs font-bold uppercase tracking-widest text-bauhaus-black border-2 border-bauhaus-black px-3 py-1.5 hover:bg-bauhaus-black hover:text-white transition-colors"
-            >
-              Contact
-            </a>
-            <button
-              data-cal-namespace="intro"
-              data-cal-link={CAL_LINK}
-              data-cal-config='{"layout":"month_view","theme":"light"}'
-              onClick={() => track("book_call_click", { location: "nav" })}
-              className="text-xs font-bold uppercase tracking-widest text-white bg-bauhaus-black border-2 border-bauhaus-black px-3 py-1.5 hover:bg-bauhaus-blue hover:border-bauhaus-blue transition-colors"
-            >
-              Book a Call
-            </button>
-          </div>
-        </div>
-      </nav>
+      <SiteNav trackLocation="nav" />
 
       {/* ─── Hero ─── */}
       <section className="border-b-4 border-bauhaus-black overflow-x-hidden">
