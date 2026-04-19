@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { ArrowRight, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowRight, AlertTriangle, Loader2, Wand2 } from "lucide-react";
+
+const SAMPLE_SEQUENCE =
+  "MATLEKMSQVINSTQEPVKNMTDEVLEALEMDLSSQAQEVLQQLLHLTKNDMQDVKVQLSLPVLQVRDVLVRGFGDSVEEVLSEARQHLKDGTCGLVEVEKGVLPQLEQPYVFIKRSDARTAPHGHVMVELVAELEGIQYGRSGETLGVLVPHVGETPIAYRNVLLRKNGNKGAGGHSYGADLKSFDLGDELGTDPYEDFQENWNTKHSSGVTRELMRELNGG";
 
 interface SequenceInputProps {
   onSubmit: (sequence: string) => void;
@@ -79,7 +82,7 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
             setInput(e.target.value);
             setError(null);
           }}
-          placeholder={`Paste a protein sequence (FASTA or raw)...\n\nExample:\n>ORD-2026-0001\nMSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK...`}
+          placeholder={`Paste a protein sequence (FASTA or raw)...\n\nExample:\nMSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK...`}
           rows={6}
           disabled={isRunning}
           className="w-full px-4 py-3 font-mono text-sm bg-bauhaus-muted/30 border-2 border-bauhaus-black/20 focus:border-bauhaus-black focus:outline-none resize-y placeholder:text-bauhaus-black/25 disabled:opacity-50"
@@ -93,23 +96,37 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
           </div>
         )}
 
-        <button
-          onClick={handleSubmit}
-          disabled={isRunning || aaCount === 0}
-          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
-        >
-          {isRunning ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Pipeline Running...
-            </>
-          ) : (
-            <>
-              <ArrowRight className="w-5 h-5" />
-              Screen Sequence
-            </>
-          )}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleSubmit}
+            disabled={isRunning || aaCount === 0}
+            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
+          >
+            {isRunning ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Pipeline Running...
+              </>
+            ) : (
+              <>
+                <ArrowRight className="w-5 h-5" />
+                Screen Sequence
+              </>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setInput(SAMPLE_SEQUENCE);
+              setError(null);
+            }}
+            disabled={isRunning}
+            title="Generate a sample sequence"
+            className="flex items-center justify-center gap-2 px-4 py-4 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
+          >
+            <Wand2 className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

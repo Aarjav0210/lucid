@@ -413,14 +413,14 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Mission Strip ─── */}
-      <section className="border-b-4 border-bauhaus-black bg-bauhaus-yellow">
+      <section className="border-b-4 border-bauhaus-black bg-bauhaus-red">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <div className="max-w-5xl">
-            <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/50 mb-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/60 mb-3">
               Our Mission
             </p>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tighter leading-tight text-bauhaus-black">
-              We&apos;re building the security infrastructure that scales with biology&apos;s potential, so breakthrough science doesn&apos;t become a breakthrough threat.
+            <p className="text-lg sm:text-xl lg:text-2xl font-semibold uppercase tracking-wide leading-snug text-white">
+              Build the security infrastructure that scales with biology&apos;s potential, so breakthrough science doesn&apos;t become a breakthrough threat.
             </p>
           </div>
         </div>
@@ -442,11 +442,6 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-white/40 text-center sm:text-right">
-              The Complete Security Layer for Biosynthesis
-              <br />
-              Sequence &middot; Structure &middot; Function &middot; Surveillance
-            </p>
             <div className="flex items-center gap-2">
               <a
                 href="mailto:aarjav02@gmail.com"

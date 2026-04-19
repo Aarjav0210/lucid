@@ -270,20 +270,30 @@ export default function ScreeningPage() {
               similarity. Cross-referenced against known threat domains.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#screen"
+              <button
+                onClick={() => {
+                  const el = document.getElementById("screen");
+                  if (!el) return;
+                  const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+                  window.scrollTo({ top, behavior: "smooth" });
+                }}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
                 Screen a Sequence
                 <ArrowRight className="w-4 h-4" />
-              </a>
-              <a
-                href="#orders"
+              </button>
+              <button
+                onClick={() => {
+                  const el = document.getElementById("orders");
+                  if (!el) return;
+                  const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+                  window.scrollTo({ top, behavior: "smooth" });
+                }}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
               >
                 View Sample Orders
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
             </div>
           </div>
           <div className="hidden lg:block bg-bauhaus-blue relative overflow-hidden border-l-4 border-bauhaus-black">
@@ -455,11 +465,6 @@ export default function ScreeningPage() {
             </span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-white/40 text-center sm:text-right">
-              Diamond + ESMfold + FoldSeek + LLM Assessment
-              <br />
-              US Select Agents & Toxins &middot; Dual-Use Gene Catalog
-            </p>
             <a
               href="mailto:aarjav02@gmail.com"
               className="px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-white/40 text-white/70 hover:bg-white hover:text-bauhaus-black transition-colors"

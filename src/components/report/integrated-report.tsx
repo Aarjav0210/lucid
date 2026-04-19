@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shield, AlertTriangle, ClipboardCheck, XOctagon, CheckCircle } from "lucide-react";
 import type { IntegratedReport as IntegratedReportType } from "@/lib/report-types";
 import { RiskBadge } from "./risk-badge";
@@ -20,6 +20,13 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
   const borderColor = riskBorderColor[report.overallRisk] ?? "border-bauhaus-muted";
   const decision = report.decision ?? "Manual Validation";
   const [reviewerAction, setReviewerAction] = useState<"approved" | "rejected" | null>(null);
+  const [toast, setToast] = useState(false);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(false), 2500);
+    return () => clearTimeout(id);
+  }, [toast]);
 
   return (
     <div
@@ -84,10 +91,7 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
           </p>
           <button
             className="px-5 py-2.5 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-bauhaus-yellow hover:bg-bauhaus-yellow/80 transition-colors shadow-[3px_3px_0px_0px_#121212]"
-            onClick={() => {
-              // TODO: hook up to review workflow
-              alert("Request for expert review submitted.");
-            }}
+            onClick={() => setToast(true)}
           >
             Send to Expert
           </button>
@@ -149,6 +153,18 @@ export function IntegratedReport({ report }: IntegratedReportProps) {
           </p>
         </div>
       )}
+
+      <div
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 ${
+          toast
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="px-5 py-3 bg-bauhaus-black text-white text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_rgba(18,18,18,0.3)]">
+          Request for Expert Review Submitted
+        </div>
+      </div>
     </div>
   );
 }

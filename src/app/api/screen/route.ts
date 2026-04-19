@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
           send("domain_complete", { index: i, domainReport });
         },
         onDomainsExtracted: async (domains, sequenceLength, orderId) => {
+          await delay(2500);
           send("domains_extracted", { domains, sequenceLength, orderId });
         },
       };
