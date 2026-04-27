@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { getCalApi } from "@calcom/embed-react";
 import { Brand } from "./brand";
@@ -9,6 +10,11 @@ import { CAL_LINK } from "@/components/site-nav";
 
 /** Sticky top navigation for the landing page. */
 export function LandingNav() {
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+  const resolveHref = (href: string) =>
+    href.startsWith("#") && !onHome ? `/${href}` : href;
+
   useEffect(() => {
     (async () => {
       const cal = await getCalApi({ namespace: "intro" });
@@ -26,7 +32,7 @@ export function LandingNav() {
         <Brand href="/" />
         <div className="nav-links">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href}>
+            <a key={link.href} href={resolveHref(link.href)}>
               {link.label}
             </a>
           ))}

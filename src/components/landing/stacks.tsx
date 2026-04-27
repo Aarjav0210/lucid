@@ -52,15 +52,15 @@ function ProductRow({ product, onComingSoon }: ProductRowProps) {
   if (isLink && product.href) {
     return (
       <Reveal as="article" className="product">
+        {inner}
         <Link
           href={product.href}
+          aria-label={`${product.name} — ${launchLabel ?? "Launch"}`}
           onClick={() =>
             track("product_click", { product: product.id, name: product.name })
           }
-          style={{ display: "contents" }}
-        >
-          {inner}
-        </Link>
+          className="product-stretch"
+        />
       </Reveal>
     );
   }
@@ -92,7 +92,7 @@ function Group({ group, onComingSoon }: GroupProps) {
     >
       <div className="product-group-head">
         <div className="product-group-tag">
-          <span className="num">{group.number} ·</span> {group.label}
+          <span className="num">§ {group.number}</span> — {group.label}
         </div>
         <div>
           <h3 className="product-group-title">

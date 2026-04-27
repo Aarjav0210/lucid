@@ -52,6 +52,7 @@ export const mockRicinReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-ricin-a.pdb",
+        pdbUrl: "/sample-pdbs/ricin-a-chain.pdb",
         plddtMean: 91.4,
         plddtPerResidue: Array.from({ length: 284 }, () =>
           Math.round(85 + Math.random() * 10)
@@ -137,6 +138,7 @@ export const mockRicinReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-ricin-b.pdb",
+        pdbUrl: "/sample-pdbs/ricin-b-chain.pdb",
         plddtMean: 88.7,
         plddtPerResidue: Array.from({ length: 255 }, () =>
           Math.round(82 + Math.random() * 12)
@@ -249,6 +251,7 @@ export const mockChimericReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-chimeric-a.pdb",
+        pdbUrl: "/sample-pdbs/trichosanthin.pdb",
         plddtMean: 74.2,
         plddtPerResidue: Array.from({ length: 152 }, () =>
           Math.round(65 + Math.random() * 20)
@@ -323,6 +326,7 @@ export const mockChimericReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-chimeric-b.pdb",
+        pdbUrl: "/sample-pdbs/ricin-b-fragment.pdb",
         plddtMean: 68.9,
         plddtPerResidue: Array.from({ length: 73 }, () =>
           Math.round(60 + Math.random() * 18)
@@ -434,6 +438,7 @@ export const mockSrcReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-src-sh3.pdb",
+        pdbUrl: "/sample-pdbs/src-sh3.pdb",
         plddtMean: 93.2,
         plddtPerResidue: Array.from({ length: 62 }, () =>
           Math.round(90 + Math.random() * 7)
@@ -508,6 +513,7 @@ export const mockSrcReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-src-sh2.pdb",
+        pdbUrl: "/sample-pdbs/src-sh2.pdb",
         plddtMean: 92.1,
         plddtPerResidue: Array.from({ length: 103 }, () =>
           Math.round(88 + Math.random() * 9)
@@ -582,6 +588,7 @@ export const mockSrcReport: SequenceReport = {
       structure: {
         status: "completed",
         pdbPath: "data/pdb/mock-src-kinase.pdb",
+        pdbUrl: "/sample-pdbs/src-kinase.pdb",
         plddtMean: 89.5,
         plddtPerResidue: Array.from({ length: 267 }, () =>
           Math.round(84 + Math.random() * 11)

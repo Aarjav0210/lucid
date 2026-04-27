@@ -2,8 +2,6 @@
 
 import type { DomainReport } from "@/lib/report-types";
 
-const DOMAIN_COLOR = "bg-bauhaus-blue";
-
 interface DomainRulerProps {
   domains: DomainReport[];
   sequenceLength: number;
@@ -11,36 +9,36 @@ interface DomainRulerProps {
 
 export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-bauhaus-black/50">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
         <span>1</span>
-        <span>InterPro Domain Architecture</span>
-        <span>{sequenceLength} AA</span>
+        <span>InterPro domain architecture</span>
+        <span>{sequenceLength} aa</span>
       </div>
 
-      {/* Ruler bar */}
       <div
-        className="relative h-12 border-2 border-bauhaus-black overflow-hidden"
-        style={{ backgroundColor: "#f0ece4" }}
+        className="relative h-9 border border-[color:var(--lc-rule)] bg-[color:var(--lc-bg-2)] overflow-hidden"
       >
-        {domains.map((dr, i) => {
+        {domains.map((dr) => {
           const left = ((dr.domain.start - 1) / sequenceLength) * 100;
           const width =
             ((dr.domain.end - dr.domain.start + 1) / sequenceLength) * 100;
-          const color = DOMAIN_COLOR;
 
           return (
             <div
               key={`${dr.domain.start}-${dr.domain.end}`}
-              className={`absolute top-0 h-full ${color} border-r-2 border-bauhaus-black flex items-center justify-center overflow-hidden`}
+              className="absolute top-0 h-full flex items-center justify-center overflow-hidden border-r border-[color:var(--lc-rule)]"
               style={{
                 left: `${left}%`,
                 width: `${width}%`,
-                backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.15) 19px, rgba(255,255,255,0.15) 20px)`,
+                background:
+                  "color-mix(in oklch, var(--lc-accent) 22%, var(--lc-bg))",
+                backgroundImage:
+                  "repeating-linear-gradient(90deg, transparent 0 19px, color-mix(in oklch, var(--lc-accent) 12%, transparent) 19px 20px)",
               }}
               title={`${dr.domain.annotation} (${dr.domain.start}–${dr.domain.end})`}
             >
-              <span className="text-[10px] font-bold text-white uppercase tracking-wider truncate px-1">
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[color:var(--lc-ink)] truncate px-1.5">
                 {dr.domain.annotation}
               </span>
             </div>
@@ -48,22 +46,27 @@ export function DomainRuler({ domains, sequenceLength }: DomainRulerProps) {
         })}
       </div>
 
-      {/* Labels below */}
-      <div className="flex flex-wrap gap-3">
-        {domains.map((dr, i) => {
-          const color = DOMAIN_COLOR;
-          return (
-            <div key={`label-${dr.domain.start}`} className="flex items-center gap-1.5">
-              <div className={`w-3 h-3 ${color} border border-bauhaus-black`} />
-              <span className="text-xs font-medium">
-                {dr.domain.annotation}{" "}
-                <span className="text-bauhaus-black/40">
-                  ({dr.domain.start}–{dr.domain.end})
-                </span>
+      <div className="flex flex-wrap gap-x-5 gap-y-2">
+        {domains.map((dr) => (
+          <div
+            key={`label-${dr.domain.start}`}
+            className="flex items-center gap-2"
+          >
+            <span
+              className="inline-block w-2.5 h-2.5 rounded-[2px] border border-[color:var(--lc-rule)]"
+              style={{
+                background:
+                  "color-mix(in oklch, var(--lc-accent) 28%, var(--lc-bg))",
+              }}
+            />
+            <span className="text-[12.5px] text-[color:var(--lc-ink)]">
+              {dr.domain.annotation}{" "}
+              <span className="text-[color:var(--lc-ink-3)] font-mono text-[11px] tracking-[0.06em]">
+                ({dr.domain.start}–{dr.domain.end})
               </span>
-            </div>
-          );
-        })}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

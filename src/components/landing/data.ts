@@ -37,7 +37,7 @@ export interface ProductGroup {
 export const productGroups: ProductGroup[] = [
   {
     id: "operational",
-    number: "01",
+    number: "02.1",
     label: "For synthesis",
     titlePrefix: "The ",
     titleEmphasis: "operational",
@@ -75,7 +75,7 @@ export const productGroups: ProductGroup[] = [
   },
   {
     id: "ecosystem",
-    number: "02",
+    number: "02.2",
     label: "For policy",
     titlePrefix: "The ",
     titleEmphasis: "ecosystem",

@@ -5,13 +5,11 @@ import { sampleReports } from "@/lib/mock-report";
 import { LiveScreening } from "@/components/live-screening";
 import { SequenceReport as SequenceReportComponent } from "@/components/report/sequence-report";
 import type { SequenceReport as SequenceReportType } from "@/lib/report-types";
-import {
-  ArrowRight,
-  Search,
-  Pencil,
-} from "lucide-react";
-import { SiteNav } from "@/components/site-nav";
+import { Pencil } from "lucide-react";
+import { LandingNav, LandingFooter } from "@/components/landing";
+import "@/components/landing/landing.css";
 
+/* ─── DNA helix backdrop (recoloured for the landing palette) ─── */
 function DnaHelix() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -44,16 +42,18 @@ function DnaHelix() {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     };
 
     resize();
     window.addEventListener("resize", resize);
 
+    // Muted palette tuned to the landing CSS variables.
     const helices = [
-      { offset: -220, color: "rgba(5,150,105,0.8)", phaseOffset: 0, speed: 0.005 },
-      { offset: 0, color: "rgba(232,65,24,0.85)", phaseOffset: 2.1, speed: 0.006 },
-      { offset: 220, color: "rgba(255,200,0,0.8)", phaseOffset: 4.2, speed: 0.007 },
+      { offset: -150, color: "rgba(60, 80, 100, 0.55)", phaseOffset: 0,    speed: 0.0045 },
+      { offset:    0, color: "rgba(80, 140, 170, 0.85)", phaseOffset: 2.1, speed: 0.0055 },
+      { offset:  150, color: "rgba(150, 110, 80, 0.55)", phaseOffset: 4.2, speed: 0.0065 },
     ];
 
     const draw = () => {
@@ -66,7 +66,7 @@ function DnaHelix() {
       const cosA = Math.cos(angle);
       const sinA = Math.sin(angle);
 
-      const amplitude = 50;
+      const amplitude = 36;
       const step = 14;
       const twist = 0.07;
 
@@ -94,8 +94,8 @@ function DnaHelix() {
           const p1 = s1[i];
           const p2 = s2[i];
           const avgZ = (p1.z + p2.z) / 2;
-          ctx.strokeStyle = avgZ > 0 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)";
-          ctx.lineWidth = avgZ > 0 ? 2.5 : 1.5;
+          ctx.strokeStyle = avgZ > 0 ? "rgba(20,30,40,0.18)" : "rgba(20,30,40,0.08)";
+          ctx.lineWidth = avgZ > 0 ? 1.4 : 0.9;
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
@@ -104,7 +104,7 @@ function DnaHelix() {
 
         const drawStrand = (points: typeof s1) => {
           ctx.strokeStyle = helix.color;
-          ctx.lineWidth = 4;
+          ctx.lineWidth = 2.4;
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
           ctx.beginPath();
@@ -122,7 +122,7 @@ function DnaHelix() {
         drawStrand(s1);
         drawStrand(s2);
 
-        const hoverRadius = 40;
+        const hoverRadius = 36;
         const helixIdx = helices.indexOf(helix);
         const drawDots = (points: typeof s1, strandIdx: number) => {
           for (let i = 0; i < points.length; i++) {
@@ -135,15 +135,15 @@ function DnaHelix() {
             if (blend > 0) {
               const letter = letterFor(helixIdx, strandIdx, i);
               ctx.save();
-              ctx.font = `bold ${10 + blend * 6}px monospace`;
+              ctx.font = `${10 + blend * 5}px "JetBrains Mono", ui-monospace, monospace`;
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
-              ctx.fillStyle = `rgba(255,255,255,${blend.toFixed(2)})`;
+              ctx.fillStyle = `rgba(20,30,40,${(0.55 + blend * 0.35).toFixed(2)})`;
               ctx.fillText(letter, p.x, p.y);
               ctx.restore();
             }
 
-            const dotRadius = (1 - blend) * 3.5;
+            const dotRadius = (1 - blend) * 2.4;
             if (dotRadius > 0.2) {
               ctx.fillStyle = helix.color;
               ctx.beginPath();
@@ -171,217 +171,246 @@ function DnaHelix() {
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-    />
-  );
+  return <canvas ref={canvasRef} />;
 }
 
 /* ─── Screening Page ─── */
+
+const RISK_CLASS: Record<string, string> = {
+  HIGH: "risk-pill risk-high",
+  MEDIUM: "risk-pill risk-medium",
+  LOW: "risk-pill risk-low",
+};
 
 export default function ScreeningPage() {
   const [activeReport, setActiveReport] = useState<SequenceReportType | null>(null);
   const [submittedSequence, setSubmittedSequence] = useState<string | null>(null);
   const [editingSequence, setEditingSequence] = useState(false);
   const [editInput, setEditInput] = useState("");
-  const navRef = useRef<HTMLElement>(null);
-  const seqHeroRef = useRef<HTMLElement>(null);
-  const [stickyOffset, setStickyOffset] = useState(0);
+  const seqBarRef = useRef<HTMLElement>(null);
+  const [navHeight, setNavHeight] = useState(64);
+  const [seqBarHeight, setSeqBarHeight] = useState(0);
 
+  // Measure sticky offsets so anchor scrolling lands beneath the chrome.
   useEffect(() => {
     const measure = () => {
-      const navH = navRef.current?.getBoundingClientRect().height ?? 0;
-      const seqH = seqHeroRef.current?.getBoundingClientRect().height ?? 0;
-      setStickyOffset(navH + seqH);
+      const navEl = document.querySelector("nav.nav") as HTMLElement | null;
+      setNavHeight(navEl?.getBoundingClientRect().height ?? 64);
+      setSeqBarHeight(seqBarRef.current?.getBoundingClientRect().height ?? 0);
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, [submittedSequence, editingSequence]);
 
-  const riskColors: Record<string, string> = {
-    HIGH: "bg-bauhaus-red text-white",
-    MEDIUM: "bg-bauhaus-yellow text-bauhaus-black",
-    LOW: "bg-emerald-600 text-white",
+  const stickyOffset = navHeight + seqBarHeight;
+
+  const scrollToId = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+    window.scrollTo({ top, behavior: "smooth" });
   };
 
-  return (
-    <main className="min-h-screen flex flex-col">
-      <SiteNav ref={navRef} trackLocation="nav_screening" />
+  const cleanedSequence =
+    submittedSequence?.replace(/^>.*\n/, "").replace(/\s+/g, "") ?? "";
 
-      {/* ─── Hero Section ─── */}
-      <section
-        className={`overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-          submittedSequence
-            ? "max-h-0 opacity-0 pointer-events-none"
-            : "max-h-[800px] opacity-100 border-b-4 border-bauhaus-black"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2">
-          <div className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
-              Screen
-              <br />
-              <span className="text-bauhaus-blue">Sequences</span>
-            </h1>
-            <p className="mt-6 text-lg sm:text-xl font-medium text-bauhaus-black/70 max-w-lg leading-relaxed">
-              Biosecurity screening — InterPro domain analysis, Diamond sequence
-              search, ESMfold structure prediction, and FoldSeek structural
-              similarity. Cross-referenced against known threat domains.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button
-                onClick={() => {
-                  const el = document.getElementById("screen");
-                  if (!el) return;
-                  const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
-                  window.scrollTo({ top, behavior: "smooth" });
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
-              >
-                Screen a Sequence
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  const el = document.getElementById("orders");
-                  if (!el) return;
-                  const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
-                  window.scrollTo({ top, behavior: "smooth" });
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200"
-              >
-                View Sample Orders
-                <ArrowRight className="w-4 h-4" />
-              </button>
+  return (
+    <div className="lucid-landing" data-theme="default">
+      <LandingNav />
+
+      {/* ─── Hero (collapses once a sequence is submitted) ─── */}
+      <header className={`hero screen-hero ${submittedSequence ? "collapsed" : ""}`}>
+        <div className="wrap">
+          <div className="hero-grid">
+            <div>
+              <div className="hero-eyebrow">
+                <span className="dot" /> Screening · Live
+              </div>
+              <h1 className="hero-title">
+                Screen <em>sequences</em> before synthesis.
+              </h1>
+              <div className="hero-cta">
+                <button
+                  type="button"
+                  onClick={() => scrollToId("screen")}
+                  className="btn btn-primary"
+                >
+                  Screen a sequence <span className="arr">→</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToId("orders")}
+                  className="btn btn-outline"
+                >
+                  View sample orders
+                </button>
+              </div>
+            </div>
+            <div className="hero-side">
+              <div className="screen-helix" aria-hidden="true">
+                <DnaHelix />
+              </div>
             </div>
           </div>
-          <div className="hidden lg:block bg-bauhaus-blue relative overflow-hidden border-l-4 border-bauhaus-black">
-            <DnaHelix />
+
+          <div className="screen-pipeline-stack">
+            <div className="screen-pipeline">
+              <div className="screen-pipeline-head">Pipeline</div>
+              <div className="screen-pipeline-row" data-cols="5">
+                {["InterPro", "Diamond", "ESMfold", "FoldSeek", "Lucid Agent"].map((name, i) => (
+                  <span key={name} className="screen-pipeline-step">
+                    <span className="screen-pipeline-step-num">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* ─── Sequence Hero (shown after submission) ─── */}
+      {/* ─── Sticky sequence summary (after submission) ─── */}
       {submittedSequence && (
-        <section ref={seqHeroRef} className="sticky top-[68px] z-40 border-b-4 border-bauhaus-black bg-white/85 backdrop-blur-md hover:bg-white transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-                    Screening Sequence
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/30">
-                    {submittedSequence.replace(/^>.*\n/, "").replace(/\s+/g, "").length} AA
-                  </span>
-                </div>
-                <p className="font-mono text-sm text-bauhaus-black/50 leading-relaxed break-all line-clamp-2">
-                  {submittedSequence.replace(/^>.*\n/, "").replace(/\s+/g, "")}
-                </p>
+        <section
+          ref={seqBarRef}
+          className="screen-seqbar"
+          style={{ top: navHeight }}
+        >
+          <div className="wrap screen-seqbar-inner">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="screen-seqbar-meta">
+                <span className="dot" />
+                <span>Screening sequence</span>
+                <span style={{ color: "var(--ink-2)" }}>·</span>
+                <span>{cleanedSequence.length} aa</span>
               </div>
-              <button
-                onClick={() => {
-                  setEditingSequence(!editingSequence);
-                  if (!editingSequence) {
-                    setEditInput(submittedSequence);
-                  }
-                }}
-                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/50 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
-              >
-                <Pencil className="w-3 h-3" />
-                Edit
-              </button>
+              <p className="screen-seqbar-seq">{cleanedSequence}</p>
             </div>
-            {editingSequence && (
-              <div className="mt-3 space-y-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (!editingSequence) setEditInput(submittedSequence);
+                setEditingSequence(!editingSequence);
+              }}
+              className="btn-mini btn-mini-outline"
+            >
+              <Pencil style={{ width: 12, height: 12 }} />
+              Edit
+            </button>
+          </div>
+          {editingSequence && (
+            <div className="wrap">
+              <div className="screen-seqbar-edit">
                 <textarea
                   value={editInput}
                   onChange={(e) => setEditInput(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 font-mono text-sm bg-bauhaus-muted/30 text-bauhaus-black border-2 border-bauhaus-black/20 focus:border-bauhaus-black focus:outline-none resize-y placeholder:text-bauhaus-black/25"
+                  rows={5}
                   spellCheck={false}
                 />
-                <div className="flex gap-2">
+                <div style={{ display: "flex", gap: 8 }}>
                   <button
+                    type="button"
                     onClick={() => {
                       setEditingSequence(false);
                       setSubmittedSequence(editInput);
-                      window.dispatchEvent(new CustomEvent("lucid:resubmit", { detail: editInput }));
+                      window.dispatchEvent(
+                        new CustomEvent("lucid:resubmit", { detail: editInput })
+                      );
                     }}
-                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-bauhaus-black text-white border-2 border-bauhaus-black hover:bg-bauhaus-black/80 transition-colors"
+                    className="btn-mini btn-mini-solid"
                   >
                     Resubmit
                   </button>
                   <button
+                    type="button"
                     onClick={() => setEditingSequence(false)}
-                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/50 border border-bauhaus-black/20 hover:bg-bauhaus-muted/50 transition-colors"
+                    className="btn-mini btn-mini-outline"
                   >
                     Cancel
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </section>
       )}
 
-      {/* ─── Live Screening ─── */}
-      <section id="screen" className="border-b-4 border-bauhaus-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          <div className={submittedSequence ? "max-w-6xl mx-auto" : "max-w-4xl mx-auto"}>
-            {!submittedSequence && (
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-bauhaus-blue flex items-center justify-center">
-                  <Search className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
-                  Screen a Sequence
-                </h2>
-              </div>
-            )}
-            <LiveScreening onSequenceSubmit={setSubmittedSequence} stickyOffset={stickyOffset} />
+      {/* ─── Live screening ─── */}
+      <section
+        id="screen"
+        className="section"
+        style={{ paddingTop: submittedSequence ? 64 : 96, paddingBottom: 96 }}
+      >
+        <div className="wrap">
+          {!submittedSequence && (
+            <div className="section-head">
+              <div className="section-num">§ 01 — Screen</div>
+              <h2 className="section-title">
+                Submit a <em>sequence</em>.
+              </h2>
+            </div>
+          )}
+          <div style={{ maxWidth: submittedSequence ? "none" : 760, margin: "0 auto" }}>
+            <LiveScreening
+              onSequenceSubmit={setSubmittedSequence}
+              stickyOffset={stickyOffset}
+            />
           </div>
         </div>
       </section>
 
-      {/* ─── Sample Orders ─── */}
+      {/* ─── Sample orders ─── */}
       <section
         id="orders"
-        className="border-b-4 border-bauhaus-black bg-bauhaus-yellow"
+        className="section"
+        style={{ paddingTop: 96, paddingBottom: 96, background: "var(--bg-2)" }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/60 mb-4">
-            Sample Orders — Select to view screening report
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="wrap">
+          <div className="section-head">
+            <div className="section-num">§ 02 — Samples</div>
+            <h2 className="section-title">
+              Pre-loaded <em>orders</em>.
+            </h2>
+          </div>
+          <div className="sample-grid">
             {sampleReports.map((sample) => {
               const risk = sample.report.integratedReport?.overallRisk ?? "LOW";
               const isActive = activeReport?.id === sample.report.id;
               return (
                 <button
                   key={sample.report.id}
+                  type="button"
                   onClick={() => {
                     setActiveReport(sample.report);
                     setTimeout(() => {
-                      document.getElementById("report")?.scrollIntoView({ behavior: "smooth" });
-                    }, 50);
+                      const el = document.getElementById("report");
+                      if (!el) return;
+                      const top =
+                        el.getBoundingClientRect().top +
+                        window.scrollY -
+                        stickyOffset;
+                      window.scrollTo({ top, behavior: "smooth" });
+                    }, 60);
                   }}
-                  className={`group relative text-left p-4 bg-white border-2 border-bauhaus-black shadow-[3px_3px_0px_0px_#121212] sm:shadow-[4px_4px_0px_0px_#121212] hover:-translate-y-1 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 ${isActive ? "ring-2 ring-bauhaus-black ring-offset-2" : ""}`}
+                  className={`sample-card ${isActive ? "is-active" : ""}`}
                 >
-                  <span className="block font-bold uppercase tracking-wider text-sm">
-                    {sample.label}
-                  </span>
-                  <span className="block mt-1 text-xs font-medium text-bauhaus-black/50 tracking-wider">
-                    {sample.description}
-                  </span>
-                  <span
-                    className={`inline-block mt-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest border border-bauhaus-black ${riskColors[risk] ?? ""}`}
-                  >
-                    {risk}
-                  </span>
+                  <div className="sample-card-tag">
+                    <span>Sample</span>
+                    <span className={RISK_CLASS[risk] ?? "risk-pill risk-low"}>
+                      {risk}
+                    </span>
+                  </div>
+                  <h3 className="sample-card-name">{sample.label}</h3>
+                  <p className="sample-card-desc">{sample.description}</p>
+                  <div className="sample-card-foot">
+                    <span className="sample-card-launch">
+                      View report <span className="arr">→</span>
+                    </span>
+                  </div>
                 </button>
               );
             })}
@@ -389,52 +418,26 @@ export default function ScreeningPage() {
         </div>
       </section>
 
-      {/* ─── Sample Report View ─── */}
+      {/* ─── Active sample report ─── */}
       {activeReport && (
-        <section id="report" className="border-b-4 border-bauhaus-black">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-                Sample Screening Report
-              </p>
-              <button
-                onClick={() => setActiveReport(null)}
-                className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 hover:text-bauhaus-black transition-colors"
-              >
-                Close
+        <section
+          id="report"
+          className="section"
+          style={{ paddingTop: 96, paddingBottom: 120 }}
+        >
+          <div className="wrap">
+            <div className="section-meta-row">
+              <span>Sample screening report</span>
+              <button type="button" onClick={() => setActiveReport(null)}>
+                Close ×
               </button>
             </div>
-            <div className="max-w-6xl mx-auto">
-              <SequenceReportComponent report={activeReport} />
-            </div>
+            <SequenceReportComponent report={activeReport} />
           </div>
         </section>
       )}
 
-      {/* ─── Footer ─── */}
-      <footer className="bg-bauhaus-black text-white border-t-4 border-bauhaus-black mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <span className="text-lg font-black uppercase tracking-tighter">
-              Lucid
-            </span>
-            <span className="hidden sm:flex items-center gap-3 ml-2 pl-4 border-l border-white/10">
-              <img src="/Brown University Icon.png" alt="Brown University" className="h-5 w-auto opacity-40 grayscale brightness-200" />
-              <img src="/UPenn Shield Icon.png" alt="University of Pennsylvania" className="h-5 w-auto opacity-40 grayscale brightness-200" />
-              <img src="/Yale Bulldogs Logo.png" alt="Yale University" className="h-5 w-auto opacity-40 grayscale brightness-200" />
-              <img src="/Kings College London Icon.png" alt="King's College London" className="h-5 w-auto opacity-40 grayscale brightness-200" />
-            </span>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <a
-              href="mailto:aarjav02@gmail.com"
-              className="px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-white/40 text-white/70 hover:bg-white hover:text-bauhaus-black transition-colors"
-            >
-              Get in Touch
-            </a>
-          </div>
-        </div>
-      </footer>
-    </main>
+      <LandingFooter />
+    </div>
   );
 }
