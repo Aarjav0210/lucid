@@ -37,7 +37,15 @@
 .lucid-landing a { color: inherit; text-decoration: none; }
 .lucid-landing button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 
-.lucid-landing .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+.lucid-landing .wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 32px);
+  width: 100%;
+}
+
+/* Prevent horizontal scroll caused by oversize SVGs / overflow content */
+.lucid-landing { overflow-x: hidden; }
 
 /* ───── Nav ───── */
 .lucid-landing .nav {
@@ -101,14 +109,14 @@
 /* ───── Hero ───── */
 .lucid-landing .hero {
   position: relative;
-  padding: 120px 0 140px;
+  padding: clamp(56px, 9vw, 120px) 0 clamp(64px, 10vw, 140px);
   border-bottom: 1px solid var(--rule);
   overflow: hidden;
 }
 .lucid-landing .hero-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  gap: clamp(32px, 6vw, 80px);
   align-items: center;
 }
 .lucid-landing .hero-eyebrow {
@@ -159,7 +167,9 @@
   align-items: flex-end;
 }
 .lucid-landing .ambient {
-  width: 360px; height: 360px;
+  width: clamp(240px, 32vw, 360px);
+  height: clamp(240px, 32vw, 360px);
+  max-width: 100%;
   position: relative;
 }
 .lucid-landing .ambient svg { width: 100%; height: 100%; display: block; overflow: visible; }
@@ -276,12 +286,15 @@
 .lucid-landing .ambient-meta .val { color: var(--ink); }
 
 /* ───── Section header ───── */
-.lucid-landing .section { padding: 120px 0; border-bottom: 1px solid var(--rule); }
+.lucid-landing .section {
+  padding: clamp(64px, 10vw, 120px) 0;
+  border-bottom: 1px solid var(--rule);
+}
 .lucid-landing .section-head {
   display: grid;
   grid-template-columns: 200px 1fr;
-  gap: 80px;
-  margin-bottom: 80px;
+  gap: clamp(32px, 6vw, 80px);
+  margin-bottom: clamp(48px, 7vw, 80px);
 }
 .lucid-landing .section-num {
   font-family: var(--mono);
@@ -353,10 +366,10 @@
 .lucid-landing .products { border-top: 0; }
 .lucid-landing .product {
   display: grid;
-  grid-template-columns: 200px 1fr 1fr 200px;
-  gap: 48px;
+  grid-template-columns: 160px 1fr 1fr 180px;
+  gap: clamp(20px, 3vw, 48px);
   align-items: start;
-  padding: 56px 0;
+  padding: clamp(36px, 5vw, 56px) 0;
   border-bottom: 1px solid var(--rule);
   transition: background .3s;
   cursor: pointer;
@@ -435,7 +448,7 @@
 
 /* ───── Mission ───── */
 .lucid-landing .mission {
-  padding: 160px 0;
+  padding: clamp(80px, 12vw, 160px) 0;
   border-bottom: 1px solid var(--rule);
   background: var(--bg-2);
 }
@@ -682,7 +695,7 @@
 
 .lucid-landing .screen-helix {
   width: 100%;
-  max-width: 480px;
+  max-width: min(480px, 80vw);
   aspect-ratio: 1 / 1;
   position: relative;
   border: 1px solid var(--rule);
@@ -979,37 +992,181 @@
 }
 .lucid-landing .section-meta-row button:hover { color: var(--ink); }
 
-@media (max-width: 900px) {
-  .lucid-landing .screen-hero { padding: 64px 0 72px; }
-  .lucid-landing .sample-grid { grid-template-columns: 1fr; }
-  .lucid-landing .sample-card,
-  .lucid-landing .sample-card:nth-child(3n) {
-    border-right: 0;
-    border-bottom: 1px solid var(--rule);
+/* ─────────────────────────────────────────────────────────────
+ * Responsive breakpoints
+ *  ≥ 1200px   default desktop / large laptop
+ *  ≤ 1200px   small laptop tweaks (tighter gutters, looser columns)
+ *  ≤ 1024px   iPad landscape — collapse hero side, narrow section columns
+ *  ≤  900px   iPad portrait & below — stack hero/sections, 2-up samples
+ *  ≤  640px   phones — single column everywhere, compact chrome
+ *  ≤  420px   small phones — minimum padding
+ * ─────────────────────────────────────────────────────────────── */
+
+/* Small laptops (≤ 1200px): tighten the wide product/footer grids. */
+@media (max-width: 1200px) {
+  .lucid-landing .footer-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 32px;
+  }
+  .lucid-landing .product {
+    grid-template-columns: 140px 1.2fr 1fr 140px;
   }
 }
 
+/* iPad landscape (≤ 1024px). */
+@media (max-width: 1024px) {
+  .lucid-landing .nav-links { gap: 20px; font-size: 13.5px; }
+  .lucid-landing .section-head { grid-template-columns: 160px 1fr; gap: 32px; }
+  .lucid-landing .product-group-head { grid-template-columns: 160px 1fr; gap: 32px; }
+
+  /* The hero radar (landing) and helix (screening) are desktop-only
+   * decorative flourishes. Below laptop widths they shrink past the
+   * point of legibility and compete with the headline for space, so we
+   * drop them and let the hero text take the full column. Both elements
+   * are aria-hidden, so removing them has no accessibility consequence. */
+  .lucid-landing .hero-grid { grid-template-columns: 1fr; gap: 0; }
+  .lucid-landing .hero-side { display: none; }
+  .lucid-landing .hero-sub { max-width: 56ch; }
+  .lucid-landing .screen-helix { display: none; }
+  .lucid-landing .product {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+    align-items: start;
+    padding: 36px 0;
+  }
+  .lucid-landing .product-tag { padding-top: 0; justify-self: start; grid-column: 1 / -1; }
+  .lucid-landing .product-desc { grid-column: 1 / -1; max-width: 60ch; }
+  .lucid-landing .product-launch { justify-self: start; padding-top: 0; grid-column: 1 / -1; }
+  .lucid-landing .sample-grid { grid-template-columns: repeat(2, 1fr); }
+  .lucid-landing .sample-card:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .lucid-landing .sample-card:nth-child(2n) { border-right: 0; }
+  .lucid-landing .timeline-track { grid-template-columns: repeat(5, 1fr); height: auto; min-height: 320px; }
+  .lucid-landing .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .lucid-landing .screen-pipeline-grid { grid-template-columns: 1fr; }
+  .lucid-landing .screen-pipeline-cell:nth-child(odd) { padding-right: 0; }
+  .lucid-landing .screen-pipeline-cell:nth-child(even) { padding-left: 0; border-left: 0; }
+}
+
+/* Tablet portrait & below (≤ 900px): stack hero, sections, footer. */
 @media (max-width: 900px) {
+  .lucid-landing .screen-hero { padding: 56px 0 64px; }
+
   .lucid-landing .hero-grid,
   .lucid-landing .section-head,
-  .lucid-landing .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-  .lucid-landing .product { grid-template-columns: 1fr; gap: 16px; }
-  .lucid-landing .product-launch { justify-self: start; }
+  .lucid-landing .product-group-head { grid-template-columns: 1fr; gap: 28px; }
+  .lucid-landing .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
+
+  .lucid-landing .hero-side { align-items: flex-start; }
+  .lucid-landing .ambient-meta { text-align: left; }
+  .lucid-landing .ambient-meta .row { min-width: 0; }
+
   .lucid-landing .affil-row { grid-template-columns: repeat(2, 1fr); }
-  .lucid-landing .affil:nth-child(2) { border-right: 0; }
+  .lucid-landing .affil:nth-child(2n) { border-right: 0; }
   .lucid-landing .affil:nth-child(1),
   .lucid-landing .affil:nth-child(2) { border-bottom: 1px solid var(--rule); }
+
   .lucid-landing .timeline-head { flex-direction: column; align-items: flex-start; }
   .lucid-landing .timeline-head-note { text-align: left; }
-  .lucid-landing .timeline-track { grid-template-columns: 1fr; gap: 20px; padding-left: 18px; padding-top: 0; height: auto; }
-  .lucid-landing .timeline-track::before { top: 0; bottom: 0; left: 4px; right: auto; width: 1px; height: auto; }
+  .lucid-landing .timeline-track {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-left: 18px;
+    padding-top: 0;
+    height: auto;
+  }
+  .lucid-landing .timeline-track::before {
+    top: 0; bottom: 0; left: 4px; right: auto;
+    width: 1px; height: auto;
+  }
   .lucid-landing .tl-event { padding: 0 0 0 18px; height: auto; }
-  .lucid-landing .tl-content { position: static; }
+  .lucid-landing .tl-content { position: static; right: auto; }
   .lucid-landing .tl-event.up .tl-content,
   .lucid-landing .tl-event.down .tl-content { bottom: auto; top: auto; }
   .lucid-landing .tl-event::before { top: 4px; left: -18px; transform: none; }
   .lucid-landing .tl-year { margin: 0 0 4px; }
-  .lucid-landing .product-group-head { grid-template-columns: 1fr; gap: 16px; }
-  .lucid-landing .ambient { width: 280px; height: 280px; }
-  .lucid-landing .hero-side { align-items: flex-start; }
+
+  /* Screening: pipeline can wrap and stack, sticky bar relaxes. */
+  .lucid-landing .screen-pipeline-row { grid-template-columns: repeat(3, 1fr); }
+  .lucid-landing .screen-pipeline-step {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .lucid-landing .screen-pipeline-step:nth-child(3n) { border-right: 0; }
+
+  .lucid-landing .screen-seqbar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+}
+
+/* Phones (≤ 640px). */
+@media (max-width: 640px) {
+  .lucid-landing { font-size: 15px; }
+
+  .lucid-landing .nav-inner { grid-template-columns: 1fr auto; height: 56px; }
+  .lucid-landing .nav-links { display: none; }
+  .lucid-landing .nav-cta .btn { height: 32px; padding: 0 12px; font-size: 12.5px; }
+
+  .lucid-landing .hero-cta { flex-wrap: wrap; gap: 10px; }
+  .lucid-landing .hero-cta .btn { flex: 1 1 auto; justify-content: center; min-width: 0; }
+  .lucid-landing .hero-sub { font-size: 16px; max-width: none; margin-bottom: 28px; }
+
+  .lucid-landing .section-num { padding-top: 0; }
+
+  .lucid-landing .product { grid-template-columns: 1fr; gap: 10px; padding: 28px 0; }
+  .lucid-landing .product-name { font-size: 21px; }
+  .lucid-landing .product-desc { font-size: 14.5px; }
+
+  .lucid-landing .sample-grid { grid-template-columns: 1fr; }
+  .lucid-landing .sample-card,
+  .lucid-landing .sample-card:nth-child(2n),
+  .lucid-landing .sample-card:nth-child(3n) {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .lucid-landing .sample-card { padding: 24px 20px; }
+
+  .lucid-landing .affil-row { grid-template-columns: 1fr; }
+  .lucid-landing .affil { border-right: 0; border-bottom: 1px solid var(--rule); padding: 24px 16px; }
+  .lucid-landing .affil:last-child { border-bottom: 0; }
+
+  .lucid-landing .footer-grid { grid-template-columns: 1fr; gap: 32px; margin-bottom: 48px; }
+  .lucid-landing footer { padding: 56px 0 32px; }
+  .lucid-landing .footer-bottom { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .lucid-landing .footer-brand-text { font-size: 24px; max-width: none; }
+
+  .lucid-landing .screen-pipeline-row { grid-template-columns: repeat(2, 1fr); }
+  .lucid-landing .screen-pipeline-step:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .lucid-landing .screen-pipeline-step:nth-child(2n) { border-right: 0; }
+
+  .lucid-landing .screen-seqbar-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 10px;
+  }
+  .lucid-landing .screen-seqbar-seq { font-size: 12px; }
+  .lucid-landing .screen-seqbar-edit textarea { min-height: 96px; font-size: 12.5px; }
+
+  .lucid-landing .section-meta-row {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .lucid-landing .timeline { margin-top: 72px; }
+}
+
+/* Small phones (≤ 420px). */
+@media (max-width: 420px) {
+  .lucid-landing .brand { font-size: 14px; gap: 8px; }
+  .lucid-landing .nav-cta .btn { height: 30px; padding: 0 10px; font-size: 12px; }
+  .lucid-landing .hero-cta { flex-direction: column; align-items: stretch; }
+  .lucid-landing .hero-cta .btn { width: 100%; }
+  .lucid-landing .screen-pipeline-row { grid-template-columns: 1fr; }
+  .lucid-landing .screen-pipeline-step,
+  .lucid-landing .screen-pipeline-step:nth-child(2n),
+  .lucid-landing .screen-pipeline-step:nth-child(3n) {
+    border-right: 0;
+  }
 }
