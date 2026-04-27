@@ -34,20 +34,6 @@ export function Hero() {
         </div>
         <div className="hero-side">
           <AmbientMonitor />
-          <div className="ambient-meta">
-            <div className="row">
-              <span>Status</span>
-              <span className="val">Monitoring</span>
-            </div>
-            <div className="row">
-              <span>Signals/min</span>
-              <span className="val">14,820</span>
-            </div>
-            <div className="row">
-              <span>Last sweep</span>
-              <span className="val">00:04:12</span>
-            </div>
-          </div>
         </div>
       </div>
     </header>
