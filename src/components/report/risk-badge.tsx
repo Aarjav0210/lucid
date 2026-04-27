@@ -2,11 +2,11 @@
 
 import type { RiskLevel } from "@/lib/report-types";
 
-const riskStyles: Record<RiskLevel, string> = {
-  HIGH: "bg-bauhaus-red text-white",
-  MEDIUM: "bg-bauhaus-yellow text-bauhaus-black",
-  LOW: "bg-emerald-600 text-white",
-  UNKNOWN: "bg-bauhaus-muted text-bauhaus-black",
+const riskColorVar: Record<RiskLevel, string> = {
+  HIGH: "var(--lc-danger)",
+  MEDIUM: "var(--lc-warn)",
+  LOW: "var(--lc-ok)",
+  UNKNOWN: "var(--lc-ink-3)",
 };
 
 interface RiskBadgeProps {
@@ -16,17 +16,33 @@ interface RiskBadgeProps {
 }
 
 export function RiskBadge({ level, size = "md", showLabel = true }: RiskBadgeProps) {
-  const sizeClasses = {
-    sm: "px-2 py-0.5 text-[10px]",
-    md: "px-3 py-1 text-xs",
-    lg: "px-4 py-1.5 text-sm",
-  };
+  const sizeCls = {
+    sm: "h-5 px-2 text-[10px]",
+    md: "h-6 px-2.5 text-[10.5px]",
+    lg: "h-7 px-3.5 text-[11.5px]",
+  }[size];
+
+  const dotSize = size === "sm" ? 5 : size === "lg" ? 7 : 6;
+  const color = riskColorVar[level];
 
   return (
     <span
-      className={`inline-block font-bold uppercase tracking-widest border-2 border-bauhaus-black ${riskStyles[level]} ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border font-mono uppercase tracking-[0.14em] ${sizeCls}`}
+      style={{ color, borderColor: color }}
     >
-      {level}{showLabel && " RISK"}
+      <span
+        aria-hidden="true"
+        className="rounded-full"
+        style={{
+          width: `${dotSize}px`,
+          height: `${dotSize}px`,
+          backgroundColor: color,
+        }}
+      />
+      <span>
+        {level}
+        {showLabel && " Risk"}
+      </span>
     </span>
   );
 }

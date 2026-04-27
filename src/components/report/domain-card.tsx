@@ -7,39 +7,32 @@ import { RiskBadge } from "./risk-badge";
 import { PipelineStep } from "./pipeline-step";
 import { StructureViewer } from "./structure-viewer";
 
-function KeywordTags({ keywords }: { keywords: string[] }) {
-  if (keywords.length === 0) return null;
-  const counts = new Map<string, number>();
-  for (const kw of keywords) {
-    counts.set(kw, (counts.get(kw) ?? 0) + 1);
-  }
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {[...counts.entries()].map(([kw, count]) => (
-        <span
-          key={kw}
-          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-bauhaus-red/10 text-bauhaus-red border border-bauhaus-red/20"
-        >
-          {kw}
-          {count > 1 && (
-            <span className="text-bauhaus-red/60">x{count}</span>
-          )}
-        </span>
-      ))}
-    </div>
-  );
-}
+function AlignmentView({
+  qseq,
+  sseq,
+  isThreat,
+}: {
+  qseq: string;
+  sseq: string;
+  isThreat: boolean;
+}) {
+  const matchColor = isThreat
+    ? "color-mix(in oklch, var(--lc-danger) 75%, transparent)"
+    : "color-mix(in oklch, var(--lc-accent) 75%, transparent)";
+  const mismatchColor = "color-mix(in oklch, var(--lc-ink) 12%, transparent)";
 
-function AlignmentView({ qseq, sseq, isThreat }: { qseq: string; sseq: string; isThreat: boolean }) {
-  const matchColor = isThreat ? "bg-bauhaus-red" : "bg-bauhaus-blue";
-  const mismatchColor = "bg-bauhaus-black/10";
-  const gapColor = "bg-transparent";
-
-  // Render a row of residue blocks that flex-shrinks within its container
-  function ResidueRow({ seq, otherSeq, label }: { seq: string; otherSeq: string; label: string }) {
+  function ResidueRow({
+    seq,
+    otherSeq,
+    label,
+  }: {
+    seq: string;
+    otherSeq: string;
+    label: string;
+  }) {
     return (
-      <div className="flex items-start gap-1">
-        <span className="text-[9px] font-bold uppercase tracking-wider text-bauhaus-black/30 w-10 shrink-0 pt-0.5">
+      <div className="flex items-start gap-2">
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)] w-9 shrink-0 pt-0.5">
           {label}
         </span>
         <div className="flex flex-wrap gap-px flex-1 min-w-0">
@@ -49,7 +42,15 @@ function AlignmentView({ qseq, sseq, isThreat }: { qseq: string; sseq: string; i
             return (
               <div
                 key={j}
-                className={`w-[4px] h-3 shrink-0 ${isGap ? gapColor : isMatch ? matchColor : mismatchColor} border border-bauhaus-black/5`}
+                className="w-[4px] h-3 shrink-0"
+                style={{
+                  backgroundColor: isGap
+                    ? "transparent"
+                    : isMatch
+                    ? matchColor
+                    : mismatchColor,
+                  border: "1px solid color-mix(in oklch, var(--lc-ink) 6%, transparent)",
+                }}
                 title={`${aa} (pos ${j + 1})`}
               />
             );
@@ -60,12 +61,12 @@ function AlignmentView({ qseq, sseq, isThreat }: { qseq: string; sseq: string; i
   }
 
   return (
-    <div className="border-2 border-bauhaus-black bg-bauhaus-muted/20 p-3 space-y-3 overflow-hidden">
+    <div className="border border-[color:var(--lc-rule)] bg-[color:var(--lc-bg-2)] p-3 space-y-3 overflow-hidden">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/40">
-          Sequence Alignment
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+          Sequence alignment
         </span>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-bauhaus-black/30">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[color:var(--lc-ink-3)]">
           {qseq.length} positions
         </span>
       </div>
@@ -73,23 +74,26 @@ function AlignmentView({ qseq, sseq, isThreat }: { qseq: string; sseq: string; i
         <ResidueRow seq={qseq} otherSeq={sseq} label="QRY" />
         <ResidueRow seq={sseq} otherSeq={qseq} label="REF" />
       </div>
-      {/* Legend */}
-      <div className="flex items-center gap-3 pt-1">
-        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-bauhaus-black/30">
-          <span className={`w-3 h-3 ${matchColor} border border-bauhaus-black/10`} /> Match
+      <div className="flex items-center gap-4 pt-1 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3" style={{ backgroundColor: matchColor }} />
+          Match
         </span>
-        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-bauhaus-black/30">
-          <span className={`w-3 h-3 ${mismatchColor} border border-bauhaus-black/10`} /> Mismatch
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3" style={{ backgroundColor: mismatchColor }} />
+          Mismatch
         </span>
-        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-bauhaus-black/30">
-          <span className="w-3 h-3 bg-white border border-dashed border-bauhaus-black/20" /> Gap
+        <span className="flex items-center gap-1.5">
+          <span
+            className="w-3 h-3 border border-dashed border-[color:var(--lc-ink-3)]/40"
+            style={{ backgroundColor: "var(--lc-bg)" }}
+          />
+          Gap
         </span>
       </div>
     </div>
   );
 }
-
-const DOMAIN_BORDER = "border-l-bauhaus-blue";
 
 interface DomainCardProps {
   report: DomainReport;
@@ -99,228 +103,271 @@ interface DomainCardProps {
 export function DomainCard({ report, index }: DomainCardProps) {
   const [expanded, setExpanded] = useState(true);
   const [summaryExpanded, setSummaryExpanded] = useState(true);
-  const borderColor = DOMAIN_BORDER;
-  const hasStructure = report.structure?.status === "completed" && report.structure.pdbString;
+  const hasStructure =
+    report.structure?.status === "completed" &&
+    (report.structure.pdbString || report.structure.pdbUrl);
   const isLoading = !report.summary;
 
-  // Track when loading finishes to trigger reveal animation
   const [revealed, setRevealed] = useState(!isLoading);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isLoading && !revealed) {
-      // Small delay so the browser can measure the content height
       requestAnimationFrame(() => setRevealed(true));
     }
   }, [isLoading, revealed]);
 
   return (
     <div
-      className={`bg-white border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] border-l-[6px] ${borderColor}`}
+      className="bg-[color:var(--lc-bg)] border border-[color:var(--lc-rule)] relative"
+      style={{
+        // Soft accent rail down the left edge.
+        boxShadow: "inset 3px 0 0 0 color-mix(in oklch, var(--lc-accent) 70%, transparent)",
+      }}
     >
-      {/* Domain header */}
+      {/* ── Domain header ── */}
       <button
         onClick={() => !isLoading && setExpanded(!expanded)}
-        className={`w-full px-4 py-3 flex items-center justify-between ${
-          isLoading ? "" : "border-b border-bauhaus-black/10 hover:bg-bauhaus-muted/30"
-        } transition-colors`}
+        className={`w-full px-5 py-3.5 flex items-center justify-between gap-3 text-left transition-colors ${
+          isLoading
+            ? ""
+            : "hover:bg-[color:var(--lc-bg-2)]"
+        }`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           {isLoading ? (
-            <Loader2 className="w-4 h-4 text-bauhaus-blue animate-spin" />
+            <Loader2 className="w-4 h-4 text-[color:var(--lc-accent)] animate-spin shrink-0" />
           ) : (
             <ChevronDown
-              className={`w-4 h-4 text-bauhaus-black/30 transition-transform duration-200 ${
+              className={`w-4 h-4 text-[color:var(--lc-ink-3)] transition-transform duration-200 shrink-0 ${
                 expanded ? "rotate-180" : ""
               }`}
             />
           )}
-          <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-            Domain {index + 1}
+          <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)] shrink-0">
+            Domain {String(index + 1).padStart(2, "0")}
           </span>
-          <span className="text-sm font-bold">
+          <span className="text-[15px] text-[color:var(--lc-ink)] truncate">
             {report.domain.annotation}
           </span>
-          <span className="text-xs text-bauhaus-black/40 font-medium">
-            {report.domain.start}–{report.domain.end} ({report.domain.sequence.length} AA)
+          <span className="font-mono text-[11px] tracking-[0.04em] text-[color:var(--lc-ink-3)] shrink-0">
+            {report.domain.start}–{report.domain.end} · {report.domain.sequence.length} aa
           </span>
         </div>
         {isLoading ? (
-          <span className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/30">
-            Analyzing...
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)] shrink-0">
+            Analyzing…
           </span>
         ) : (
-          report.summary && <RiskBadge level={report.summary.riskLevel} size="sm" />
+          report.summary && (
+            <span className="shrink-0">
+              <RiskBadge level={report.summary.riskLevel} size="sm" />
+            </span>
+          )
         )}
       </button>
 
-      {/* Content: hidden while loading, animated reveal when ready */}
+      {/* ── Body ── */}
       {!isLoading && expanded && (
         <div
           ref={contentRef}
-          className={`transition-all duration-500 ease-out overflow-hidden ${
-            revealed ? "opacity-100 max-h-[2000px]" : "opacity-0 max-h-0"
+          className={`border-t border-[color:var(--lc-rule)] transition-all duration-500 ease-out overflow-hidden ${
+            revealed ? "opacity-100 max-h-[2400px]" : "opacity-0 max-h-0"
           }`}
         >
-      <div className={hasStructure ? "flex flex-col md:flex-row" : ""}>
-        {/* Left: pipeline steps */}
-        <div className={hasStructure ? "flex-1 md:border-r border-bauhaus-black/10" : ""}>
-          <PipelineStep
-            label="Diamond"
-            status={report.progress.diamond}
-            subtitle={
-              report.diamond
-                ? `${report.diamond.hits.length} hit(s) · ${report.diamond.durationMs}ms`
-                : undefined
-            }
-          >
-            {report.diamond && report.diamond.hits.length > 0 && (
-              <div className="space-y-4">
-                {report.diamond.hits.slice(0, 5).map((hit, i) => {
-                  const isThreat = hit.threatFlags.length > 0;
-                  const textColor = isThreat ? "text-bauhaus-red" : "text-bauhaus-blue";
-                  return (
-                    <div key={`${hit.accession}-${i}`} className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold">{hit.title}</span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-black uppercase tracking-wider ${textColor}`}>
-                            {hit.identity.toFixed(1)}% Identity
+          <div className={hasStructure ? "flex flex-col md:flex-row" : ""}>
+            <div
+              className={
+                hasStructure
+                  ? "flex-1 md:border-r md:border-[color:var(--lc-rule)] min-w-0"
+                  : ""
+              }
+            >
+              <PipelineStep
+                label="Diamond"
+                status={report.progress.diamond}
+                subtitle={
+                  report.diamond
+                    ? `${report.diamond.hits.length} hit(s) · ${report.diamond.durationMs}ms`
+                    : undefined
+                }
+              >
+                {report.diamond && report.diamond.hits.length > 0 && (
+                  <div className="space-y-4">
+                    {report.diamond.hits.slice(0, 5).map((hit, i) => {
+                      const isThreat = hit.threatFlags.length > 0;
+                      const accentColor = isThreat
+                        ? "var(--lc-danger)"
+                        : "var(--lc-accent)";
+                      return (
+                        <div key={`${hit.accession}-${i}`} className="space-y-2">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className="text-[13.5px] text-[color:var(--lc-ink)]">
+                              {hit.title}
+                            </span>
+                            <div className="flex items-center gap-3">
+                              <span
+                                className="font-mono text-[11px] uppercase tracking-[0.12em]"
+                                style={{ color: accentColor }}
+                              >
+                                {hit.identity.toFixed(1)}% identity
+                              </span>
+                              {isThreat && (
+                                <span
+                                  className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.12em]"
+                                  style={{ color: "var(--lc-danger)" }}
+                                >
+                                  <AlertTriangle className="w-3 h-3" />
+                                  {hit.threatFlags.join(", ")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {hit.qseq && hit.sseq && (
+                            <AlignmentView
+                              qseq={hit.qseq}
+                              sseq={hit.sseq}
+                              isThreat={isThreat}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </PipelineStep>
+
+              <PipelineStep
+                label="ESMFold"
+                status={report.progress.structure}
+                subtitle={
+                  report.structure
+                    ? `pLDDT ${report.structure.plddtMean.toFixed(1)} · ${report.structure.confidenceCategory}`
+                    : undefined
+                }
+              />
+
+              <PipelineStep
+                label="Foldseek"
+                status={report.progress.foldseek}
+                subtitle={
+                  report.foldseek
+                    ? `${report.foldseek.hits.length} hit(s) · ${report.foldseek.durationMs}ms`
+                    : undefined
+                }
+              >
+                {report.foldseek && report.foldseek.hits.length > 0 && (
+                  <div className="space-y-2 max-h-56 overflow-y-auto pr-2">
+                    {report.foldseek.hits.map((hit, i) => (
+                      <div
+                        key={`fs-${i}`}
+                        className="flex items-start justify-between gap-3 py-1 border-b border-[color:var(--lc-rule)] last:border-b-0"
+                      >
+                        <div className="min-w-0">
+                          <span className="text-[color:var(--lc-ink)]">
+                            {hit.proteinName}
                           </span>
-                          {isThreat && (
-                            <span className="flex items-center gap-1 text-bauhaus-red font-bold">
+                          <span className="ml-2 text-[color:var(--lc-ink-3)]">
+                            {hit.organism}
+                          </span>
+                          {hit.pdbId && (
+                            <span className="ml-1 font-mono text-[11px] text-[color:var(--lc-ink-3)]">
+                              (PDB: {hit.pdbId})
+                            </span>
+                          )}
+                        </div>
+                        <div className="shrink-0 flex items-center gap-2 font-mono text-[11px]">
+                          <span className="text-[color:var(--lc-ink-2)]">
+                            P={hit.probability.toFixed(2)}
+                          </span>
+                          {hit.flagged && (
+                            <span
+                              className="flex items-center gap-1 uppercase tracking-[0.1em]"
+                              style={{ color: "var(--lc-danger)" }}
+                            >
                               <AlertTriangle className="w-3 h-3" />
-                              {hit.threatFlags.join(", ")}
+                              {hit.riskKeywords.join(", ")}
                             </span>
                           )}
                         </div>
                       </div>
-                      {/* Per-residue alignment */}
-                      {hit.qseq && hit.sseq && (
-                        <AlignmentView qseq={hit.qseq} sseq={hit.sseq} isThreat={isThreat} />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </PipelineStep>
-
-          <PipelineStep
-            label="ESMFold"
-            status={report.progress.structure}
-            subtitle={
-              report.structure
-                ? `pLDDT ${report.structure.plddtMean.toFixed(1)} · ${report.structure.confidenceCategory}`
-                : undefined
-            }
-          />
-
-          <PipelineStep
-            label="Foldseek"
-            status={report.progress.foldseek}
-            subtitle={
-              report.foldseek
-                ? `${report.foldseek.hits.length} hit(s) · ${report.foldseek.durationMs}ms`
-                : undefined
-            }
-          >
-            {report.foldseek && report.foldseek.hits.length > 0 && (
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-3">
-                {report.foldseek.hits.map((hit, i) => (
-                  <div key={`fs-${i}`} className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="font-bold">{hit.proteinName}</span>
-                      <span className="text-bauhaus-black/40 ml-2">{hit.organism}</span>
-                      {hit.pdbId && (
-                        <span className="text-bauhaus-black/30 ml-1">
-                          (PDB: {hit.pdbId})
-                        </span>
-                      )}
-                    </div>
-                    <div className="shrink-0 flex items-center gap-2">
-                      <span>P={hit.probability.toFixed(2)}</span>
-                      {hit.flagged && (
-                        <span className="flex items-center gap-1 text-bauhaus-red font-bold">
-                          <AlertTriangle className="w-3 h-3" />
-                          {hit.riskKeywords.join(", ")}
-                        </span>
-                      )}
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </PipelineStep>
-        </div>
-
-        {/* Right: 3D structure viewer */}
-        {hasStructure && report.structure && (
-          <div className="w-full md:w-[350px] shrink-0 p-3 flex flex-col">
-            <StructureViewer
-              pdbString={report.structure.pdbString!}
-              plddtMean={report.structure.plddtMean}
-              height={250}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Domain summary — always full width below */}
-      {report.summary && (
-        <div className="border-t-2 border-bauhaus-black">
-          <button
-            onClick={() => setSummaryExpanded(!summaryExpanded)}
-            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-bauhaus-muted/50"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs font-bold uppercase tracking-widest">
-                Domain Assessment
-              </span>
-              <RiskBadge level={report.summary.riskLevel} size="sm" showLabel={false} />
-              <span className="text-xs text-bauhaus-black/40 font-medium">
-                {(report.summary.confidence * 100).toFixed(0)}% confidence
-              </span>
+                )}
+              </PipelineStep>
             </div>
-            <ChevronDown
-              className={`w-4 h-4 text-bauhaus-black/30 transition-transform duration-200 ${
-                summaryExpanded ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-          {summaryExpanded && (
-            <div className="px-4 pb-4 space-y-3">
-              <p className="text-sm font-medium leading-relaxed">
-                {report.summary.reasoning}
-              </p>
-              {report.summary.flags.length > 0 && (
-                <div className="space-y-1.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-bauhaus-black/40">
-                    Risk Keywords
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {report.summary.flags.map((flag, i) => {
-                      const [kw, countStr] = flag.includes(":") ? flag.split(":") : [flag, "1"];
-                      const count = parseInt(countStr);
-                      return (
-                        <span
-                          key={i}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-bauhaus-red/10 text-bauhaus-red border border-bauhaus-red/20"
-                        >
-                          {kw}
-                          {count > 1 && (
-                            <span className="text-bauhaus-red/60">x{count}</span>
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
+
+            {hasStructure && report.structure && (
+              <div className="w-full md:w-[340px] shrink-0 p-3 flex flex-col">
+                <StructureViewer
+                  pdbString={report.structure.pdbString}
+                  pdbUrl={report.structure.pdbUrl}
+                  plddtMean={report.structure.plddtMean}
+                  height={250}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ── Domain summary ── */}
+          {report.summary && (
+            <div className="border-t border-[color:var(--lc-rule)]">
+              <button
+                onClick={() => setSummaryExpanded(!summaryExpanded)}
+                className="w-full flex items-center justify-between px-5 py-3 hover:bg-[color:var(--lc-bg-2)] transition-colors"
+              >
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+                    Domain assessment
+                  </span>
+                  <RiskBadge level={report.summary.riskLevel} size="sm" showLabel={false} />
+                  <span className="font-mono text-[11px] tracking-[0.06em] text-[color:var(--lc-ink-3)]">
+                    {(report.summary.confidence * 100).toFixed(0)}% confidence
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-[color:var(--lc-ink-3)] transition-transform duration-200 ${
+                    summaryExpanded ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {summaryExpanded && (
+                <div className="px-5 pb-5 space-y-3 text-[14px] leading-relaxed text-[color:var(--lc-ink-2)]">
+                  <p>{report.summary.reasoning}</p>
+                  {report.summary.flags.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+                        Risk keywords
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {report.summary.flags.map((flag, i) => {
+                          const [kw, countStr] = flag.includes(":")
+                            ? flag.split(":")
+                            : [flag, "1"];
+                          const count = parseInt(countStr);
+                          return (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] rounded-full border"
+                              style={{
+                                color: "var(--lc-danger)",
+                                borderColor:
+                                  "color-mix(in oklch, var(--lc-danger) 35%, transparent)",
+                                backgroundColor: "var(--lc-danger-soft)",
+                              }}
+                            >
+                              {kw}
+                              {count > 1 && <span className="opacity-60">×{count}</span>}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
-        </div>
-      )}
         </div>
       )}
     </div>

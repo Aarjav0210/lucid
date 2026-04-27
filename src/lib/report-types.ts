@@ -46,6 +46,7 @@ export interface StructurePrediction {
   error?: string;
   pdbPath: string;
   pdbString?: string;           // raw PDB data for 3D rendering
+  pdbUrl?: string;              // public URL to fetch PDB data (e.g. /sample-pdbs/2AAI.pdb)
   plddtMean: number;           // 0-100
   plddtPerResidue: number[];
   confidenceCategory: "very_high" | "confident" | "low" | "very_low";

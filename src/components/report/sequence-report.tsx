@@ -8,9 +8,9 @@ import { DomainCard } from "./domain-card";
 import { IntegratedReport } from "./integrated-report";
 
 const NAV_SECTIONS = [
-  { id: "section-domains", label: "Domain Identification" },
-  { id: "section-analysis", label: "Per-Domain Analysis" },
-  { id: "section-report", label: "Integrated Report" },
+  { id: "section-domains", label: "Domain identification" },
+  { id: "section-analysis", label: "Per-domain analysis" },
+  { id: "section-report", label: "Integrated report" },
 ];
 
 interface SequenceReportProps {
@@ -41,9 +41,7 @@ export function SequenceReport({ report, stickyOffset = 0, isGeneratingReport = 
         const el = document.getElementById(section.id);
         if (!el) continue;
         const top = el.getBoundingClientRect().top;
-        if (top <= offset) {
-          current = section.id;
-        }
+        if (top <= offset) current = section.id;
       }
       setActiveSection(current);
     };
@@ -58,55 +56,67 @@ export function SequenceReport({ report, stickyOffset = 0, isGeneratingReport = 
   };
 
   return (
-    <div className="flex gap-8">
+    <div className="flex gap-10">
       {/* ── Sidebar navigation ── */}
-      <nav className="hidden lg:block w-48 shrink-0">
-        <div
-          className="sticky space-y-1"
-          style={{ top: `${stickyOffset + 24}px` }}
-        >
-          {NAV_SECTIONS.map((section) => {
-            if (section.id === "section-report" && !report.integratedReport) return null;
-            const isActive = activeSection === section.id;
-            return (
-              <button
-                key={section.id}
-                onClick={() => scrollTo(section.id)}
-                className={`block w-full text-left px-3 py-2 transition-all duration-300 ${
-                  isActive
-                    ? "text-sm font-bold text-bauhaus-black border-l-2 border-bauhaus-black"
-                    : "text-xs font-medium text-bauhaus-black/40 border-l-2 border-transparent hover:text-bauhaus-black/60 hover:border-bauhaus-black/20"
-                }`}
-              >
-                {section.label}
-              </button>
-            );
-          })}
+      <nav className="hidden lg:block w-52 shrink-0">
+        <div className="sticky" style={{ top: `${stickyOffset + 32}px` }}>
+          <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)] pb-3 border-b border-[color:var(--lc-rule)] mb-3">
+            On this report
+          </div>
+          <ul className="space-y-px">
+            {NAV_SECTIONS.map((section, i) => {
+              if (section.id === "section-report" && !report.integratedReport) return null;
+              const isActive = activeSection === section.id;
+              return (
+                <li key={section.id}>
+                  <button
+                    onClick={() => scrollTo(section.id)}
+                    className="block w-full text-left py-2 pl-3 border-l text-[13px] transition-all duration-200"
+                    style={{
+                      color: isActive
+                        ? "var(--lc-ink)"
+                        : "var(--lc-ink-3)",
+                      borderColor: isActive ? "var(--lc-ink)" : "transparent",
+                    }}
+                  >
+                    <span className="font-mono text-[10px] mr-2 opacity-60">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    {section.label}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </nav>
 
       {/* ── Report content ── */}
-      <div className="flex-1 min-w-0 space-y-8">
-        {/* ── Sequence overview + domain ruler ── */}
-        <div id="section-domains" className="space-y-1" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
-          <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-4">
-            Structural Domain Identification
+      <div className="flex-1 min-w-0 space-y-10">
+        {/* Sequence overview + domain ruler */}
+        <div
+          id="section-domains"
+          className="space-y-3"
+          style={{ scrollMarginTop: `${stickyOffset + 24}px` }}
+        >
+          <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+            Domain identification
           </p>
-          <div className="bg-white border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] p-6 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="bg-[color:var(--lc-bg)] border border-[color:var(--lc-rule)] p-6 space-y-5">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40">
-                  Input Sequence
+                <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+                  Input sequence
                 </p>
-                <p className="text-sm font-medium text-bauhaus-black/60 mt-1">
-                  {report.sequenceLength} amino acids &middot;{" "}
+                <p className="text-[14px] text-[color:var(--lc-ink-2)] mt-1.5">
+                  {report.sequenceLength} amino acids ·{" "}
                   {report.domains.length} structural domain
                   {report.domains.length !== 1 ? "s" : ""} identified
                 </p>
               </div>
-              <div className="text-xs font-medium text-bauhaus-black/30">
+              <span className="font-mono text-[11px] tracking-[0.06em] text-[color:var(--lc-ink-3)]">
                 {report.id}
-              </div>
+              </span>
             </div>
 
             <DomainRuler
@@ -116,63 +126,78 @@ export function SequenceReport({ report, stickyOffset = 0, isGeneratingReport = 
           </div>
         </div>
 
-        {/* ── Connector: domains fan out ── */}
+        {/* Hairline connector */}
         <div className="flex justify-center">
-          <div className="w-0.5 h-6 bg-bauhaus-black/20" />
+          <span className="block w-px h-8 bg-[color:var(--lc-rule)]" />
         </div>
 
-        {/* ── Per-domain analysis cards ── */}
-        <div id="section-analysis" className="space-y-1" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
-          <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-4">
-            Per-Domain Analysis
-          </p>
-          <div className="flex flex-col gap-6">
+        {/* Per-domain analysis */}
+        <div
+          id="section-analysis"
+          className="space-y-3"
+          style={{ scrollMarginTop: `${stickyOffset + 24}px` }}
+        >
+          <div className="flex items-baseline justify-between">
+            <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+              Per-domain analysis
+            </p>
+            <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+              {report.domains.length} domain{report.domains.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className="flex flex-col gap-5">
             {report.domains.map((domainReport, i) => (
-              <DomainCard key={domainReport.domain.start} report={domainReport} index={i} />
+              <DomainCard
+                key={domainReport.domain.start}
+                report={domainReport}
+                index={i}
+              />
             ))}
           </div>
         </div>
 
-        {/* ── Connector: domains converge ── */}
+        {/* Hairline connector */}
         <div className="flex justify-center">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-0.5 h-4 bg-bauhaus-black/20" />
-            <div className="w-3 h-3 rotate-45 border-b-2 border-r-2 border-bauhaus-black/20" />
-            <div className="w-0.5 h-4 bg-bauhaus-black/20" />
-          </div>
+          <span className="block w-px h-8 bg-[color:var(--lc-rule)]" />
         </div>
 
-        {/* ── Integrated report ── */}
+        {/* Integrated report */}
         {isGeneratingReport && !report.integratedReport && (
-          <div id="section-report" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
-            <div className="bg-white border-2 border-bauhaus-black shadow-[6px_6px_0px_0px_#121212] border-t-[6px] border-t-bauhaus-muted px-6 py-5 flex items-center gap-3">
-              <Loader2 className="w-4 h-4 text-bauhaus-blue animate-spin" />
-              <span className="text-sm font-medium text-bauhaus-black/60">
-                Generating integrated risk assessment...
+          <div
+            id="section-report"
+            style={{ scrollMarginTop: `${stickyOffset + 24}px` }}
+          >
+            <div className="bg-[color:var(--lc-bg)] border border-[color:var(--lc-rule)] px-6 py-5 flex items-center gap-3">
+              <Loader2 className="w-4 h-4 text-[color:var(--lc-accent)] animate-spin" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-2)]">
+                Generating integrated risk assessment…
               </span>
             </div>
           </div>
         )}
         {report.integratedReport && (
-          <div id="section-report" style={{ scrollMarginTop: `${stickyOffset + 24}px` }}>
+          <div
+            id="section-report"
+            style={{ scrollMarginTop: `${stickyOffset + 24}px` }}
+          >
             <IntegratedReport report={report.integratedReport} />
           </div>
         )}
 
-        {/* ── Save as PDF button ── */}
+        {/* Save as PDF */}
         {report.integratedReport && (
           <div className="flex justify-center pt-2 pb-4">
             <button
               onClick={handleSavePdf}
               disabled={isSavingPdf}
-              className="flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest border-2 border-bauhaus-black bg-white hover:bg-bauhaus-muted/50 transition-colors shadow-[3px_3px_0px_0px_#121212] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-full text-[12.5px] font-medium border border-[color:var(--lc-rule)] text-[color:var(--lc-ink-2)] hover:border-[color:var(--lc-ink)] hover:text-[color:var(--lc-ink)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSavingPdf ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {isSavingPdf ? "Generating PDF..." : "Save Report as PDF"}
+              {isSavingPdf ? "Generating PDF…" : "Save report as PDF"}
             </button>
           </div>
         )}

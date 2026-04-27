@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+
+/* Smooth in-page anchor scrolling, with offset for the sticky 64px nav. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 @theme {
   --font-outfit: 'Outfit', sans-serif;
@@ -9,6 +19,32 @@
   --color-bauhaus-black: #121212;
   --color-bauhaus-bg: #F0F0F0;
   --color-bauhaus-muted: #E0E0E0;
+}
+
+/* ─── Lucid editorial design tokens ───
+ * Available globally so the screening / report components can reference
+ * them via Tailwind arbitrary values (e.g. text-[color:var(--lc-ink)]).
+ * The .lucid-landing scope re-declares these for legacy reasons but the
+ * tokens here are the source of truth shared across the app. */
+:root {
+  --lc-bg: oklch(98% 0.005 90);
+  --lc-bg-2: oklch(96% 0.006 90);
+  --lc-ink: oklch(20% 0.01 250);
+  --lc-ink-2: oklch(38% 0.01 250);
+  --lc-ink-3: oklch(58% 0.01 250);
+  --lc-rule: oklch(88% 0.008 250);
+  --lc-rule-2: oklch(92% 0.008 250);
+  --lc-accent: oklch(55% 0.08 215);
+  --lc-accent-soft: oklch(94% 0.02 215);
+  --lc-danger: oklch(58% 0.13 30);
+  --lc-danger-soft: oklch(95% 0.02 30);
+  --lc-warn: oklch(62% 0.11 75);
+  --lc-warn-soft: oklch(96% 0.025 80);
+  --lc-ok: oklch(54% 0.09 160);
+  --lc-ok-soft: oklch(95% 0.025 160);
+  --lc-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --lc-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --lc-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 
 @keyframes progress {

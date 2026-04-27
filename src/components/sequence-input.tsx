@@ -47,7 +47,6 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
       return;
     }
 
-    // Check it's protein, not nucleotide
     const aminoOnly = /[DEFHIKLMPQRSVWY]/i;
     if (!aminoOnly.test(seq)) {
       setError("This appears to be a nucleotide sequence. Only protein sequences are supported.");
@@ -58,59 +57,60 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
     onSubmit(input);
   };
 
+  const labelCls =
+    "font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]";
+
   return (
-    <div className="bg-white border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212]">
-      <div className="p-4 border-b-2 border-bauhaus-black flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/60">
-          Submit Sequence for Screening
-        </span>
+    <div className="bg-[color:var(--lc-bg)] border border-[color:var(--lc-rule)]">
+      <div className="px-5 py-3.5 border-b border-[color:var(--lc-rule)] flex items-center justify-between">
+        <span className={labelCls}>Submit sequence</span>
         <span
-          className={`text-xs font-bold uppercase tracking-widest ${
+          className={`font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors ${
             aaCount > 0
-              ? "text-bauhaus-black/40"
-              : "text-bauhaus-black/20"
+              ? "text-[color:var(--lc-ink-2)]"
+              : "text-[color:var(--lc-ink-3)]/60"
           }`}
         >
-          {aaCount} AA
+          {aaCount} aa
         </span>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-5 space-y-4">
         <textarea
           value={input}
           onChange={(e) => {
             setInput(e.target.value);
             setError(null);
           }}
-          placeholder={`Paste a protein sequence (FASTA or raw)...\n\nExample:\nMSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK...`}
+          placeholder={`Paste a protein sequence (FASTA or raw)…\n\nExample:\nMSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK…`}
           rows={6}
           disabled={isRunning}
-          className="w-full px-4 py-3 font-mono text-sm bg-bauhaus-muted/30 border-2 border-bauhaus-black/20 focus:border-bauhaus-black focus:outline-none resize-y placeholder:text-bauhaus-black/25 disabled:opacity-50"
+          className="w-full px-4 py-3 font-mono text-sm leading-relaxed bg-[color:var(--lc-bg-2)] text-[color:var(--lc-ink)] border border-[color:var(--lc-rule)] focus:border-[color:var(--lc-ink)] focus:outline-none resize-y placeholder:text-[color:var(--lc-ink-3)]/60 disabled:opacity-50 transition-colors"
           spellCheck={false}
         />
 
         {error && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-bauhaus-red/10 border border-bauhaus-red/30">
-            <AlertTriangle className="w-4 h-4 text-bauhaus-red shrink-0" />
-            <span className="text-xs font-medium text-bauhaus-red">{error}</span>
+          <div className="flex items-center gap-2 px-3 py-2.5 bg-[color:var(--lc-danger-soft)] border border-[color:var(--lc-danger)]/30">
+            <AlertTriangle className="w-4 h-4 text-[color:var(--lc-danger)] shrink-0" />
+            <span className="text-xs text-[color:var(--lc-danger)]">{error}</span>
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3 pt-1">
           <button
             onClick={handleSubmit}
             disabled={isRunning || aaCount === 0}
-            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-bauhaus-blue text-white font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-blue/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
+            className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[13.5px] font-medium bg-[color:var(--lc-ink)] text-[color:var(--lc-bg)] border border-[color:var(--lc-ink)] hover:bg-transparent hover:text-[color:var(--lc-ink)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[color:var(--lc-ink)] disabled:hover:text-[color:var(--lc-bg)] transition-colors"
           >
             {isRunning ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Pipeline Running...
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Pipeline running…
               </>
             ) : (
               <>
-                <ArrowRight className="w-5 h-5" />
-                Screen Sequence
+                Screen sequence
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
@@ -121,10 +121,11 @@ export function SequenceInput({ onSubmit, isRunning }: SequenceInputProps) {
               setError(null);
             }}
             disabled={isRunning}
-            title="Generate a sample sequence"
-            className="flex items-center justify-center gap-2 px-4 py-4 bg-white text-bauhaus-black font-bold uppercase tracking-wider text-sm border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] hover:bg-bauhaus-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_#121212]"
+            title="Insert a sample sequence"
+            className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-full text-[13px] font-medium text-[color:var(--lc-ink-2)] border border-[color:var(--lc-rule)] hover:border-[color:var(--lc-ink)] hover:text-[color:var(--lc-ink)] disabled:opacity-40 transition-colors"
           >
-            <Wand2 className="w-5 h-5" />
+            <Wand2 className="w-4 h-4" />
+            Sample
           </button>
         </div>
       </div>

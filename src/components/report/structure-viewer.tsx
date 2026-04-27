@@ -3,24 +3,44 @@
 import { useEffect, useRef, useState } from "react";
 
 interface StructureViewerProps {
-  pdbString: string;
+  pdbString?: string;
+  pdbUrl?: string;
   plddtMean: number;
   height?: number;
 }
 
-export function StructureViewer({ pdbString, plddtMean, height = 300 }: StructureViewerProps) {
+export function StructureViewer({ pdbString, pdbUrl, plddtMean, height = 300 }: StructureViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const [loaded, setLoaded] = useState(false);
+  const [pdbData, setPdbData] = useState<string | null>(pdbString ?? null);
 
   useEffect(() => {
-    if (!containerRef.current || !pdbString) return;
+    if (pdbString) {
+      setPdbData(pdbString);
+      return;
+    }
+    if (!pdbUrl) return;
+    let cancelled = false;
+    fetch(pdbUrl)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`PDB fetch failed: ${r.status}`))))
+      .then((text) => {
+        if (!cancelled) setPdbData(text);
+      })
+      .catch(() => {
+        if (!cancelled) setPdbData(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pdbString, pdbUrl]);
 
-    // Dynamically import 3Dmol (client-only)
+  useEffect(() => {
+    if (!containerRef.current || !pdbData) return;
+
     import("3dmol").then(($3Dmol) => {
       if (!containerRef.current) return;
 
-      // Clear any previous viewer
       containerRef.current.innerHTML = "";
 
       const viewer = $3Dmol.createViewer(containerRef.current, {
@@ -28,18 +48,16 @@ export function StructureViewer({ pdbString, plddtMean, height = 300 }: Structur
         antialias: true,
       });
 
-      viewer.addModel(pdbString, "pdb");
+      viewer.addModel(pdbData, "pdb");
 
-      // Color by pLDDT (B-factor) using AlphaFold-style spectrum
       viewer.setStyle({}, {
         cartoon: {
           colorfunc: (atom: any) => {
-            // pLDDT stored in B-factor — ESMFold may use 0-1 or 0-100 scale
             const b = atom.b > 1 ? atom.b : atom.b * 100;
-            if (b >= 90) return "rgb(0, 83, 214)";      // very high — blue
-            if (b >= 70) return "rgb(101, 203, 243)";    // confident — light blue
-            if (b >= 50) return "rgb(255, 219, 19)";     // low — yellow
-            return "rgb(255, 125, 69)";                   // very low — orange
+            if (b >= 90) return "rgb(0, 83, 214)";
+            if (b >= 70) return "rgb(101, 203, 243)";
+            if (b >= 50) return "rgb(255, 219, 19)";
+            return "rgb(255, 125, 69)";
           },
         },
       });
@@ -57,17 +75,17 @@ export function StructureViewer({ pdbString, plddtMean, height = 300 }: Structur
         viewerRef.current = null;
       }
     };
-  }, [pdbString]);
+  }, [pdbData]);
 
   return (
-    <div className="border border-bauhaus-black/10">
+    <div className="border border-[color:var(--lc-rule)] bg-[color:var(--lc-bg)]">
       <div
         ref={containerRef}
         style={{ width: "100%", height: `${height}px`, position: "relative" }}
       />
       {loaded && (
-        <div className="px-3 py-2 bg-bauhaus-muted/30 border-t border-bauhaus-black/10 flex items-center justify-between">
-          <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-bauhaus-black/40">
+        <div className="px-3 py-2 bg-[color:var(--lc-bg-2)] border-t border-[color:var(--lc-rule)] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.12em] text-[color:var(--lc-ink-3)]">
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "rgb(0, 83, 214)" }} />
               &gt;90
@@ -85,7 +103,7 @@ export function StructureViewer({ pdbString, plddtMean, height = 300 }: Structur
               &lt;50
             </span>
           </div>
-          <span className="text-[10px] font-bold text-bauhaus-black/40">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-2)]">
             pLDDT {plddtMean.toFixed(1)}
           </span>
         </div>

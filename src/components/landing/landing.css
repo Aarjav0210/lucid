@@ -1,0 +1,1172 @@
+/* ─────────────────────────────────────────────────────────────
+ * Landing page styles
+ * All selectors are scoped under .lucid-landing so the redesign
+ * does not collide with the rest of the app's styling.
+ * ───────────────────────────────────────────────────────────── */
+
+.lucid-landing {
+  --bg: oklch(98% 0.005 90);
+  --bg-2: oklch(96% 0.006 90);
+  --ink: oklch(20% 0.01 250);
+  --ink-2: oklch(38% 0.01 250);
+  --ink-3: oklch(58% 0.01 250);
+  --rule: oklch(88% 0.008 250);
+  --rule-2: oklch(92% 0.008 250);
+  --accent: oklch(55% 0.08 215);
+  --accent-soft: oklch(94% 0.02 215);
+  --danger: oklch(58% 0.13 30);
+  --serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  min-height: 100vh;
+}
+
+.lucid-landing,
+.lucid-landing *,
+.lucid-landing *::before,
+.lucid-landing *::after { box-sizing: border-box; }
+
+.lucid-landing a { color: inherit; text-decoration: none; }
+.lucid-landing button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+.lucid-landing .wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 32px);
+  width: 100%;
+}
+
+/* Prevent horizontal scroll caused by oversize SVGs / overflow content */
+.lucid-landing { overflow-x: hidden; }
+
+/* ───── Nav ───── */
+.lucid-landing .nav {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in oklch, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .nav-inner {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 64px;
+}
+.lucid-landing .brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 500; letter-spacing: -0.01em; font-size: 15px;
+}
+.lucid-landing .brand-suffix { font-weight: 300; color: var(--ink-3); }
+.lucid-landing .brand-mark {
+  width: 22px; height: 22px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  position: relative;
+}
+.lucid-landing .brand-mark::before {
+  content: ""; position: absolute; inset: 4px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+}
+.lucid-landing .brand-mark::after {
+  content: ""; position: absolute; inset: 9px;
+  background: var(--accent); border-radius: 50%;
+}
+.lucid-landing .nav-links { display: flex; gap: 28px; justify-self: center; font-size: 14px; color: var(--ink-2); }
+.lucid-landing .nav-links a { transition: color .2s; }
+.lucid-landing .nav-links a:hover { color: var(--ink); }
+.lucid-landing .nav-cta { justify-self: end; display: flex; gap: 8px; align-items: center; }
+
+.lucid-landing .btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 16px;
+  font-size: 13.5px; font-weight: 500;
+  border-radius: 999px;
+  transition: all .2s;
+}
+.lucid-landing .btn-ghost { color: var(--ink-2); }
+.lucid-landing .btn-ghost:hover { color: var(--ink); }
+.lucid-landing .btn-primary {
+  background: var(--ink); color: var(--bg);
+  border: 1px solid var(--ink);
+}
+.lucid-landing .btn-primary:hover { background: transparent; color: var(--ink); }
+.lucid-landing .btn-outline {
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+.lucid-landing .btn-outline:hover { border-color: var(--ink); }
+.lucid-landing .btn .arr { transition: transform .25s; }
+.lucid-landing .btn:hover .arr { transform: translateX(2px); }
+
+/* ───── Hero ───── */
+.lucid-landing .hero {
+  position: relative;
+  padding: clamp(56px, 9vw, 120px) 0 clamp(64px, 10vw, 140px);
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+}
+.lucid-landing .hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 6vw, 80px);
+  align-items: center;
+}
+.lucid-landing .hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 36px;
+}
+.lucid-landing .hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  animation: lucid-breathe 3s ease-in-out infinite;
+}
+@keyframes lucid-breathe {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 4px var(--accent-soft); }
+  50% { opacity: .6; box-shadow: 0 0 0 7px transparent; }
+}
+.lucid-landing h1.hero-title {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(44px, 6vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  margin: 0 0 28px;
+  text-wrap: balance;
+}
+.lucid-landing .hero-title em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+}
+.lucid-landing .hero-sub {
+  font-size: 17px;
+  color: var(--ink-2);
+  max-width: 38ch;
+  line-height: 1.55;
+  margin: 0 0 40px;
+}
+.lucid-landing .hero-cta { display: flex; gap: 12px; }
+
+.lucid-landing .hero-side {
+  display: flex; flex-direction: column; gap: 24px;
+  align-items: flex-end;
+}
+.lucid-landing .ambient {
+  width: clamp(240px, 32vw, 360px);
+  height: clamp(240px, 32vw, 360px);
+  max-width: 100%;
+  position: relative;
+}
+.lucid-landing .ambient svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.lucid-landing .ambient .ring {
+  fill: none; stroke: var(--ink); stroke-width: .5;
+  opacity: .25;
+}
+.lucid-landing .ambient .ring.r2 { opacity: .18; }
+.lucid-landing .ambient .ring.r3 { opacity: .12; }
+.lucid-landing .ambient .ring.r4 { opacity: .08; }
+.lucid-landing .ambient .crosshair {
+  stroke: var(--ink); stroke-width: .5; opacity: .3;
+}
+
+.lucid-landing .ambient .tick {
+  stroke: var(--ink); stroke-width: .5; opacity: .25;
+}
+.lucid-landing .ambient .tick.major { opacity: .45; stroke-width: .75; }
+
+.lucid-landing .ambient .bearing {
+  transform-origin: 180px 180px;
+  animation: lucid-sweep 14s linear infinite;
+}
+@keyframes lucid-sweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.lucid-landing .ambient .bearing-line {
+  stroke: var(--accent); stroke-width: 1; opacity: .7;
+}
+
+.lucid-landing .ambient .trail-arc {
+  fill: none;
+  stroke: url(#lucid-trail-stroke);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.lucid-landing .ambient .threat {
+  cursor: pointer;
+  transition: filter .25s, transform .25s;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.lucid-landing .ambient .threat .threat-core {
+  fill: var(--accent);
+  opacity: .35;
+  transition: opacity .25s, r .25s;
+}
+.lucid-landing .ambient .threat .threat-halo {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0;
+}
+.lucid-landing .ambient .threat .threat-ping {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.lucid-landing .ambient .threat.t1 .threat-ping { animation: lucid-ping 14s linear infinite; animation-delay: 1.2s; }
+.lucid-landing .ambient .threat.t2 .threat-ping { animation: lucid-ping 14s linear infinite; animation-delay: 4.2s; }
+.lucid-landing .ambient .threat.t3 .threat-ping { animation: lucid-ping 14s linear infinite; animation-delay: 8.0s; }
+.lucid-landing .ambient .threat.t4 .threat-ping { animation: lucid-ping 14s linear infinite; animation-delay: 10.8s; }
+.lucid-landing .ambient .threat.t1 .threat-core { animation: lucid-lightup 14s linear infinite; animation-delay: 1.2s; }
+.lucid-landing .ambient .threat.t2 .threat-core { animation: lucid-lightup 14s linear infinite; animation-delay: 4.2s; }
+.lucid-landing .ambient .threat.t3 .threat-core { animation: lucid-lightup 14s linear infinite; animation-delay: 8.0s; }
+.lucid-landing .ambient .threat.t4 .threat-core { animation: lucid-lightup 14s linear infinite; animation-delay: 10.8s; }
+@keyframes lucid-ping {
+  0%   { opacity: 0; transform: scale(1); }
+  2%   { opacity: .35; transform: scale(1); }
+  22%  { opacity: 0; transform: scale(2.6); }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+@keyframes lucid-lightup {
+  0%   { opacity: .28; }
+  2%   { opacity: .75; }
+  30%  { opacity: .55; }
+  65%  { opacity: .28; }
+  100% { opacity: .28; }
+}
+.lucid-landing .ambient .threat:hover .threat-core { opacity: 1; }
+.lucid-landing .ambient .threat:hover .threat-halo { opacity: .6; animation: lucid-hover-pulse 1.6s ease-in-out infinite; }
+@keyframes lucid-hover-pulse {
+  0%, 100% { opacity: .6; r: 8; }
+  50% { opacity: .25; r: 12; }
+}
+
+.lucid-landing .ambient .threat-label {
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  fill: var(--ink);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.lucid-landing .ambient .threat:hover + .threat-label,
+.lucid-landing .ambient .threat-label.shown { opacity: 1; }
+.lucid-landing .ambient-meta {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: right;
+  line-height: 1.7;
+}
+.lucid-landing .ambient-meta .row { display: flex; justify-content: space-between; gap: 16px; min-width: 240px; }
+.lucid-landing .ambient-meta .val { color: var(--ink); }
+
+/* ───── Section header ───── */
+.lucid-landing .section {
+  padding: clamp(64px, 10vw, 120px) 0;
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .section-head {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: clamp(32px, 6vw, 80px);
+  margin-bottom: clamp(48px, 7vw, 80px);
+}
+.lucid-landing .section-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  padding-top: 8px;
+}
+.lucid-landing .section-title {
+  font-weight: 300;
+  font-size: clamp(34px, 4vw, 52px);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 0;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+.lucid-landing .section-title em { font-family: var(--serif); font-style: italic; font-weight: 400; }
+
+/* Products groups */
+.lucid-landing .product-group { margin-top: 0; position: relative; }
+.lucid-landing .product-group + .product-group {
+  margin-top: 96px;
+  padding-top: 0;
+}
+.lucid-landing .product-group-head {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  align-items: baseline;
+  padding: 0 0 28px;
+  margin-bottom: 0;
+}
+.lucid-landing .product-group-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+}
+.lucid-landing .product-group-tag .num {
+  color: var(--ink-3); margin-right: 6px;
+}
+.lucid-landing .product-group-title {
+  font-weight: 300;
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0;
+}
+.lucid-landing .product-group-title em { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.lucid-landing .product-group-note {
+  font-size: 14px;
+  color: var(--ink-3);
+  margin: 10px 0 0;
+  max-width: 52ch;
+}
+.lucid-landing .product-group .products-list {
+  border-top: 1px solid var(--ink);
+}
+.lucid-landing .product-group.dim .products-list {
+  border-top: 1px solid var(--ink);
+}
+.lucid-landing .product-group.dim .product { opacity: .68; }
+.lucid-landing .product-group.dim .product:hover { opacity: 1; }
+
+/* ───── Products list ───── */
+.lucid-landing .products { border-top: 0; }
+.lucid-landing .product {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 180px;
+  gap: clamp(20px, 3vw, 48px);
+  align-items: start;
+  padding: clamp(36px, 5vw, 56px) 0;
+  border-bottom: 1px solid var(--rule);
+  transition: background .3s;
+  cursor: pointer;
+  position: relative;
+}
+.lucid-landing .product:hover { background: var(--bg-2); }
+.lucid-landing .product:hover .product-launch { color: var(--ink); }
+.lucid-landing .product:hover .product-launch .arr { transform: translateX(4px); }
+
+/* Stretched link covers the entire product row so clicks anywhere on it
+   (including padding and column gaps) navigate. Sits above the row content
+   in z-order, but transparent. */
+.lucid-landing .product-stretch {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+}
+.lucid-landing .product-stretch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+.lucid-landing .product-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 6px;
+  justify-self: center;
+}
+.lucid-landing .product-tag.live::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.lucid-landing .product-tag.soon::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--ink-3);
+}
+.lucid-landing .product-name {
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+.lucid-landing .product-tagline {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.lucid-landing .product-desc {
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 48ch;
+}
+.lucid-landing .product-launch {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color .2s;
+  justify-self: center;
+  padding-top: 6px;
+}
+.lucid-landing .product-launch .arr { transition: transform .25s; }
+
+/* ───── Mission ───── */
+.lucid-landing .mission {
+  padding: clamp(80px, 12vw, 160px) 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.lucid-landing .mission-inner {
+  max-width: 980px;
+}
+.lucid-landing .mission-lede {
+  font-weight: 300;
+  font-size: clamp(36px, 4.2vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin: 0 0 28px;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.lucid-landing .mission-lede em { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.lucid-landing .mission-mark {
+  display: inline-block;
+  width: 28px; height: 1px;
+  background: var(--ink-3);
+  vertical-align: middle;
+  margin: 0 0 28px;
+  opacity: .6;
+}
+.lucid-landing .mission-coda {
+  font-weight: 300;
+  font-size: clamp(20px, 1.8vw, 26px);
+  line-height: 1.35;
+  color: var(--ink-2);
+  max-width: 56ch;
+  margin: 0;
+  text-wrap: balance;
+}
+.lucid-landing .mission-coda em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--ink); }
+
+/* Mission timeline */
+.lucid-landing .timeline {
+  margin-top: 120px;
+  border-top: 1px solid var(--rule);
+  padding-top: 32px;
+}
+.lucid-landing .timeline-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+.lucid-landing .timeline-head-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+}
+.lucid-landing .timeline-head-note {
+  font-size: 13px;
+  color: var(--ink-3);
+  max-width: 36ch;
+  text-align: right;
+  text-wrap: balance;
+}
+.lucid-landing .timeline-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0;
+  height: 360px;
+}
+.lucid-landing .timeline-track::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--ink);
+  opacity: .5;
+}
+.lucid-landing .tl-event {
+  position: relative;
+  height: 100%;
+}
+.lucid-landing .tl-content {
+  position: absolute;
+  left: 0;
+  right: 14px;
+}
+.lucid-landing .tl-event.up .tl-content { bottom: calc(50% + 24px); }
+.lucid-landing .tl-event.down .tl-content { top: calc(50% + 24px); }
+.lucid-landing .tl-event::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--ink);
+  transform: translate(-1px, -50%);
+  z-index: 2;
+}
+.lucid-landing .tl-event::after { content: none; }
+.lucid-landing .tl-event.tl-now::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.lucid-landing .tl-year {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+}
+.lucid-landing .tl-event.tl-now .tl-year { color: var(--accent); }
+.lucid-landing .tl-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--ink);
+  margin: 0 0 4px;
+  letter-spacing: -0.005em;
+}
+.lucid-landing .tl-desc {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* ───── Affiliations ───── */
+.lucid-landing .affil-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  margin-bottom: 32px;
+}
+.lucid-landing .affil-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .affil {
+  padding: 36px 24px;
+  border-right: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--ink-2);
+}
+.lucid-landing .affil:last-child { border-right: 0; }
+.lucid-landing .affil-name {
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.lucid-landing .affil-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+}
+
+/* ───── Footer ───── */
+.lucid-landing footer { padding: 80px 0 48px; }
+.lucid-landing .footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 80px;
+}
+.lucid-landing .footer-brand-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  max-width: 18ch;
+  margin: 24px 0 0;
+}
+.lucid-landing .footer-col-head {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  margin-bottom: 18px;
+}
+.lucid-landing .footer-col a {
+  display: block;
+  font-size: 14px;
+  color: var(--ink-2);
+  padding: 6px 0;
+  transition: color .15s;
+}
+.lucid-landing .footer-col a:hover { color: var(--ink); }
+.lucid-landing .footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+}
+
+/* ───── Reveal ───── */
+.lucid-landing .reveal { opacity: 0; transform: translateY(12px); transition: opacity .9s ease, transform .9s ease; }
+.lucid-landing .reveal.in { opacity: 1; transform: none; }
+
+/* ─────────────────────────────────────────────────────────────
+ * Screening page (still under .lucid-landing)
+ * Reuses .hero / .section / .wrap / .btn vocabulary and adds a
+ * handful of screening-specific patterns: collapsing hero, the
+ * sticky sequence summary bar, sample-order list, risk pills.
+ * ───────────────────────────────────────────────────────────── */
+
+.lucid-landing .screen-hero {
+  padding: 96px 0 112px;
+  transition:
+    max-height 900ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 600ms ease,
+    padding 700ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 400ms ease;
+  max-height: 1200px;
+}
+.lucid-landing .screen-hero.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  border-bottom-color: transparent;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.lucid-landing .screen-helix {
+  width: 100%;
+  max-width: min(480px, 80vw);
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border: 1px solid var(--rule);
+  background:
+    radial-gradient(circle at 50% 50%, var(--bg) 0%, var(--bg-2) 100%);
+  overflow: hidden;
+}
+.lucid-landing .screen-helix::before,
+.lucid-landing .screen-helix::after {
+  content: "";
+  position: absolute;
+  background: var(--rule);
+  pointer-events: none;
+}
+.lucid-landing .screen-helix::before { left: 0; right: 0; top: 50%; height: 1px; opacity: .5; }
+.lucid-landing .screen-helix::after { top: 0; bottom: 0; left: 50%; width: 1px; opacity: .5; }
+.lucid-landing .screen-helix canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* Pipeline / Reference block grids that sit beneath the helix.
+ * Each block is a 2x2 grid of hairline cells with a numbered eyebrow,
+ * the step name, and a one-line role. */
+.lucid-landing .screen-pipeline-stack {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+.lucid-landing .screen-pipeline {
+  width: 100%;
+}
+.lucid-landing .screen-pipeline + .screen-pipeline {
+  margin-top: 0;
+}
+.lucid-landing .screen-pipeline-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  padding-bottom: 6px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .screen-pipeline-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.lucid-landing .screen-pipeline-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+}
+.lucid-landing .screen-pipeline-row[data-cols="5"] { --cols: 5; }
+.lucid-landing .screen-pipeline-step {
+  padding: 8px 6px;
+  font-size: 12.5px;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  text-align: center;
+  text-wrap: balance;
+}
+.lucid-landing .screen-pipeline-step:last-child { border-right: 0; }
+.lucid-landing .screen-pipeline-step-num {
+  display: inline-block;
+  margin-right: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  vertical-align: 1px;
+}
+.lucid-landing .screen-pipeline-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .screen-pipeline-cell:nth-child(odd) { padding-right: 16px; }
+.lucid-landing .screen-pipeline-cell:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--rule); }
+.lucid-landing .screen-pipeline-cell:nth-last-child(-n+2) { border-bottom: 0; }
+.lucid-landing .screen-pipeline-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.lucid-landing .screen-pipeline-name {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.lucid-landing .screen-pipeline-role {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sticky sequence summary that replaces the hero after submit */
+.lucid-landing .screen-seqbar {
+  position: sticky;
+  z-index: 40;
+  background: color-mix(in oklch, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .screen-seqbar-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 18px 0;
+}
+.lucid-landing .screen-seqbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+}
+.lucid-landing .screen-seqbar-meta .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.lucid-landing .screen-seqbar-seq {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+.lucid-landing .screen-seqbar-edit {
+  margin-top: 14px;
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+.lucid-landing .screen-seqbar-edit textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  resize: vertical;
+  outline: none;
+  transition: border-color .2s;
+}
+.lucid-landing .screen-seqbar-edit textarea:focus { border-color: var(--ink); }
+
+.lucid-landing .btn-mini {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 28px; padding: 0 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  border-radius: 999px;
+  transition: all .2s;
+}
+.lucid-landing .btn-mini-outline { border: 1px solid var(--rule); color: var(--ink-2); }
+.lucid-landing .btn-mini-outline:hover { border-color: var(--ink); color: var(--ink); }
+.lucid-landing .btn-mini-solid { background: var(--ink); color: var(--bg); border: 1px solid var(--ink); }
+.lucid-landing .btn-mini-solid:hover { background: transparent; color: var(--ink); }
+
+/* Sample orders grid */
+.lucid-landing .sample-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .sample-card {
+  display: flex; flex-direction: column; gap: 14px;
+  text-align: left;
+  padding: 32px 28px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+  transition: background .25s, transform .25s;
+  cursor: pointer;
+  position: relative;
+}
+.lucid-landing .sample-card:hover { background: var(--bg-2); }
+.lucid-landing .sample-card:nth-child(3n) { border-right: 0; }
+.lucid-landing .sample-card.is-active { background: var(--bg-2); }
+.lucid-landing .sample-card.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ink);
+  pointer-events: none;
+}
+.lucid-landing .sample-card-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+}
+.lucid-landing .sample-card-name {
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.25;
+}
+.lucid-landing .sample-card-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0;
+}
+.lucid-landing .sample-card-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.lucid-landing .sample-card-launch {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color .2s;
+}
+.lucid-landing .sample-card-launch .arr { transition: transform .25s; }
+.lucid-landing .sample-card:hover .sample-card-launch { color: var(--ink); }
+.lucid-landing .sample-card:hover .sample-card-launch .arr { transform: translateX(3px); }
+
+.lucid-landing .risk-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 4px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+}
+.lucid-landing .risk-pill::before {
+  content: "";
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor;
+}
+.lucid-landing .risk-high { color: var(--danger); }
+.lucid-landing .risk-medium { color: oklch(60% 0.11 75); }
+.lucid-landing .risk-low { color: oklch(52% 0.08 160); }
+
+.lucid-landing .section-meta-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  margin-bottom: 32px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.lucid-landing .section-meta-row button {
+  color: var(--ink-3);
+  transition: color .2s;
+}
+.lucid-landing .section-meta-row button:hover { color: var(--ink); }
+
+/* ─────────────────────────────────────────────────────────────
+ * Responsive breakpoints
+ *  ≥ 1200px   default desktop / large laptop
+ *  ≤ 1200px   small laptop tweaks (tighter gutters, looser columns)
+ *  ≤ 1024px   iPad landscape — collapse hero side, narrow section columns
+ *  ≤  900px   iPad portrait & below — stack hero/sections, 2-up samples
+ *  ≤  640px   phones — single column everywhere, compact chrome
+ *  ≤  420px   small phones — minimum padding
+ * ─────────────────────────────────────────────────────────────── */
+
+/* Small laptops (≤ 1200px): tighten the wide product/footer grids. */
+@media (max-width: 1200px) {
+  .lucid-landing .footer-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 32px;
+  }
+  .lucid-landing .product {
+    grid-template-columns: 140px 1.2fr 1fr 140px;
+  }
+}
+
+/* iPad landscape (≤ 1024px). */
+@media (max-width: 1024px) {
+  .lucid-landing .nav-links { gap: 20px; font-size: 13.5px; }
+  .lucid-landing .section-head { grid-template-columns: 160px 1fr; gap: 32px; }
+  .lucid-landing .product-group-head { grid-template-columns: 160px 1fr; gap: 32px; }
+
+  /* The hero radar (landing) and helix (screening) are desktop-only
+   * decorative flourishes. Below laptop widths they shrink past the
+   * point of legibility and compete with the headline for space, so we
+   * drop them and let the hero text take the full column. Both elements
+   * are aria-hidden, so removing them has no accessibility consequence. */
+  .lucid-landing .hero-grid { grid-template-columns: 1fr; gap: 0; }
+  .lucid-landing .hero-side { display: none; }
+  .lucid-landing .hero-sub { max-width: 56ch; }
+  .lucid-landing .screen-helix { display: none; }
+  .lucid-landing .product {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+    align-items: start;
+    padding: 36px 0;
+  }
+  .lucid-landing .product-tag { padding-top: 0; justify-self: start; grid-column: 1 / -1; }
+  .lucid-landing .product-desc { grid-column: 1 / -1; max-width: 60ch; }
+  .lucid-landing .product-launch { justify-self: start; padding-top: 0; grid-column: 1 / -1; }
+  .lucid-landing .sample-grid { grid-template-columns: repeat(2, 1fr); }
+  .lucid-landing .sample-card:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .lucid-landing .sample-card:nth-child(2n) { border-right: 0; }
+  .lucid-landing .timeline-track { grid-template-columns: repeat(5, 1fr); height: auto; min-height: 320px; }
+  .lucid-landing .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .lucid-landing .screen-pipeline-grid { grid-template-columns: 1fr; }
+  .lucid-landing .screen-pipeline-cell:nth-child(odd) { padding-right: 0; }
+  .lucid-landing .screen-pipeline-cell:nth-child(even) { padding-left: 0; border-left: 0; }
+}
+
+/* Tablet portrait & below (≤ 900px): stack hero, sections, footer. */
+@media (max-width: 900px) {
+  .lucid-landing .screen-hero { padding: 56px 0 64px; }
+
+  .lucid-landing .hero-grid,
+  .lucid-landing .section-head,
+  .lucid-landing .product-group-head { grid-template-columns: 1fr; gap: 28px; }
+  .lucid-landing .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
+
+  .lucid-landing .hero-side { align-items: flex-start; }
+  .lucid-landing .ambient-meta { text-align: left; }
+  .lucid-landing .ambient-meta .row { min-width: 0; }
+
+  .lucid-landing .affil-row { grid-template-columns: repeat(2, 1fr); }
+  .lucid-landing .affil:nth-child(2n) { border-right: 0; }
+  .lucid-landing .affil:nth-child(1),
+  .lucid-landing .affil:nth-child(2) { border-bottom: 1px solid var(--rule); }
+
+  .lucid-landing .timeline-head { flex-direction: column; align-items: flex-start; }
+  .lucid-landing .timeline-head-note { text-align: left; }
+  .lucid-landing .timeline-track {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-left: 18px;
+    padding-top: 0;
+    height: auto;
+  }
+  .lucid-landing .timeline-track::before {
+    top: 0; bottom: 0; left: 4px; right: auto;
+    width: 1px; height: auto;
+  }
+  .lucid-landing .tl-event { padding: 0 0 0 18px; height: auto; }
+  .lucid-landing .tl-content { position: static; right: auto; }
+  .lucid-landing .tl-event.up .tl-content,
+  .lucid-landing .tl-event.down .tl-content { bottom: auto; top: auto; }
+  .lucid-landing .tl-event::before { top: 4px; left: -18px; transform: none; }
+  .lucid-landing .tl-year { margin: 0 0 4px; }
+
+  /* Screening: pipeline can wrap and stack, sticky bar relaxes. */
+  .lucid-landing .screen-pipeline-row { grid-template-columns: repeat(3, 1fr); }
+  .lucid-landing .screen-pipeline-step {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .lucid-landing .screen-pipeline-step:nth-child(3n) { border-right: 0; }
+
+  .lucid-landing .screen-seqbar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+}
+
+/* Phones (≤ 640px). */
+@media (max-width: 640px) {
+  .lucid-landing { font-size: 15px; }
+
+  .lucid-landing .nav-inner { grid-template-columns: 1fr auto; height: 56px; }
+  .lucid-landing .nav-links { display: none; }
+  .lucid-landing .nav-cta .btn { height: 32px; padding: 0 12px; font-size: 12.5px; }
+
+  .lucid-landing .hero-cta { flex-wrap: wrap; gap: 10px; }
+  .lucid-landing .hero-cta .btn { flex: 1 1 auto; justify-content: center; min-width: 0; }
+  .lucid-landing .hero-sub { font-size: 16px; max-width: none; margin-bottom: 28px; }
+
+  .lucid-landing .section-num { padding-top: 0; }
+
+  .lucid-landing .product { grid-template-columns: 1fr; gap: 10px; padding: 28px 0; }
+  .lucid-landing .product-name { font-size: 21px; }
+  .lucid-landing .product-desc { font-size: 14.5px; }
+
+  .lucid-landing .sample-grid { grid-template-columns: 1fr; }
+  .lucid-landing .sample-card,
+  .lucid-landing .sample-card:nth-child(2n),
+  .lucid-landing .sample-card:nth-child(3n) {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .lucid-landing .sample-card { padding: 24px 20px; }
+
+  .lucid-landing .affil-row { grid-template-columns: 1fr; }
+  .lucid-landing .affil { border-right: 0; border-bottom: 1px solid var(--rule); padding: 24px 16px; }
+  .lucid-landing .affil:last-child { border-bottom: 0; }
+
+  .lucid-landing .footer-grid { grid-template-columns: 1fr; gap: 32px; margin-bottom: 48px; }
+  .lucid-landing footer { padding: 56px 0 32px; }
+  .lucid-landing .footer-bottom { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .lucid-landing .footer-brand-text { font-size: 24px; max-width: none; }
+
+  .lucid-landing .screen-pipeline-row { grid-template-columns: repeat(2, 1fr); }
+  .lucid-landing .screen-pipeline-step:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .lucid-landing .screen-pipeline-step:nth-child(2n) { border-right: 0; }
+
+  .lucid-landing .screen-seqbar-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 10px;
+  }
+  .lucid-landing .screen-seqbar-seq { font-size: 12px; }
+  .lucid-landing .screen-seqbar-edit textarea { min-height: 96px; font-size: 12.5px; }
+
+  .lucid-landing .section-meta-row {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .lucid-landing .timeline { margin-top: 72px; }
+}
+
+/* Small phones (≤ 420px). */
+@media (max-width: 420px) {
+  .lucid-landing .brand { font-size: 14px; gap: 8px; }
+  .lucid-landing .nav-cta .btn { height: 30px; padding: 0 10px; font-size: 12px; }
+  .lucid-landing .hero-cta { flex-direction: column; align-items: stretch; }
+  .lucid-landing .hero-cta .btn { width: 100%; }
+  .lucid-landing .screen-pipeline-row { grid-template-columns: 1fr; }
+  .lucid-landing .screen-pipeline-step,
+  .lucid-landing .screen-pipeline-step:nth-child(2n),
+  .lucid-landing .screen-pipeline-step:nth-child(3n) {
+    border-right: 0;
+  }
+}

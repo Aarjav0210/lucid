@@ -273,20 +273,25 @@ export function LiveScreening({ onSequenceSubmit, stickyOffset = 0 }: LiveScreen
       )}
 
       {errorMessage && (
-        <div className="bg-bauhaus-red/5 border-2 border-bauhaus-red p-4 mb-6">
-          <p className="text-xs font-medium text-bauhaus-red">{errorMessage}</p>
+        <div
+          className="px-4 py-3 mb-6 border bg-[color:var(--lc-danger-soft)]"
+          style={{
+            borderColor: "color-mix(in oklch, var(--lc-danger) 35%, transparent)",
+          }}
+        >
+          <p className="text-[13px] text-[color:var(--lc-danger)]">{errorMessage}</p>
         </div>
       )}
 
       {scanningDomains && (
-        <div className="space-y-1">
-          <p className="text-xs font-bold uppercase tracking-widest text-bauhaus-black/40 mb-4">
-            Structural Domain Identification
+        <div className="space-y-3">
+          <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-3)]">
+            Domain identification
           </p>
-          <div className="bg-white border-2 border-bauhaus-black shadow-[4px_4px_0px_0px_#121212] px-6 py-5 flex items-center gap-3">
-            <Loader2 className="w-4 h-4 text-bauhaus-blue animate-spin" />
-            <span className="text-sm font-medium text-bauhaus-black/60">
-              Running InterPro domain scan...
+          <div className="bg-[color:var(--lc-bg)] border border-[color:var(--lc-rule)] px-6 py-5 flex items-center gap-3">
+            <Loader2 className="w-4 h-4 text-[color:var(--lc-accent)] animate-spin" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--lc-ink-2)]">
+              Running InterPro domain scan…
             </span>
           </div>
         </div>
