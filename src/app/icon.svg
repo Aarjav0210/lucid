@@ -1,16 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#FFFFFF" />
-  <text
-    x="50%"
-    y="52%"
-    text-anchor="middle"
-    dominant-baseline="middle"
-    font-family="Outfit, sans-serif"
-    font-size="360"
-    font-weight="900"
-    letter-spacing="-0.04em"
-    fill="#121212"
-  >
-    L
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- Mirrors the .brand-mark in src/components/landing/landing.css:
+       outer ring (1px) · inner ring inset 4px (1px) · accent dot inset 9px.
+       viewBox is padded ~3px on each side so the icon doesn't touch its edges. -->
+  <rect width="28" height="28" fill="#FFFFFF" />
+  <circle cx="14" cy="14" r="10.5" fill="none" stroke="#1F2630" stroke-width="1" />
+  <circle cx="14" cy="14" r="7"    fill="none" stroke="#1F2630" stroke-width="1" />
+  <circle cx="14" cy="14" r="2"    fill="#3E8FB3" />
 </svg>
