@@ -12,6 +12,8 @@
 .env*.local
 
 # cached predictions and databases
+*cache*
+/data
 /data/pdb/
 /data/foldseek/
 /data/diamond/
